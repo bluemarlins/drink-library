@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
+    implementation(project(":design-system"))
     implementation(libs.chrisbanes.haze)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
