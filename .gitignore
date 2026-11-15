@@ -18,3 +18,6 @@ local.properties
 
 # Agent scratch output (Antigravity/Claude working files, not project docs)
 /.artifacts/
+
+# Local-only seed data and images (bundled into APK on local build, not tracked in git)
+/app/src/main/assets/local_seed/

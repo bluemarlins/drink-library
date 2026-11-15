@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.bluemarlin.drinkdiary.data.local.AssetBottleDictionary
 import com.bluemarlin.drinkdiary.data.local.DrinkDiaryDatabase
+import com.bluemarlin.drinkdiary.data.local.LocalSeedLoader
 import com.bluemarlin.drinkdiary.data.local.MIGRATION_2_3
 import com.bluemarlin.drinkdiary.data.repository.DrinkRecordRepositoryImpl
 import com.bluemarlin.drinkdiary.data.repository.UserPreferencesRepositoryImpl
@@ -52,4 +53,5 @@ class AppContainer(
 
     val observeTagPreferenceUseCase = ObserveTagPreferenceUseCase(drinkRecordRepository, bottleDictionary)
     val resolveProfileReadinessUseCase = ResolveProfileReadinessUseCase()
+    val localSeedLoader = LocalSeedLoader(application, drinkRecordRepository)
 }
