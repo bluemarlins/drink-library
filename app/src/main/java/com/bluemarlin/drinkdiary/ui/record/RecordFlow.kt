@@ -4,14 +4,9 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,6 +20,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bluemarlin.drinkdiary.DrinkDiaryApplication
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
+import com.bluemarlin.drinkdiary.ui.component.DDDivider
+import com.example.ds.component.AuraButton
+import com.example.ds.component.AuraButtonSize
+import com.example.ds.component.AuraButtonVariant
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 private enum class Step { PickDrink, Probes, Detail, Saved }
 
@@ -92,7 +93,16 @@ fun RecordFlow(modifier: Modifier = Modifier) {
 
     state.error?.let {
         // 저장 실패는 조용히 넘기지 않는다(harness.md §7).
-        Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(20.dp))
+        val layout = AuraTheme.layout
+        AuraText(
+            it,
+            color = AuraTheme.colors.status.error.solid,
+            modifier =
+                Modifier.padding(
+                    horizontal = layout.screenMarginHorizontal,
+                    vertical = layout.screenMarginVertical,
+                ),
+        )
     }
 }
 
@@ -105,36 +115,44 @@ private fun RecordSaved(
     onRestart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val layout = AuraTheme.layout
     Column(
         modifier =
             modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(
+                    horizontal = layout.screenMarginHorizontal,
+                    vertical = layout.screenMarginVertical,
+                ),
+        verticalArrangement = Arrangement.spacedBy(layout.gridGutter),
     ) {
-        Text("기록했습니다.", style = MaterialTheme.typography.headlineSmall)
-        Text("취향 입력은 탭 ${taps}번으로 끝났습니다.", style = MaterialTheme.typography.bodyLarge)
-        Text(
+        AuraText("기록했습니다.", style = AuraTheme.typography.headlineSmall)
+        AuraText("취향 입력은 탭 ${taps}번으로 끝났습니다.", style = AuraTheme.typography.bodyLarge)
+        AuraText(
             // '보통'을 뺀 개수를 말하되 그것이 버려졌다는 인상을 주지 않는다 — 판정에는 다 쓰인다.
             text = "뚜렷한 인상을 남긴 축 ${leaning}개.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = AuraTheme.typography.bodyMedium,
+            color = AuraTheme.colors.content.secondary,
         )
-        Text(
+        AuraText(
             text = "유형은 한 잔으로 나오지 않습니다. 기록이 쌓여 대비가 생겨야 판정됩니다.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = AuraTheme.typography.bodySmall,
+            color = AuraTheme.colors.content.secondary,
         )
         // 첫 기록 직후 한 번만. 이미 가치를 받은 뒤라 마찰로 느껴지지 않고,
         // 이 시점의 사용자는 방금 흐름을 겪어서 무엇을 묻는 건지 안다(prd.md S1).
         if (askTagPreference) {
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            DDDivider(modifier = Modifier.padding(vertical = 8.dp))
             TagPreferencePrompt(onConfirm = onChooseTags)
         } else {
-            Card(onClick = onRestart, modifier = Modifier.fillMaxWidth()) {
-                Text("한 잔 더 기록하기", modifier = Modifier.padding(20.dp))
-            }
+            AuraButton(
+                text = "한 잔 더 기록하기",
+                onClick = onRestart,
+                variant = AuraButtonVariant.Secondary,
+                size = AuraButtonSize.Large,
+                fullWidth = true,
+            )
         }
     }
 }

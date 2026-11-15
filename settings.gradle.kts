@@ -21,5 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "DrinkDiary"
 include(":app")
-include(":design-system")
- 

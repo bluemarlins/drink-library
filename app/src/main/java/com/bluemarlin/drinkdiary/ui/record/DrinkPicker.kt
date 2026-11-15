@@ -1,16 +1,11 @@
 package com.bluemarlin.drinkdiary.ui.record
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,6 +14,11 @@ import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.domain.model.WhiskyStyle
 import com.bluemarlin.drinkdiary.domain.model.WineColor
+import com.example.ds.component.AuraCard
+import com.example.ds.component.AuraCardPadding
+import com.example.ds.component.AuraCardVariant
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 // 첫 질문 하나로 주종과 분류를 함께 받는다.
 //
@@ -76,11 +76,18 @@ fun DrinkPicker(
     onPick: (DrinkChoice) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val layout = AuraTheme.layout
     Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(
+                    horizontal = layout.screenMarginHorizontal,
+                    vertical = layout.screenMarginVertical,
+                ),
+        verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
     ) {
-        Text("무엇을 마셨나요?", style = MaterialTheme.typography.headlineSmall)
+        AuraText("무엇을 마셨나요?", style = AuraTheme.typography.headlineSmall)
 
         ChoiceGroup(title = "와인", choices = wineChoices, onPick = onPick)
         ChoiceGroup(title = "위스키", choices = whiskeyChoices, onPick = onPick)
@@ -94,10 +101,10 @@ private fun ChoiceGroup(
     onPick: (DrinkChoice) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(
+        AuraText(
             text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = AuraTheme.typography.titleSmall,
+            color = AuraTheme.colors.content.secondary,
         )
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
@@ -105,18 +112,14 @@ private fun ChoiceGroup(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             choices.forEach { choice ->
-                Card(
+                AuraCard(
                     onClick = { onPick(choice) },
-                    shape = MaterialTheme.shapes.medium,
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                        ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    variant = AuraCardVariant.Outlined,
+                    padding = AuraCardPadding.None,
                 ) {
-                    Text(
+                    AuraText(
                         text = choice.label,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = AuraTheme.typography.titleMedium,
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp),
                     )
                 }

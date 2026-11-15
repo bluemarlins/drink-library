@@ -429,6 +429,7 @@ Billing 연동은 Phase 3(가장 마지막)으로 이동. Phase 1은 순수 기�
 | P2-7 | 커스텀 테마/위젯 | — | todo | | 착수 안 함, 우선순위 최하 |
 | P2-8 | Phase 2 통합 리뷰 + 전체 회귀 테스트 + 실기기 설치 검증 | Claude | todo | | 착수 안 함. P2-3 최종 게이트 확인부터 시작 |
 | P2-11 | (계획 외 추가) 디자인 시스템 개정 및 모션/인터랙션 고도화 | agy | done | | `specs/designer/design-system.md` 전면 승격 및 앱 UI 디자인 시스템 적용 완료 (ktlint/unit test/lint 통과) |
+| P2-12 | Aura Design System 1.0.0 로컬 AAR 완전 전환 및 Material 3/Haze 제거 | Antigravity | done | (현재 작업) | `app/libs/aura-design-system-1.0.0.aar` 로컬 참조, 0.5 단위 별점(`allowHalfRating = true`), 전 UI Aura 컴포넌트 교체, 충돌 문서(`design-system.md`/`branding.md`/`harness.md`) 통일 및 대체 불가(Gap) 목록 정리 |
 
 ## Phase 3 — Billing 연동 (최종 단계)
 

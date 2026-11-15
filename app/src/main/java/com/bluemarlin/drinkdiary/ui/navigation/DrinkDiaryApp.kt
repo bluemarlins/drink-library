@@ -4,11 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -17,13 +12,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bluemarlin.drinkdiary.DrinkDiaryApplication
+import com.bluemarlin.drinkdiary.R
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.collection.CollectionScreen
 import com.bluemarlin.drinkdiary.ui.collection.CollectionViewModel
 import com.bluemarlin.drinkdiary.ui.collection.RecordDetailScreen
+import com.bluemarlin.drinkdiary.ui.component.DDSnackbarHost
+import com.bluemarlin.drinkdiary.ui.component.DDSnackbarState
 import com.bluemarlin.drinkdiary.ui.profile.ProfileScreen
 import com.bluemarlin.drinkdiary.ui.profile.ProfileViewModel
 import com.bluemarlin.drinkdiary.ui.record.EditRecordScreen
@@ -31,6 +32,9 @@ import com.bluemarlin.drinkdiary.ui.record.EditRecordViewModel
 import com.bluemarlin.drinkdiary.ui.record.RecordFlow
 import com.bluemarlin.drinkdiary.ui.settings.SettingsScreen
 import com.bluemarlin.drinkdiary.ui.settings.SettingsViewModel
+import com.example.ds.component.AuraIcon
+import com.example.ds.component.AuraIconButton
+import com.example.ds.component.AuraIconButtonVariant
 
 private sealed interface Screen {
     data object Dashboard : Screen
@@ -50,13 +54,17 @@ private sealed interface Screen {
     data object Settings : Screen
 }
 
-// 재정의 진행 중 — F3(취향 요약)와 F1(컬렉션)이 최상위, 기록은 FAB로 진입한다.
+// 재정의 진행 중 — F3(취향 요약)와 F1(컬렉션)이 최상위, 기록은 FloatingBottomIsland 분할 액션으로 진입한다.
 // lookup/share/settings 는 software-architecture.md 6절에 따라 이어 붙인다.
 @Composable
 fun DrinkDiaryApp(modifier: Modifier = Modifier) {
     val appContainer = (LocalContext.current.applicationContext as DrinkDiaryApplication).appContainer
     var screen by remember { mutableStateOf<Screen>(Screen.Dashboard) }
-    val snackbar = remember { SnackbarHostState() }
+    val snackbar = remember { DDSnackbarState() }
+
+    LaunchedEffect(appContainer) {
+        appContainer.localSeedLoader.seedIfNeeded()
+    }
 
     val collectionViewModel: CollectionViewModel =
         viewModel(factory = CollectionViewModel.Factory(appContainer.drinkRecordRepository))
@@ -82,7 +90,9 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             }
     }
 
-    val host: @Composable () -> Unit = { SnackbarHost(snackbar) }
+    val host: @Composable (Dp) -> Unit = { bottomClearance ->
+        DDSnackbarHost(state = snackbar, bottomPadding = bottomClearance)
+    }
 
     when (val current = screen) {
         Screen.Dashboard -> {
@@ -106,13 +116,24 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 // 설정은 하단 탭이 아니라 툴바에 둔다. 탭은 매일 오가는 곳이고
                 // 설정은 한 번 정하면 다시 안 오는 곳이다.
                 toolbarActions = {
-                    TextButton(onClick = { screen = Screen.Settings }) { Text("설정") }
+                    AuraIconButton(
+                        onClick = { screen = Screen.Settings },
+                        contentDescription = "설정",
+                        variant = AuraIconButtonVariant.Ghost,
+                        icon = {
+                            AuraIcon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_settings),
+                                contentDescription = null,
+                            )
+                        },
+                    )
                 },
             ) { padding ->
                 ProfileScreen(
                     state = profile,
                     onScopeChange = profileViewModel::selectScope,
-                    modifier = modifier.padding(padding),
+                    contentPadding = padding,
+                    modifier = modifier,
                 )
             }
         }
@@ -235,7 +256,7 @@ private fun TopLevel(
     tab: DDTopLevelTab,
     onTabChange: (Screen) -> Unit,
     onAdd: () -> Unit,
-    snackbarHost: @Composable () -> Unit,
+    snackbarHost: @Composable (Dp) -> Unit,
     toolbarActions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -246,9 +267,7 @@ private fun TopLevel(
         selectedTab = tab,
         onDashboardClick = { onTabChange(Screen.Dashboard) },
         onCollectionClick = { onTabChange(Screen.Collection) },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAdd) { Text("+") }
-        },
+        onAddClick = onAdd,
         toolbarActions = toolbarActions,
         snackbarHost = snackbarHost,
         content = content,

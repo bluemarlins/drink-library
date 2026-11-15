@@ -1,6 +1,5 @@
 package com.bluemarlin.drinkdiary.ui.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,17 +8,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.record.ProbeCopy
+import com.bluemarlin.drinkdiary.ui.theme.DDShape
+import com.example.ds.component.AuraCard
+import com.example.ds.component.AuraCardVariant
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 @Composable
 fun DDProbeQuestion(
@@ -30,12 +29,12 @@ fun DDProbeQuestion(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(AuraTheme.layout.sectionSpacing),
     ) {
-        Text(
+        AuraText(
             text = copy.question,
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
+            style = AuraTheme.typography.headlineSmall,
+            color = AuraTheme.colors.content.primary,
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -53,51 +52,22 @@ fun DDProbeQuestion(
                 )
 
             options.forEach { (answer, label) ->
-                val isSelected = selected == answer
-                val containerColor =
-                    if (isSelected) {
-                        MaterialTheme.colorScheme.primaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.surface
-                    }
-                val contentColor =
-                    if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
-                val borderColor =
-                    if (isSelected) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.outlineVariant
-                    }
-
-                Card(
+                AuraCard(
                     onClick = { onSelect(answer) },
                     modifier =
                         Modifier
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = 56.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = containerColor,
-                            contentColor = contentColor,
-                        ),
-                    border = BorderStroke(1.dp, borderColor),
+                    variant = AuraCardVariant.Outlined,
+                    selected = selected == answer,
                 ) {
                     Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .defaultMinSize(minHeight = 56.dp)
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 32.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
-                        Text(
+                        AuraText(
                             text = label,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = AuraTheme.typography.bodyLarge,
                         )
                     }
                 }
@@ -123,9 +93,9 @@ fun DDProbeProgress(
         repeat(safeTotal) { index ->
             val color =
                 if (index < safeCurrent) {
-                    MaterialTheme.colorScheme.primary
+                    AuraTheme.colors.brand.primary
                 } else {
-                    MaterialTheme.colorScheme.surfaceVariant
+                    AuraTheme.colors.surface.sunken
                 }
             Box(
                 modifier =
@@ -134,7 +104,7 @@ fun DDProbeProgress(
                         .height(4.dp)
                         .background(
                             color = color,
-                            shape = MaterialTheme.shapes.extraSmall,
+                            shape = DDShape.extraSmall,
                         ),
             )
         }

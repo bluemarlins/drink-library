@@ -4,14 +4,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
+import com.bluemarlin.drinkdiary.ui.component.DDDivider
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 // 기록 작성과 **같은 폼**을 쓴다. 취향 편집만 슬롯으로 끼워 넣는다 —
 // 작성 경로는 마법사가 이미 물었으므로 그 자리를 비워 둔다.
@@ -24,17 +23,36 @@ fun EditRecordScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
+    val layout = AuraTheme.layout
     if (!state.loaded) {
-        Column(modifier = modifier.fillMaxWidth().padding(contentPadding).padding(20.dp)) {
-            Text("기록을 불러오는 중이에요.", style = MaterialTheme.typography.bodyLarge)
+        Column(
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .padding(contentPadding)
+                    .padding(
+                        horizontal = layout.screenMarginHorizontal,
+                        vertical = layout.screenMarginVertical,
+                    ),
+        ) {
+            AuraText("기록을 불러오는 중이에요.", style = AuraTheme.typography.bodyLarge)
         }
         return
     }
 
     if (state.missing) {
         // 목록에서 이미 지워졌을 수 있다. 빈 폼을 보여주면 저장할 때 **새 기록이 생긴다.**
-        Column(modifier = modifier.fillMaxWidth().padding(contentPadding).padding(20.dp)) {
-            Text("이 기록을 찾을 수 없어요.", style = MaterialTheme.typography.bodyLarge)
+        Column(
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .padding(contentPadding)
+                    .padding(
+                        horizontal = layout.screenMarginHorizontal,
+                        vertical = layout.screenMarginVertical,
+                    ),
+        ) {
+            AuraText("이 기록을 찾을 수 없어요.", style = AuraTheme.typography.bodyLarge)
         }
         return
     }
@@ -49,7 +67,7 @@ fun EditRecordScreen(
         modifier = modifier.padding(contentPadding),
         saveLabel = "고친 내용 저장",
         tasteSection = {
-            HorizontalDivider()
+            DDDivider()
             TasteEditor(taste = state.taste, onAnswer = onAnswer)
         },
     )

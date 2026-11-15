@@ -3,23 +3,16 @@ package com.bluemarlin.drinkdiary.ui.record
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,15 +21,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.ServingStyle
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
-import com.bluemarlin.drinkdiary.ui.component.DDPrimaryButton
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
+import com.bluemarlin.drinkdiary.ui.theme.DDShape
+import com.example.ds.component.AuraButton
+import com.example.ds.component.AuraButtonSize
+import com.example.ds.component.AuraButtonVariant
+import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraNumberField
+import com.example.ds.component.AuraRatingBar
+import com.example.ds.component.AuraRatingBarSize
+import com.example.ds.component.AuraSegmentedButton
+import com.example.ds.component.AuraText
+import com.example.ds.component.AuraTextField
+import com.example.ds.component.AuraTextFieldVariant
+import com.example.ds.foundation.theme.AuraTheme
 
 // 취향 입력 이후 단계. 이름과 만족도만 필수이고 나머지는 접어둔다 —
 // 기본 경로를 무겁게 만들면 F2에서 지킨 마찰 예산이 여기서 무너진다.
@@ -62,55 +66,76 @@ fun RecordDetailStep(
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) onFormChange(form.copy(imageUri = uri.toString()))
         }
+    val layout = AuraTheme.layout
 
     Column(
-        modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = layout.screenMarginHorizontal,
+                    vertical = layout.screenMarginVertical,
+                ),
+        verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
     ) {
-        Text("무엇이었나요?", style = MaterialTheme.typography.headlineSmall)
+        AuraText("무엇이었나요?", style = AuraTheme.typography.headlineSmall)
 
-        OutlinedTextField(
+        AuraTextField(
             value = form.name,
             onValueChange = { onFormChange(form.copy(name = it)) },
-            label = { Text("이름") },
+            label = "이름",
+            placeholder = "술 이름을 입력하세요",
+            supportingText = if (form.name.isBlank()) "이름을 입력하면 저장할 수 있어요" else null,
             singleLine = true,
-            isError = form.name.isBlank(),
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Text("얼마나 좋았나요?", style = MaterialTheme.typography.titleMedium)
-        RatingPicker(
-            rating = form.rating,
-            onRatingChange = { onFormChange(form.copy(rating = it)) },
+        AuraRatingBar(
+            rating = form.rating.toFloat(),
+            onRatingChange = { onFormChange(form.copy(rating = it.toDouble())) },
+            maxStars = 5,
+            allowHalfRating = true,
+            size = AuraRatingBarSize.Large,
+            label = "얼마나 좋았나요?",
+            showValueText = true,
         )
 
-        Text("다시 살 건가요?", style = MaterialTheme.typography.titleMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            CollectionStatus.entries.forEach { status ->
-                FilterChip(
-                    selected = form.collectionStatus == status,
-                    onClick = { onFormChange(form.copy(collectionStatus = status)) },
-                    label = { Text(DrinkLabels.collectionStatus(status)) },
-                )
-            }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            AuraText("다시 살 건가요?", style = AuraTheme.typography.titleMedium)
+            val statuses = CollectionStatus.entries
+            AuraSegmentedButton(
+                options = statuses.map(DrinkLabels::collectionStatus),
+                selectedIndex = statuses.indexOf(form.collectionStatus).coerceAtLeast(0),
+                onOptionSelected = { index ->
+                    onFormChange(form.copy(collectionStatus = statuses[index]))
+                },
+                fullWidth = true,
+            )
         }
 
         tasteSection()
 
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            TextButton(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(layout.gridGutter),
+        ) {
+            AuraButton(
+                text = if (form.imageUri == null) "사진 넣기" else "사진 바꾸기",
                 onClick = {
                     photoPicker.launch(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                     )
                 },
-            ) { Text(if (form.imageUri == null) "사진 넣기" else "사진 바꾸기") }
+                variant = AuraButtonVariant.Outline,
+                size = AuraButtonSize.Small,
+            )
 
             form.imageUri?.let {
                 DDUriImage(
                     imageUri = it,
                     contentDescription = "선택한 사진",
-                    modifier = Modifier.size(64.dp).clip(MaterialTheme.shapes.small),
+                    modifier = Modifier.size(64.dp).clip(DDShape.small),
                 )
             }
         }
@@ -123,9 +148,12 @@ fun RecordDetailStep(
             title = null,
         )
 
-        TextButton(onClick = { expanded = !expanded }) {
-            Text(if (expanded) "덜 남기기" else "더 남기기 (선택)")
-        }
+        AuraButton(
+            text = if (expanded) "덜 남기기" else "더 남기기 (선택)",
+            onClick = { expanded = !expanded },
+            variant = AuraButtonVariant.Ghost,
+            size = AuraButtonSize.Small,
+        )
 
         if (expanded) {
             OptionalFields(
@@ -136,67 +164,19 @@ fun RecordDetailStep(
             )
         }
 
-        DDPrimaryButton(
+        AuraButton(
             text = if (saving) "저장 중" else saveLabel,
             onClick = onSave,
+            variant = AuraButtonVariant.Primary,
+            size = AuraButtonSize.Large,
             enabled = form.isSavable && !saving,
-            modifier = Modifier.fillMaxWidth(),
+            loading = saving,
+            fullWidth = true,
         )
     }
 }
 
-@Composable
-private fun RatingPicker(
-    rating: Double,
-    onRatingChange: (Double) -> Unit,
-) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        (1..5).forEach { value ->
-            val selected = rating >= value
-            val containerColor =
-                if (selected) {
-                    MaterialTheme.colorScheme.primaryContainer
-                } else {
-                    MaterialTheme.colorScheme.surface
-                }
-            val contentColor =
-                if (selected) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                }
-            val borderColor =
-                if (selected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.outlineVariant
-                }
-
-            Card(
-                onClick = { onRatingChange(value.toDouble()) },
-                modifier = Modifier.size(56.dp),
-                shape = MaterialTheme.shapes.medium,
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = containerColor,
-                        contentColor = contentColor,
-                    ),
-                border = BorderStroke(1.dp, borderColor),
-            ) {
-                Box(
-                    modifier = Modifier.size(56.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = value.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
-            }
-        }
-    }
-}
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun OptionalFields(
     type: DrinkType,
@@ -204,7 +184,9 @@ private fun OptionalFields(
     foldedTags: List<TagCategory>,
     onFormChange: (RecordForm) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    val layout = AuraTheme.layout
+
+    Column(verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing)) {
         TagPicker(
             type = type,
             tags = form.tags,
@@ -214,50 +196,57 @@ private fun OptionalFields(
 
         // P4 — 같은 이름이 같은 맛을 보장하지 않게 만드는 변수들
         if (type == DrinkType.Wine) {
-            OutlinedTextField(
+            AuraNumberField(
                 value = form.vintage,
                 onValueChange = { onFormChange(form.copy(vintage = it.filter(Char::isDigit).take(4))) },
-                label = { Text("빈티지") },
-                singleLine = true,
-                keyboardOptions =
-                    androidx.compose.foundation.text
-                        .KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = "빈티지",
+                placeholder = "예: 2021",
+                allowDecimals = false,
+                formatThousands = false,
                 modifier = Modifier.fillMaxWidth(),
             )
         } else {
-            Text("어떻게 마셨나요?", style = MaterialTheme.typography.titleSmall)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ServingStyle.entries.forEach { style ->
-                    FilterChip(
-                        selected = form.servingStyle == style,
-                        onClick = { onFormChange(form.copy(servingStyle = style)) },
-                        label = { Text(DrinkLabels.servingStyle(style)) },
-                    )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                AuraText("어떻게 마셨나요?", style = AuraTheme.typography.titleSmall)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    ServingStyle.entries.forEach { style ->
+                        AuraChipButton(
+                            label = DrinkLabels.servingStyle(style),
+                            onClick = { onFormChange(form.copy(servingStyle = style)) },
+                            selected = form.servingStyle == style,
+                        )
+                    }
                 }
             }
         }
 
-        OutlinedTextField(
+        AuraNumberField(
             value = form.price,
             onValueChange = { onFormChange(form.copy(price = it.filter(Char::isDigit))) },
-            label = { Text("가격") },
-            singleLine = true,
-            keyboardOptions =
-                androidx.compose.foundation.text
-                    .KeyboardOptions(keyboardType = KeyboardType.Number),
+            label = "가격",
+            suffixText = "원",
+            allowDecimals = false,
+            formatThousands = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        OutlinedTextField(
+        AuraTextField(
             value = form.place,
             onValueChange = { onFormChange(form.copy(place = it)) },
-            label = { Text("어디에서") },
+            label = "어디에서",
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        OutlinedTextField(
+        AuraTextField(
             value = form.memo,
             onValueChange = { onFormChange(form.copy(memo = it)) },
-            label = { Text("메모") },
+            variant = AuraTextFieldVariant.Paperless,
+            label = "메모",
+            singleLine = false,
+            minLines = 3,
+            maxLines = 6,
             modifier = Modifier.fillMaxWidth(),
         )
     }

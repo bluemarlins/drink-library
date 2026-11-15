@@ -1,6 +1,5 @@
 package com.bluemarlin.drinkdiary.ui.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,18 +7,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.bluemarlin.drinkdiary.ui.theme.DisplayTasteCode
-import com.bluemarlin.drinkdiary.ui.theme.HeadlineSentence
+import com.bluemarlin.drinkdiary.ui.theme.DDShape
+import com.example.ds.component.AuraBadge
+import com.example.ds.component.AuraBadgeVariant
+import com.example.ds.component.AuraCard
+import com.example.ds.component.AuraCardPadding
+import com.example.ds.component.AuraCardVariant
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 @Composable
 fun DDTasteTypeBadge(
@@ -32,24 +32,15 @@ fun DDTasteTypeBadge(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
+        AuraText(
             text = code,
-            style = DisplayTasteCode,
-            color = MaterialTheme.colorScheme.primary,
+            style = AuraTheme.typography.displayMedium,
+            color = AuraTheme.colors.brand.primary,
         )
-        Box(
-            modifier =
-                Modifier
-                    .clip(MaterialTheme.shapes.small)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-        ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        AuraBadge(
+            label = name,
+            variant = AuraBadgeVariant.Neutral,
+        )
     }
 }
 
@@ -59,32 +50,25 @@ fun DDTasteSentenceCard(
     modifier: Modifier = Modifier,
     details: List<String> = emptyList(),
 ) {
-    Card(
+    AuraCard(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        variant = AuraCardVariant.Outlined,
+        padding = AuraCardPadding.Large,
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text(
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            AuraText(
                 text = sentence,
-                style = HeadlineSentence,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = AuraTheme.typography.headlineMedium,
+                color = AuraTheme.colors.content.primary,
             )
 
             if (details.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     details.forEach { detail ->
-                        Text(
+                        AuraText(
                             text = "• $detail",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = AuraTheme.typography.bodyMedium,
+                            color = AuraTheme.colors.content.secondary,
                         )
                     }
                 }
@@ -101,51 +85,61 @@ fun DDProfileProgressCard(
     targetCount: Int,
     modifier: Modifier = Modifier,
 ) {
-    Card(
+    AuraCard(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        variant = AuraCardVariant.Outlined,
+        padding = AuraCardPadding.Large,
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text(
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            AuraText(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = AuraTheme.typography.titleMedium,
+                color = AuraTheme.colors.content.primary,
             )
-            Text(
+            AuraText(
                 text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = AuraTheme.typography.bodyMedium,
+                color = AuraTheme.colors.content.secondary,
             )
 
-            // Progress bar
             val safeTarget = targetCount.coerceAtLeast(1)
-            val progressFraction = (currentCount.toFloat() / safeTarget).coerceIn(0f, 1f)
-
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(6.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-            ) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth(progressFraction)
-                            .height(6.dp)
-                            .clip(MaterialTheme.shapes.small)
-                            .background(MaterialTheme.colorScheme.primary),
-                )
-            }
+            DDProgressBar(fraction = (currentCount.toFloat() / safeTarget).coerceIn(0f, 1f))
         }
     }
+}
+
+// Aura 1.0.0에 LinearProgressIndicator / HorizontalDivider가 없어 토큰 기반 로컬 Gap 컴포넌트를 유지한다.
+@Composable
+fun DDProgressBar(
+    fraction: Float,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(DDShape.small)
+                .background(AuraTheme.colors.surface.sunken),
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth(fraction.coerceIn(0f, 1f))
+                    .height(6.dp)
+                    .clip(DDShape.small)
+                    .background(AuraTheme.colors.brand.primary),
+        )
+    }
+}
+
+@Composable
+fun DDDivider(modifier: Modifier = Modifier) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(AuraTheme.colors.border.subtle),
+    )
 }

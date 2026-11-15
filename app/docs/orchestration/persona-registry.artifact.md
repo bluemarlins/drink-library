@@ -41,7 +41,7 @@
 - **Goal**: 제품의 가치를 시각적으로 전달하고, 최상의 사용 편의성을 제공한다.
 - **Key Focus**: 디자인 시스템(Foundation), UI 레이아웃, 인터랙션(Motion), 브랜드 아이덴티티,
   UX 카피.
-- **Style**: Material 3 가이드를 준수하면서도 '테이스트 아카이브'만의 고유한 감성을 유지한다.
+- **Style**: Aura Design System(`../specs/designer/design-system.md`) 규격을 준수하면서도 '테이스트 아카이브'만의 고유한 감성을 유지한다.
 - **범위 경계**: `../specs/designer/design-system.md`에 정의된 **범위 안에서의 적용**은 위임 가능하다. 디자인 시스템
   자체를 바꾸는 일(새 `DD*` 공용 컴포넌트 추가, 토큰 변경)은 결정 작업이므로 Claude가 판단한다.
 

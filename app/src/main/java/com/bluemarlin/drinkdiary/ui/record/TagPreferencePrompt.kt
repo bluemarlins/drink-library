@@ -3,10 +3,6 @@ package com.bluemarlin.drinkdiary.ui.record
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
+import com.example.ds.component.AuraButton
+import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 // 첫 기록 **직후**에 한 번만 묻는다.
 //
@@ -39,34 +39,36 @@ fun TagPreferencePrompt(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("앞으로 이런 것도 매번 물어볼까요?", style = MaterialTheme.typography.titleMedium)
-        Text(
+        AuraText("앞으로 이런 것도 매번 물어볼까요?", style = AuraTheme.typography.titleMedium)
+        AuraText(
             // 설정 화면이 생겼으므로 이제 이 약속을 지킬 수 있다. 없는 화면을 약속하지 않는다.
             text = "고르지 않으면 지금처럼 '더 남기기' 안에 그대로 있어요. 설정에서 언제든 바꿀 수 있어요.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = AuraTheme.typography.bodySmall,
+            color = AuraTheme.colors.content.secondary,
         )
 
         promotableTags.forEach { (category, hint) ->
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                FilterChip(
+                AuraChipButton(
                     selected = category in selected,
                     onClick = {
                         selected = if (category in selected) selected - category else selected + category
                     },
-                    label = { Text(DrinkLabels.tagCategory(category)) },
+                    label = DrinkLabels.tagCategory(category),
                 )
-                Text(
+                AuraText(
                     text = hint,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = AuraTheme.typography.bodySmall,
+                    color = AuraTheme.colors.content.secondary,
                 )
             }
         }
 
-        Button(onClick = { onConfirm(selected) }, modifier = Modifier.fillMaxWidth()) {
-            // 아무것도 안 고른 것도 대답이다 — 이 버튼을 누르면 다시 묻지 않는다.
-            Text(if (selected.isEmpty()) "이대로 할게요" else "이렇게 물어봐 주세요")
-        }
+        // 아무것도 안 고른 것도 대답이다 — 이 버튼을 누르면 다시 묻지 않는다.
+        AuraButton(
+            text = if (selected.isEmpty()) "이대로 할게요" else "이렇게 물어봐 주세요",
+            onClick = { onConfirm(selected) },
+            fullWidth = true,
+        )
     }
 }

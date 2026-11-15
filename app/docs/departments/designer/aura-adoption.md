@@ -1,36 +1,24 @@
-# Aura Design System 전면 도입 (Designer 초안)
+# Aura Design System 적용 결정 기록
 
-> 상태: **초안 — 사용자 지시로 코드 이행과 병행 진행.** `specs/designer/`로의 승격(= 기존 명세 교체)은 이행 완료 후 별도 기록한다.
+- **대상:** `bluemarlins/aura-design-system` `1.0.0` (`com.example.ds`)
+- **최종 확정일:** 2026-11-15
+- **상태:** 적용 완료 (세부 명세는 [design-system.md](../../../specs/designer/design-system.md)로 승격)
 
-## 결정 (2026-11-15, 사용자 지시)
+## 확정 결정 사항
 
-1. **Aura를 전적으로 도입**하고 충돌하는 기존 디자인 원칙은 수정하거나 폐기한다.
-2. 빌드 버전 상향 (Kotlin 2.2.10, KSP 2.2.10-2.0.2, Compose BOM 2025.02.00).
-3. 아이콘은 자체 제작 Vector Drawable (24dp, 2dp 스트로크, 라운드 캡/조인).
-4. `haze` 의존성 제거 — 글래스 효과는 Aura `GlassSurface` 사용.
-5. Aura `:design-system`을 저장소에 vendoring (`design-system/`, 패키지 `com.example.ds` 유지). 원본 문서는 `aura-upstream/`.
+1. **로컬 AAR 참조 전환:** 초기 `:design-system` 모듈 벤더링을 제거하고 `app/libs/aura-design-system-1.0.0.aar` 로컬 참조로 전환 (`app/build.gradle.kts` + BOM `foundation`/`ui`/`ui-graphics`).
+2. **Material 3 / Haze 완전 제거:** `androidx.compose.material3` 및 `dev.chrisbanes.haze` 의존성과 모든 import 제거.
+3. **충돌 기준 통일 (Aura 우선):**
+   - 기존 Serif `DisplayTasteCode` 예외를 폐기하고 Aura Sans-only (`AuraTheme.typography.displayMedium`, `headlineMedium`)로 통일.
+   - 기존 `ChartWine*` / `ChartWhiskey*` 16진수 상수를 제거하고 `AuraBadgeVariant.Error` / `Warning`으로 통일 (`EVAL-002` 준수).
+   - 하드코딩 여백·패딩을 `AuraTheme.layout`으로 통일.
+4. **별점 0.5 단위 지원:** `AuraRatingBar(allowHalfRating = true)` 및 `DrinkLabels.rating` 적용.
+5. **대체 불가(Gap) 컴포넌트 유지 및 별도 목록화:**
+   - `Snackbar` (`DDSnackbarHost`, `DDSnackbarState`) — Aura 1.0.0에 없음 → 기존 유지
+   - `DDProgressBar`, `DDProbeProgress` — Aura 1.0.0에 ProgressIndicator 없음 → 토큰 유지
+   - `DDDivider` — Aura 1.0.0에 Divider 없음 → `border.subtle` 1dp 유지
+   - `DDUriImage`, `DDShape`, 도메인 복합 카드/배지(`DDTasteTypeBadge`, `DDTasteSentenceCard`, `DDProfileProgressCard`, `DDProbeQuestion`, `DDDrinkBadge`, `DDRepurchaseBadge`)
 
-## 폐기 / 수정되는 기존 원칙
+## 후속 작업
 
-| 기존 (`specs/designer/design-system.md`) | 처리 |
-|---|---|
-| 에디토리얼·웜 무드, Paper/Wine/Malt 팔레트, 다크 `#15110E` | **폐기** → Aura Cool Gray + Blue (`AuraPalette`) |
-| 앱 전체 액센트 2개 / 60-30-10 | **수정** → Aura `brand.primary` 단일 액센트 + `status.*` |
-| Serif+Sans 2종 | **수정** → Aura Sans 기본. Serif는 81유형 코드(`DisplayTasteCode`)에만 예외 유지 |
-| 코드 내 Hex 하드코딩 금지 | **유지** (Aura EVAL-002와 일치) |
-| 최소 48dp 터치, 4/8dp 그리드 | **유지** (Aura EVAL-005와 일치) |
-| Material3 기반 | **폐기** → zero-Material3 |
-| Rail(Medium) / Drawer(Expanded) | **수정** → 전 구간 `AuraBottomIsland` + `AuraAdaptiveTwoPane` (Rail/Drawer 미도입) |
-| Material You dynamic color | **폐기** |
-| 와인/위스키 구분색 | **유지(로컬 토큰)** — Aura에 대응물 없음 |
-
-## Aura에 대응 컴포넌트 없음 (GAP)과 처리
-
-| 항목 | 처리 |
-|---|---|
-| Snackbar | `design-system`에 `AuraSnackbar` 추가 |
-| ProgressBar / Stepper | 앱 로컬 `DDProgressBar`, `DDProbeProgress` (Aura 토큰 사용) |
-| Divider, Loading, Empty | 앱 로컬 `DDDivider`, `DDLoadingContent`, `DDEmptyContent` |
-| 이미지(`DDUriImage`), 공유 카드, `TraitStatusRow` | 앱 로컬 유지, 토큰만 교체 |
-| Shape 토큰 | Aura 컴포넌트 내부 값을 따르고 앱 로컬은 상수 사용 |
-| Rail / Drawer / BottomSheet | 미도입 (위 표) |
+- `Search`(F5) 화면 구현 시 `DDScreenScaffold`의 `onSearchClick`과 `AuraSearchBar`를 연결한다.

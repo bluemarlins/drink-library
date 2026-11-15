@@ -214,4 +214,14 @@ object DrinkLabels {
             .format(dateFormat)
 
     fun price(won: Long): String = "%,d원".format(Locale.KOREA, won)
+
+    fun rating(value: Double): String {
+        val snapped = kotlin.math.round(value * 2.0) / 2.0
+        val whole = snapped.toInt()
+        return if (snapped == whole.toDouble()) {
+            whole.toString()
+        } else {
+            "%.1f".format(Locale.US, snapped)
+        }
+    }
 }

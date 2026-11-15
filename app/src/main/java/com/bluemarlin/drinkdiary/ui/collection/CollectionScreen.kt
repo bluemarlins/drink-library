@@ -1,31 +1,36 @@
 package com.bluemarlin.drinkdiary.ui.collection
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
+import com.bluemarlin.drinkdiary.ui.theme.DDShape
+import com.example.ds.component.AuraCard
+import com.example.ds.component.AuraCardVariant
+import com.example.ds.component.AuraSegmentedButton
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 @Composable
 fun CollectionScreen(
@@ -35,32 +40,40 @@ fun CollectionScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize().padding(contentPadding)) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            listOf(null to "전체", DrinkType.Wine to "와인", DrinkType.Whiskey to "위스키")
-                .forEach { (type, label) ->
-                    FilterChip(
-                        selected = state.filter == type,
-                        onClick = { onFilterChange(type) },
-                        label = { Text(label) },
-                    )
-                }
+    val layout = AuraTheme.layout
+    val direction = LocalLayoutDirection.current
+    val gridPadding =
+        PaddingValues(
+            start = contentPadding.calculateStartPadding(direction) + layout.screenMarginHorizontal,
+            end = contentPadding.calculateEndPadding(direction) + layout.screenMarginHorizontal,
+            top = contentPadding.calculateTopPadding() + layout.screenMarginVertical,
+            bottom = contentPadding.calculateBottomPadding() + layout.screenMarginVertical,
+        )
+    val filterOptions = listOf(null to "전체", DrinkType.Wine to "와인", DrinkType.Whiskey to "위스키")
+    val columns = layout.gridColumns.coerceAtLeast(1)
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
+        modifier = modifier.fillMaxSize(),
+        contentPadding = gridPadding,
+        horizontalArrangement = Arrangement.spacedBy(layout.gridGutter),
+        verticalArrangement = Arrangement.spacedBy(layout.gridGutter),
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }, key = "filter") {
+            AuraSegmentedButton(
+                options = filterOptions.map { it.second },
+                selectedIndex = filterOptions.indexOfFirst { it.first == state.filter }.coerceAtLeast(0),
+                onOptionSelected = { index -> onFilterChange(filterOptions[index].first) },
+                fullWidth = true,
+            )
         }
 
         // 아직 한 번도 읽지 않은 상태를 "기록이 없다"로 말하지 않는다 — 로딩과 빈 목록은 다르다.
         if (state.loaded && state.records.isEmpty()) {
-            EmptyCollection(filtered = state.filter != null)
-            return@Column
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 96.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+            item(span = { GridItemSpan(maxLineSpan) }, key = "empty") {
+                EmptyCollection(filtered = state.filter != null)
+            }
+        } else {
             items(state.records, key = { it.id }) { record ->
                 RecordRow(record = record, onClick = { onOpen(record.id) })
             }
@@ -71,17 +84,17 @@ fun CollectionScreen(
 @Composable
 private fun EmptyCollection(filtered: Boolean) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(
+        AuraText(
             text = if (filtered) "이 주종으로 남긴 기록이 없어요" else "아직 기록이 없어요",
-            style = MaterialTheme.typography.titleMedium,
+            style = AuraTheme.typography.titleMedium,
         )
-        Text(
-            text = if (filtered) "위에서 '전체'를 눌러보세요." else "오른쪽 아래 + 를 눌러 한 잔 기록해 보세요.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        AuraText(
+            text = if (filtered) "위에서 '전체'를 눌러보세요." else "아래 + 를 눌러 한 잔 기록해 보세요.",
+            style = AuraTheme.typography.bodyMedium,
+            color = AuraTheme.colors.content.secondary,
         )
     }
 }
@@ -91,16 +104,7 @@ private fun RecordRow(
     record: DrinkRecord,
     onClick: () -> Unit,
 ) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
+    AuraCard(onClick = onClick, modifier = Modifier.fillMaxWidth(), variant = AuraCardVariant.Outlined) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -110,7 +114,7 @@ private fun RecordRow(
                 DDUriImage(
                     imageUri = it,
                     contentDescription = null,
-                    modifier = Modifier.size(56.dp).clip(MaterialTheme.shapes.small),
+                    modifier = Modifier.size(56.dp).clip(DDShape.small),
                 )
             }
 
@@ -122,32 +126,32 @@ private fun RecordRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
+                    AuraText(
                         text = record.name,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = AuraTheme.typography.titleMedium,
                         maxLines = 1,
                         modifier = Modifier.weight(1f, fill = false),
                     )
                     if (record.collectionStatus == CollectionStatus.Repurchase) {
-                        Text(
+                        AuraText(
                             text = "★",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            style = AuraTheme.typography.labelSmall,
+                            color = AuraTheme.colors.brand.primary,
                         )
                     }
                 }
-                Text(
+                AuraText(
                     text = DrinkLabels.subtitle(record),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = AuraTheme.typography.bodySmall,
+                    color = AuraTheme.colors.content.secondary,
                     maxLines = 1,
                 )
             }
 
-            Text(
-                text = "%.0f".format(record.rating),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
+            AuraText(
+                text = DrinkLabels.rating(record.rating),
+                style = AuraTheme.typography.titleLarge,
+                color = AuraTheme.colors.brand.primary,
             )
         }
     }

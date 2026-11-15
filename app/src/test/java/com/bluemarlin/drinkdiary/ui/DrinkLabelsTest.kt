@@ -69,4 +69,11 @@ class DrinkLabelsTest {
         assertEquals("45,000원", DrinkLabels.price(45_000L))
         assertEquals("0원", DrinkLabels.price(0L))
     }
+
+    @Test
+    fun `rating preserves half-point precision without trailing zero on whole numbers`() {
+        assertEquals("4", DrinkLabels.rating(4.0))
+        assertEquals("4.5", DrinkLabels.rating(4.5))
+        assertEquals("0.5", DrinkLabels.rating(0.5))
+    }
 }

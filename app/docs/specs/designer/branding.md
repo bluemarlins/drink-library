@@ -45,21 +45,18 @@
 - **소셜에 대한 입장**: 인앱 소셜은 없지만 **밖으로 자랑하는 것은 적극 돕는다.**
   구 문구 "타인의 시선 없는 공간"은 이 타깃과 양립하지 않아 폐기했다.
 
-### 2-2. 컬러 — 기존 팔레트 유지
+### 2-2. 컬러 — Aura Design System 기준 통합 (2026-11-15 개정)
 
-`ui/theme/Color.kt`에 구현된 팔레트를 그대로 브랜드 컬러로 쓴다.
+기존 `ui/theme/Color.kt`의 Warm Paper(`#FFF8F2`), 보틀그린(`#2F6F4E`), 몰트 앰버(`#9C6722`), 와인베리(`#93425E`) 및 하드코딩 차트 색상은 Aura Design System (`v1.0.0`, `EVAL-002` 하드코딩 헥스 금지)과 충돌하므로 폐기하고 `AuraTheme.colors`로 통합한다.
 
-| 역할 | 색 | 값 |
+| 역할 | 적용 기준 | 비고 |
 | --- | --- | --- |
-| Primary | 보틀그린 | `#2F6F4E` |
-| Secondary | 몰트 앰버 | `#9C6722` |
-| Tertiary | 와인베리 | `#93425E` |
-| Background | 종이색 | `#FFF8F2` |
+| 기본/브랜드·표면·텍스트 | `AuraTheme.colors.*` | Light / Dark 모드 자동 대응 |
+| 와인 구분 배지 | `AuraBadgeVariant.Error` | `AuraTheme.colors.status.error` 의미 토큰 사용 |
+| 위스키 구분 배지 | `AuraBadgeVariant.Warning` | `AuraTheme.colors.status.warning` 의미 토큰 사용 |
 
 > [!NOTE]
-> 구 문서는 이 팔레트를 "세 주종을 상징하는 색"으로 설명했으나 맥주가 제외되어 더는 맞지 않는다.
-> 몰트 앰버=위스키, 와인베리=와인 대응은 유지되고 보틀그린은 브랜드 기본색으로 둔다.
-> 코드의 차트 색상 `ChartBeerLight`/`ChartBeerDark`는 재설계 시 제거 대상이다.
+> 상세 컴포넌트 매핑과 Aura 1.0.0 대체 불가(Gap) 목록은 `design-system.md`를 단일 진실 공급원으로 따른다.
 
 ## 3. 폐기된 절 (2026-08-13)
 

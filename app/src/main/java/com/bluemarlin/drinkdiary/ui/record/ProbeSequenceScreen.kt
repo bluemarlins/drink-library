@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,13 +13,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.component.DDProbeProgress
 import com.bluemarlin.drinkdiary.ui.component.DDProbeQuestion
+import com.bluemarlin.drinkdiary.ui.theme.DrinkDiaryTheme
+import com.example.ds.foundation.theme.AuraTheme
 
 @Composable
 fun ProbeSequenceScreen(
@@ -43,13 +42,17 @@ fun ProbeSequenceScreen(
     }
 
     val safeIndex = currentIndex.coerceIn(0, traits.lastIndex)
+    val layout = AuraTheme.layout
 
     Column(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+                .padding(
+                    horizontal = layout.screenMarginHorizontal,
+                    vertical = layout.screenMarginVertical,
+                ),
+        verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
     ) {
         DDProbeProgress(
             current = safeIndex + 1,
@@ -84,14 +87,12 @@ fun ProbeSequenceScreen(
 @Preview(showBackground = true)
 @Composable
 private fun ProbeSequenceScreenPreview() {
-    MaterialTheme {
-        Surface {
-            ProbeSequenceScreen(
-                type = DrinkType.Wine,
-                answers = TasteInput(),
-                onAnswer = { _, _ -> },
-                onComplete = {},
-            )
-        }
+    DrinkDiaryTheme {
+        ProbeSequenceScreen(
+            type = DrinkType.Wine,
+            answers = TasteInput(),
+            onAnswer = { _, _ -> },
+            onComplete = {},
+        )
     }
 }

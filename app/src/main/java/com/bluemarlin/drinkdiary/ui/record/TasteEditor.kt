@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -14,6 +11,9 @@ import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
+import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 // 편집 화면용 취향 입력. **기록 때의 4단계 마법사를 다시 태우지 않는다** —
 // 고치러 온 사람은 안내받을 게 아니라 한 곳을 바로 찾아 고쳐야 한다.
@@ -27,25 +27,28 @@ fun TasteEditor(
     onAnswer: (Trait, TraitAnswer) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("그때 남긴 취향", style = MaterialTheme.typography.titleMedium)
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(AuraTheme.layout.sectionSpacing),
+    ) {
+        AuraText("그때 남긴 취향", style = AuraTheme.typography.titleMedium)
 
         Trait.shared.forEach { trait ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
+                AuraText(
                     text = DrinkLabels.trait(trait),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = AuraTheme.typography.labelMedium,
+                    color = AuraTheme.colors.content.secondary,
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     // Low → Mid → High 순서로 고정한다. 축마다 순서가 달라지면 잘못 누른다.
                     listOf(TraitAnswer.Low, TraitAnswer.Mid, TraitAnswer.High).forEach { answer ->
-                        FilterChip(
+                        AuraChipButton(
                             selected = taste[trait] == answer,
                             // 취소를 두지 않는다. 답을 비우면 그 축은 판정에서 빠지는데,
                             // 편집 화면에서 그걸 의도적으로 하고 싶은 경우가 없다.
                             onClick = { onAnswer(trait, answer) },
-                            label = { Text(DrinkLabels.answer(trait, answer)) },
+                            label = DrinkLabels.answer(trait, answer),
                         )
                     }
                 }

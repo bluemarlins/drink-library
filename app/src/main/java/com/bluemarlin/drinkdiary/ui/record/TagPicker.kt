@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,6 +16,9 @@ import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.domain.model.WhiskyStyle
 import com.bluemarlin.drinkdiary.domain.model.WineColor
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
+import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 // 라벨을 보고 고르는 선택 태그(PRD F2-1). 전부 선택이므로 기본 경로의 탭 예산에 들어가지 않는다 —
 // 이 화면은 "더 남기기"를 편 사용자만 본다.
@@ -39,7 +39,7 @@ fun TagPicker(
     if (categories.isEmpty()) return
 
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        title?.let { Text(it, style = MaterialTheme.typography.titleSmall) }
+        title?.let { AuraText(it, style = AuraTheme.typography.titleSmall) }
 
         categories.forEach { category ->
             TagRow(
@@ -64,19 +64,22 @@ private fun TagRow(
     category: TagCategory,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
+        AuraText(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = AuraTheme.typography.labelMedium,
+            color = AuraTheme.colors.content.secondary,
         )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             options.forEach { value ->
                 val isSelected = selected == value
-                FilterChip(
+                AuraChipButton(
                     selected = isSelected,
                     // 같은 값을 다시 누르면 해제.
                     onClick = { onSelect(if (isSelected) null else value) },
-                    label = { Text(DrinkLabels.tagValue(category, value, type)) },
+                    label = DrinkLabels.tagValue(category, value, type),
                 )
             }
         }
