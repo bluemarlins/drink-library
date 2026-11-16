@@ -1,55 +1,76 @@
 package com.bluemarlin.drinkdiary.ui.record
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
+import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
-import com.bluemarlin.drinkdiary.ui.component.DDProbeProgress
 import com.bluemarlin.drinkdiary.ui.component.DDProbeQuestion
 import com.bluemarlin.drinkdiary.ui.theme.DrinkDiaryTheme
+import com.example.ds.component.AuraButton
+import com.example.ds.component.AuraButtonSize
+import com.example.ds.component.AuraButtonVariant
+import com.example.ds.component.AuraStepProgressBar
+import com.example.ds.component.AuraText
+import com.example.ds.foundation.theme.AuraTheme
 
 @Composable
 fun ProbeSequenceScreen(
     type: DrinkType,
     answers: TasteInput,
+    currentIndex: Int,
+    onIndexChange: (Int) -> Unit,
     onAnswer: (Trait, TraitAnswer) -> Unit,
     onComplete: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
 ) {
-    // 기본 경로는 공통 축 4개만 묻는다. 주종 고유 축(산미·탄닌·피트·알코올)을 여기 넣으면
-    // 와인 기준 탭이 7회가 되어 PRD F2의 5회 상한을 넘긴다(실기기에서 확인).
-    // 고유 축은 선택 입력인 확장 경로로 보낸다 — mvp-scope.md F2, design-principles.md 쟁점 4.
-    // 유형(TasteType)도 공통 축만으로 성립하므로 기본 경로에서 빠져도 손실이 없다.
-    val traits = Trait.shared
-    var currentIndex by remember { mutableStateOf(0) }
-
-    if (traits.isEmpty()) {
-        return
-    }
+    // 주종별 6개 지표(공통 4축 + 주종 고유 2축)를 1문항 1탭으로 평가한다.
+    val traits = Trait.of(type)
+    if (traits.isEmpty()) return
 
     val safeIndex = currentIndex.coerceIn(0, traits.lastIndex)
+    val currentTrait = traits[safeIndex]
 
     DDCenteredContent(
         modifier = modifier,
         contentPadding = contentPadding,
     ) {
-        DDProbeProgress(
-            current = safeIndex + 1,
-            total = traits.size,
+        AuraStepProgressBar(
+            currentStep = safeIndex + 1,
+            totalSteps = traits.size,
             modifier = Modifier.fillMaxWidth(),
+            contentDescription = "${safeIndex + 1} / ${traits.size}",
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AuraText(
+                text = "${safeIndex + 1} / ${traits.size} · ${DrinkLabels.trait(currentTrait)}",
+                style = AuraTheme.typography.labelLarge,
+                color = AuraTheme.colors.content.secondary,
+            )
+            AuraButton(
+                text = if (safeIndex == 0) "주종 다시 선택" else "이전 질문",
+                onClick = onBack,
+                variant = AuraButtonVariant.Ghost,
+                size = AuraButtonSize.Small,
+            )
+        }
 
         Crossfade(
             targetState = safeIndex,
@@ -65,7 +86,7 @@ fun ProbeSequenceScreen(
                 onSelect = { answer ->
                     onAnswer(trait, answer)
                     if (index < traits.lastIndex) {
-                        currentIndex = index + 1
+                        onIndexChange(index + 1)
                     } else {
                         onComplete()
                     }
@@ -82,8 +103,11 @@ private fun ProbeSequenceScreenPreview() {
         ProbeSequenceScreen(
             type = DrinkType.Wine,
             answers = TasteInput(),
+            currentIndex = 0,
+            onIndexChange = {},
             onAnswer = { _, _ -> },
             onComplete = {},
+            onBack = {},
         )
     }
 }

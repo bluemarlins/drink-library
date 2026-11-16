@@ -1,23 +1,19 @@
 package com.bluemarlin.drinkdiary.ui.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.bluemarlin.drinkdiary.ui.theme.DDShape
 import com.example.ds.component.AuraBadge
 import com.example.ds.component.AuraBadgeVariant
 import com.example.ds.component.AuraCard
 import com.example.ds.component.AuraCardPadding
 import com.example.ds.component.AuraCardVariant
+import com.example.ds.component.AuraLinearProgressBar
 import com.example.ds.component.AuraText
 import com.example.ds.foundation.theme.AuraTheme
 
@@ -103,43 +99,10 @@ fun DDProfileProgressCard(
             )
 
             val safeTarget = targetCount.coerceAtLeast(1)
-            DDProgressBar(fraction = (currentCount.toFloat() / safeTarget).coerceIn(0f, 1f))
+            AuraLinearProgressBar(
+                progress = (currentCount.toFloat() / safeTarget).coerceIn(0f, 1f),
+                contentDescription = "$currentCount / $safeTarget",
+            )
         }
     }
-}
-
-// Aura 1.0.0에 LinearProgressIndicator / HorizontalDivider가 없어 토큰 기반 로컬 Gap 컴포넌트를 유지한다.
-@Composable
-fun DDProgressBar(
-    fraction: Float,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(DDShape.small)
-                .background(AuraTheme.colors.surface.sunken),
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth(fraction.coerceIn(0f, 1f))
-                    .height(6.dp)
-                    .clip(DDShape.small)
-                    .background(AuraTheme.colors.brand.primary),
-        )
-    }
-}
-
-@Composable
-fun DDDivider(modifier: Modifier = Modifier) {
-    Box(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(AuraTheme.colors.border.subtle),
-    )
 }

@@ -27,7 +27,6 @@ import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
-import com.bluemarlin.drinkdiary.ui.theme.DDShape
 import com.example.ds.component.AuraButton
 import com.example.ds.component.AuraButtonSize
 import com.example.ds.component.AuraButtonVariant
@@ -41,26 +40,21 @@ import com.example.ds.component.AuraTextField
 import com.example.ds.component.AuraTextFieldVariant
 import com.example.ds.foundation.theme.AuraTheme
 
-// 취향 입력 이후 단계. 이름과 만족도만 필수이고 나머지는 접어둔다 —
-// 기본 경로를 무겁게 만들면 F2에서 지킨 마찰 예산이 여기서 무너진다.
+// 취향 입력 이후 단계. 필수 항목(이름·만족도·다시 살까) 외 선택 항목은 고정된 접힘 영역으로 유지해
+// 불필요한 커스터마이징과 입력 마찰을 방지한다.
 @Composable
 fun RecordDetailStep(
     type: DrinkType,
     form: RecordForm,
-    alwaysAskTags: Set<TagCategory>,
     onFormChange: (RecordForm) -> Unit,
     onSave: () -> Unit,
     saving: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
-    // 편집 화면도 이 폼을 그대로 쓴다. 폼을 복제하면 저장 규칙이 한쪽에서만 지켜진다.
     saveLabel: String = "저장",
-    // 편집에서만 채워지는 자리. 작성 경로는 마법사가 이미 취향을 물었으므로 비어 있다 —
-    // 같은 것을 두 번 물으면 F2의 탭 예산이 무너진다.
     tasteSection: @Composable () -> Unit = {},
 ) {
-    // 사용자가 "매번 물어봐 달라"고 고른 것은 접지 않고 늘 보인다.
-    val (always, folded) = remainingTags(type).partition { it in alwaysAskTags }
+    val optionalTags = remember(type) { remainingTags(type) }
     var expanded by remember { mutableStateOf(false) }
     val photoPicker =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -128,18 +122,10 @@ fun RecordDetailStep(
                 DDUriImage(
                     imageUri = it,
                     contentDescription = "선택한 사진",
-                    modifier = Modifier.size(64.dp).clip(DDShape.small),
+                    modifier = Modifier.size(64.dp).clip(AuraTheme.shapes.small),
                 )
             }
         }
-
-        TagPicker(
-            type = type,
-            tags = form.tags,
-            categories = always,
-            onTagsChange = { onFormChange(form.copy(tags = it)) },
-            title = null,
-        )
 
         AuraButton(
             text = if (expanded) "덜 남기기" else "더 남기기 (선택)",
@@ -152,7 +138,7 @@ fun RecordDetailStep(
             OptionalFields(
                 type = type,
                 form = form,
-                foldedTags = folded,
+                optionalTags = optionalTags,
                 onFormChange = onFormChange,
             )
         }
@@ -174,7 +160,7 @@ fun RecordDetailStep(
 private fun OptionalFields(
     type: DrinkType,
     form: RecordForm,
-    foldedTags: List<TagCategory>,
+    optionalTags: List<TagCategory>,
     onFormChange: (RecordForm) -> Unit,
 ) {
     val layout = AuraTheme.layout
@@ -183,11 +169,10 @@ private fun OptionalFields(
         TagPicker(
             type = type,
             tags = form.tags,
-            categories = foldedTags,
+            categories = optionalTags,
             onTagsChange = { onFormChange(form.copy(tags = it)) },
         )
 
-        // P4 — 같은 이름이 같은 맛을 보장하지 않게 만드는 변수들
         if (type == DrinkType.Wine) {
             AuraNumberField(
                 value = form.vintage,
@@ -244,5 +229,3 @@ private fun OptionalFields(
         )
     }
 }
-
-// 라벨은 ui.DrinkLabels 한 곳에서 온다 — 기록 화면과 컬렉션 화면이 같은 것을 다르게 부르지 않도록.

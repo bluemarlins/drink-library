@@ -56,6 +56,19 @@ class EditRecordTest {
     }
 
     @Test
+    fun `drink-specific traits can also be edited without losing shared answers`() {
+        val taste =
+            original.taste
+                .with(Trait.Peat, TraitAnswer.Low)
+                .with(Trait.AlcoholBurn, TraitAnswer.Mid)
+        val edited = original.applying(form(), taste)
+
+        assertEquals(TraitAnswer.High, edited.taste[Trait.Body])
+        assertEquals(TraitAnswer.Low, edited.taste[Trait.Peat])
+        assertEquals(TraitAnswer.Mid, edited.taste[Trait.AlcoholBurn])
+    }
+
+    @Test
     fun `the form round-trips every field it owns`() {
         val edited = original.applying(form(), original.taste)
 

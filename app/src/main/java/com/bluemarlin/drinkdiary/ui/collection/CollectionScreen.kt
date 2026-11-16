@@ -3,6 +3,8 @@ package com.bluemarlin.drinkdiary.ui.collection
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -27,17 +29,23 @@ import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
-import com.bluemarlin.drinkdiary.ui.theme.DDShape
 import com.example.ds.component.AuraCard
 import com.example.ds.component.AuraCardVariant
+import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraSearchBar
+import com.example.ds.component.AuraSearchBarSurface
 import com.example.ds.component.AuraSegmentedButton
 import com.example.ds.component.AuraText
 import com.example.ds.foundation.theme.AuraTheme
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CollectionScreen(
     state: CollectionUiState,
     onFilterChange: (DrinkType?) -> Unit,
+    onStatusFilterChange: (CollectionStatus?) -> Unit,
+    onQueryChange: (String) -> Unit,
+    onToggleSortByRating: () -> Unit,
     onOpen: (Long) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
@@ -65,19 +73,53 @@ fun CollectionScreen(
             horizontalArrangement = Arrangement.spacedBy(layout.gridGutter),
             verticalArrangement = Arrangement.spacedBy(layout.gridGutter),
         ) {
-            item(span = { GridItemSpan(maxLineSpan) }, key = "filter") {
-                AuraSegmentedButton(
-                    options = filterOptions.map { it.second },
-                    selectedIndex = filterOptions.indexOfFirst { it.first == state.filter }.coerceAtLeast(0),
-                    onOptionSelected = { index -> onFilterChange(filterOptions[index].first) },
-                    fullWidth = true,
+            item(span = { GridItemSpan(maxLineSpan) }, key = "search") {
+                AuraSearchBar(
+                    query = state.query,
+                    onQueryChange = onQueryChange,
+                    placeholder = "술 이름, 구입처, 메모 검색",
+                    surface = AuraSearchBarSurface.Solid,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
 
-            // 아직 한 번도 읽지 않은 상태를 "기록이 없다"로 말하지 않는다 — 로딩과 빈 목록은 다르다.
+            item(span = { GridItemSpan(maxLineSpan) }, key = "filter") {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    AuraSegmentedButton(
+                        options = filterOptions.map { it.second },
+                        selectedIndex = filterOptions.indexOfFirst { it.first == state.filter }.coerceAtLeast(0),
+                        onOptionSelected = { index -> onFilterChange(filterOptions[index].first) },
+                        fullWidth = true,
+                    )
+
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        AuraChipButton(
+                            label = "★ 또 살래요",
+                            selected = state.statusFilter == CollectionStatus.Repurchase,
+                            onClick = { onStatusFilterChange(CollectionStatus.Repurchase) },
+                        )
+                        AuraChipButton(
+                            label = "안 맞아요",
+                            selected = state.statusFilter == CollectionStatus.NotForMe,
+                            onClick = { onStatusFilterChange(CollectionStatus.NotForMe) },
+                        )
+                        AuraChipButton(
+                            label = if (state.sortByRating) "평점 높은 순 ✓" else "평점 높은 순",
+                            selected = state.sortByRating,
+                            onClick = onToggleSortByRating,
+                        )
+                    }
+                }
+            }
+
             if (state.loaded && state.records.isEmpty()) {
+                val hasActiveFilter =
+                    state.filter != null || state.statusFilter != null || state.query.isNotBlank()
                 item(span = { GridItemSpan(maxLineSpan) }, key = "empty") {
-                    EmptyCollection(filtered = state.filter != null)
+                    EmptyCollection(filtered = hasActiveFilter)
                 }
             } else {
                 items(state.records, key = { it.id }) { record ->
@@ -95,11 +137,11 @@ private fun EmptyCollection(filtered: Boolean) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         AuraText(
-            text = if (filtered) "이 주종으로 남긴 기록이 없어요" else "아직 기록이 없어요",
+            text = if (filtered) "조건에 맞는 기록이 없어요" else "아직 기록이 없어요",
             style = AuraTheme.typography.titleMedium,
         )
         AuraText(
-            text = if (filtered) "위에서 '전체'를 눌러보세요." else "아래 + 를 눌러 한 잔 기록해 보세요.",
+            text = if (filtered) "검색어나 필터를 바꾸어 보세요." else "아래 + 를 눌러 한 잔 기록해 보세요.",
             style = AuraTheme.typography.bodyMedium,
             color = AuraTheme.colors.content.secondary,
         )
@@ -121,7 +163,7 @@ private fun RecordRow(
                 DDUriImage(
                     imageUri = it,
                     contentDescription = null,
-                    modifier = Modifier.size(56.dp).clip(DDShape.small),
+                    modifier = Modifier.size(56.dp).clip(AuraTheme.shapes.small),
                 )
             }
 
@@ -158,7 +200,6 @@ private fun RecordRow(
             AuraText(
                 text = DrinkLabels.rating(record.rating),
                 style = AuraTheme.typography.titleLarge,
-                color = AuraTheme.colors.brand.primary,
             )
         }
     }

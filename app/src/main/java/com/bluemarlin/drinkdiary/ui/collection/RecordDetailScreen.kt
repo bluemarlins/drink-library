@@ -21,12 +21,10 @@ import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
-import com.bluemarlin.drinkdiary.ui.component.DDDivider
 import com.bluemarlin.drinkdiary.ui.component.DDDrinkBadge
 import com.bluemarlin.drinkdiary.ui.component.DDRepurchaseBadge
 import com.bluemarlin.drinkdiary.ui.component.DDTwoPaneContent
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
-import com.bluemarlin.drinkdiary.ui.theme.DDShape
 import com.example.ds.component.AuraBadge
 import com.example.ds.component.AuraBadgeVariant
 import com.example.ds.component.AuraButton
@@ -34,6 +32,7 @@ import com.example.ds.component.AuraButtonSize
 import com.example.ds.component.AuraButtonVariant
 import com.example.ds.component.AuraDialog
 import com.example.ds.component.AuraDialogVariant
+import com.example.ds.component.AuraDivider
 import com.example.ds.component.AuraRatingBar
 import com.example.ds.component.AuraRatingBarSize
 import com.example.ds.component.AuraText
@@ -94,7 +93,7 @@ fun RecordDetailScreen(
             contentPadding = contentPadding,
         ) {
             RecordOverviewSection(record)
-            DDDivider()
+            AuraDivider()
             RecordTasteAndActionsSection(
                 record = record,
                 onEdit = onEdit,
@@ -127,7 +126,7 @@ private fun RecordOverviewSection(record: DrinkRecord) {
         DDUriImage(
             imageUri = it,
             contentDescription = "${record.name} 사진",
-            modifier = Modifier.fillMaxWidth().height(220.dp).clip(DDShape.medium),
+            modifier = Modifier.fillMaxWidth().height(220.dp).clip(AuraTheme.shapes.medium),
         )
     }
 
@@ -214,7 +213,7 @@ private fun RecordTasteAndActionsSection(
         }
     }
 
-    DDDivider()
+    AuraDivider()
 
     // 고치기가 지우기보다 위에 있고 채워진 버튼이다. 오타 하나 때문에 지우고 다시 쓰게
     // 만들면 그 기록의 날짜가 바뀌고, 취향 판정의 표본도 한 번 흔들린다.

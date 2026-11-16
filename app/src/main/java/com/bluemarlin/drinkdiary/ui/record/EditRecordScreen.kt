@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
-import com.bluemarlin.drinkdiary.ui.component.DDDivider
+import com.example.ds.component.AuraDivider
 import com.example.ds.component.AuraText
 import com.example.ds.foundation.theme.AuraTheme
 
@@ -47,7 +47,6 @@ fun EditRecordScreen(
     RecordDetailStep(
         type = state.type,
         form = state.form,
-        alwaysAskTags = state.alwaysAskTags,
         onFormChange = onFormChange,
         onSave = onSave,
         saving = state.saving,
@@ -55,8 +54,8 @@ fun EditRecordScreen(
         contentPadding = contentPadding,
         saveLabel = "고친 내용 저장",
         tasteSection = {
-            DDDivider()
-            TasteEditor(taste = state.taste, onAnswer = onAnswer)
+            AuraDivider()
+            TasteEditor(type = state.type, taste = state.taste, onAnswer = onAnswer)
         },
     )
 }

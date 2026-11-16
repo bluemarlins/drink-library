@@ -9,21 +9,24 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bluemarlin.drinkdiary.DrinkDiaryApplication
 import com.bluemarlin.drinkdiary.R
+import com.bluemarlin.drinkdiary.domain.model.DrinkType
+import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
+import com.bluemarlin.drinkdiary.domain.model.TypeScope
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.collection.CollectionScreen
 import com.bluemarlin.drinkdiary.ui.collection.CollectionViewModel
 import com.bluemarlin.drinkdiary.ui.collection.RecordDetailScreen
-import com.bluemarlin.drinkdiary.ui.component.DDSnackbarHost
-import com.bluemarlin.drinkdiary.ui.component.DDSnackbarState
+import com.bluemarlin.drinkdiary.ui.lookup.LookupScreen
+import com.bluemarlin.drinkdiary.ui.lookup.LookupViewModel
 import com.bluemarlin.drinkdiary.ui.profile.ProfileScreen
 import com.bluemarlin.drinkdiary.ui.profile.ProfileViewModel
 import com.bluemarlin.drinkdiary.ui.record.EditRecordScreen
@@ -31,35 +34,46 @@ import com.bluemarlin.drinkdiary.ui.record.EditRecordViewModel
 import com.bluemarlin.drinkdiary.ui.record.RecordFlow
 import com.bluemarlin.drinkdiary.ui.settings.SettingsScreen
 import com.bluemarlin.drinkdiary.ui.settings.SettingsViewModel
+import com.bluemarlin.drinkdiary.ui.share.ShareCardContent
+import com.bluemarlin.drinkdiary.ui.share.ShareCardDialog
 import com.example.ds.component.AuraIcon
 import com.example.ds.component.AuraIconButton
 import com.example.ds.component.AuraIconButtonVariant
+import com.example.ds.component.AuraSnackbarHost
+import com.example.ds.component.rememberAuraSnackbarHostState
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 private sealed interface Screen {
     data object Dashboard : Screen
 
     data object Collection : Screen
 
+    data object Lookup : Screen
+
     data object Record : Screen
 
     data class Detail(
         val id: Long,
+        val returnTo: DDTopLevelTab,
     ) : Screen
 
     data class Edit(
         val id: Long,
+        val returnTo: DDTopLevelTab,
     ) : Screen
 
     data object Settings : Screen
 }
 
-// 재정의 진행 중 — F3(취향 요약)와 F1(컬렉션)이 최상위, 기록은 FloatingBottomIsland 분할 액션으로 진입한다.
-// lookup/share/settings 는 software-architecture.md 6절에 따라 이어 붙인다.
 @Composable
 fun DrinkDiaryApp(modifier: Modifier = Modifier) {
-    val appContainer = (LocalContext.current.applicationContext as DrinkDiaryApplication).appContainer
+    val context = LocalContext.current
+    val appContainer = (context.applicationContext as DrinkDiaryApplication).appContainer
     var screen by remember { mutableStateOf<Screen>(Screen.Dashboard) }
-    val snackbar = remember { DDSnackbarState() }
+    var shareCardContent by remember { mutableStateOf<ShareCardContent?>(null) }
+    val snackbar = rememberAuraSnackbarHostState()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(appContainer) {
         appContainer.localSeedLoader.seedIfNeeded()
@@ -69,7 +83,6 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         viewModel(factory = CollectionViewModel.Factory(appContainer.drinkRecordRepository))
     val collection by collectionViewModel.uiState.collectAsState()
 
-    // 삭제 실패를 조용히 넘기면 목록이 그대로라 사용자는 지워진 줄 안다(harness.md §7).
     LaunchedEffect(collection.error) {
         collection.error?.let {
             snackbar.showSnackbar(it)
@@ -77,20 +90,47 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         }
     }
 
-    // 시스템 뒤로가기로도 앱을 벗어나지 않고 온 곳으로 돌아온다.
-    // 편집에서 뒤로가면 대시보드가 아니라 **그 기록의 상세**로 가야 한다 — 고치다 만 사람을
-    // 목록 맨 위로 보내면 방금 보던 기록을 다시 찾아야 한다.
-    BackHandler(enabled = screen != Screen.Dashboard) {
+    val tabScreen: (DDTopLevelTab) -> Screen = { tab ->
+        when (tab) {
+            DDTopLevelTab.Dashboard -> Screen.Dashboard
+            DDTopLevelTab.Collection -> Screen.Collection
+            DDTopLevelTab.Search -> Screen.Lookup
+        }
+    }
+
+    BackHandler(enabled = screen != Screen.Dashboard && screen != Screen.Record) {
         screen =
             when (val current = screen) {
-                is Screen.Detail -> Screen.Collection
-                is Screen.Edit -> Screen.Detail(current.id)
+                is Screen.Detail -> tabScreen(current.returnTo)
+                is Screen.Edit -> Screen.Detail(current.id, current.returnTo)
                 else -> Screen.Dashboard
             }
     }
 
-    val host: @Composable (Dp) -> Unit = { bottomClearance ->
-        DDSnackbarHost(state = snackbar, bottomPadding = bottomClearance)
+    val host: @Composable () -> Unit = {
+        AuraSnackbarHost(hostState = snackbar)
+    }
+
+    val openShareForScope: (TypeScope) -> Unit = { scope ->
+        coroutineScope.launch {
+            val profile = appContainer.observeTasteProfileUseCase(scope).first()
+            when (val readiness = appContainer.resolveProfileReadinessUseCase(profile)) {
+                is ProfileReadiness.Ready -> {
+                    shareCardContent =
+                        ShareCardContent(
+                            scope = scope,
+                            type = readiness.type,
+                            recordCount = profile.recordCount,
+                            preferences = profile.preferences,
+                        )
+                }
+                is ProfileReadiness.NotReady -> {
+                    snackbar.showSnackbar(
+                        "기록이 ${readiness.recordsNeeded}개 더 모이면 취향 카드를 만들 수 있어요.",
+                    )
+                }
+            }
+        }
     }
 
     when (val current = screen) {
@@ -99,9 +139,11 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 viewModel(
                     factory =
                         ProfileViewModel.Factory(
-                            appContainer.observeTasteProfileUseCase,
-                            appContainer.observeTagPreferenceUseCase,
-                            appContainer.resolveProfileReadinessUseCase,
+                            observeOverview = appContainer.observeDashboardOverviewUseCase,
+                            observeTasteProfile = appContainer.observeTasteProfileUseCase,
+                            observeTagPreference = appContainer.observeTagPreferenceUseCase,
+                            observeRecommendations = appContainer.observeBuyRecommendationsUseCase,
+                            resolveReadiness = appContainer.resolveProfileReadinessUseCase,
                         ),
                 )
             val profile by profileViewModel.uiState.collectAsState()
@@ -112,8 +154,6 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 onTabChange = { screen = it },
                 onAdd = { screen = Screen.Record },
                 snackbarHost = host,
-                // 설정은 하단 탭이 아니라 툴바에 둔다. 탭은 매일 오가는 곳이고
-                // 설정은 한 번 정하면 다시 안 오는 곳이다.
                 toolbarActions = {
                     AuraIconButton(
                         onClick = { screen = Screen.Settings },
@@ -131,6 +171,9 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 ProfileScreen(
                     state = profile,
                     onScopeChange = profileViewModel::selectScope,
+                    onOpenCollection = { screen = Screen.Collection },
+                    onOpenRecord = { id -> screen = Screen.Detail(id, DDTopLevelTab.Dashboard) },
+                    onShareCard = { openShareForScope(profile.scope) },
                     contentPadding = padding,
                     modifier = modifier,
                 )
@@ -148,36 +191,73 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 CollectionScreen(
                     state = collection,
                     onFilterChange = collectionViewModel::selectFilter,
-                    onOpen = { screen = Screen.Detail(it) },
+                    onStatusFilterChange = collectionViewModel::selectStatusFilter,
+                    onQueryChange = collectionViewModel::updateQuery,
+                    onToggleSortByRating = collectionViewModel::toggleSortByRating,
+                    onOpen = { id -> screen = Screen.Detail(id, DDTopLevelTab.Collection) },
                     contentPadding = padding,
                     modifier = modifier,
                 )
             }
 
-        Screen.Record ->
-            DDScreenScaffold(
-                title = "기록하기",
-                screenType = DDScreenType.Editor,
-                onBackClick = { screen = Screen.Dashboard },
+        Screen.Lookup -> {
+            val lookupViewModel: LookupViewModel =
+                viewModel(
+                    factory =
+                        LookupViewModel.Factory(
+                            repository = appContainer.drinkRecordRepository,
+                            dictionary = appContainer.bottleDictionary,
+                            observeRecommendations = appContainer.observeBuyRecommendationsUseCase,
+                        ),
+                )
+            val lookup by lookupViewModel.uiState.collectAsState()
+
+            TopLevel(
+                title = "매장 찾기",
+                tab = DDTopLevelTab.Search,
+                onTabChange = { screen = it },
+                onAdd = { screen = Screen.Record },
                 snackbarHost = host,
             ) { padding ->
-                RecordFlow(modifier = modifier, contentPadding = padding)
+                LookupScreen(
+                    state = lookup,
+                    onQueryChange = lookupViewModel::updateQuery,
+                    onOpenRecord = { id -> screen = Screen.Detail(id, DDTopLevelTab.Search) },
+                    contentPadding = padding,
+                    modifier = modifier,
+                )
             }
+        }
+
+        Screen.Record ->
+            RecordFlow(
+                onExit = { screen = Screen.Dashboard },
+                onShareTasteCard = { type ->
+                    val scope =
+                        when (type) {
+                            DrinkType.Wine -> TypeScope.Wine
+                            DrinkType.Whiskey -> TypeScope.Whiskey
+                        }
+                    openShareForScope(scope)
+                },
+                snackbarHost = host,
+                modifier = modifier,
+            )
 
         is Screen.Detail -> {
-            val record = collection.records.firstOrNull { it.id == current.id }
+            val record = collection.allRecords.firstOrNull { it.id == current.id }
             DDScreenScaffold(
                 title = record?.let { DrinkLabels.drinkType(it.type) } ?: "기록",
                 screenType = DDScreenType.Detail,
-                onBackClick = { screen = Screen.Collection },
+                onBackClick = { screen = tabScreen(current.returnTo) },
                 snackbarHost = host,
             ) { padding ->
                 RecordDetailScreen(
                     record = record,
-                    onEdit = { screen = Screen.Edit(current.id) },
+                    onEdit = { screen = Screen.Edit(current.id, current.returnTo) },
                     onDelete = {
                         collectionViewModel.delete(current.id)
-                        screen = Screen.Collection
+                        screen = tabScreen(current.returnTo)
                     },
                     contentPadding = padding,
                     modifier = modifier,
@@ -186,7 +266,6 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         }
 
         is Screen.Edit -> {
-            // key로 id를 넘겨야 다른 기록을 편집할 때 앞 기록의 폼이 남지 않는다.
             val editViewModel: EditRecordViewModel =
                 viewModel(
                     key = "edit-${current.id}",
@@ -194,14 +273,12 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                         EditRecordViewModel.Factory(
                             current.id,
                             appContainer.drinkRecordRepository,
-                            appContainer.userPreferencesRepository,
                         ),
                 )
             val edit by editViewModel.uiState.collectAsState()
 
-            // 저장이 끝나면 상세로 돌아간다. 편집 화면에 머무르면 고쳐졌는지 알 수 없다.
             LaunchedEffect(edit.saved) {
-                if (edit.saved) screen = Screen.Detail(current.id)
+                if (edit.saved) screen = Screen.Detail(current.id, current.returnTo)
             }
             LaunchedEffect(edit.error) {
                 edit.error?.let {
@@ -213,7 +290,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             DDScreenScaffold(
                 title = "기록 고치기",
                 screenType = DDScreenType.Editor,
-                onBackClick = { screen = Screen.Detail(current.id) },
+                onBackClick = { screen = Screen.Detail(current.id, current.returnTo) },
                 snackbarHost = host,
             ) { padding ->
                 EditRecordScreen(
@@ -229,8 +306,21 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
 
         Screen.Settings -> {
             val settingsViewModel: SettingsViewModel =
-                viewModel(factory = SettingsViewModel.Factory(appContainer.userPreferencesRepository))
+                viewModel(
+                    factory =
+                        SettingsViewModel.Factory(
+                            observeOverview = appContainer.observeDashboardOverviewUseCase,
+                            backupUseCase = appContainer.backupDrinkRecordsUseCase,
+                        ),
+                )
             val settings by settingsViewModel.uiState.collectAsState()
+
+            LaunchedEffect(settings.message) {
+                settings.message?.let {
+                    snackbar.showSnackbar(it)
+                    settingsViewModel.dismissMessage()
+                }
+            }
 
             DDScreenScaffold(
                 title = "설정",
@@ -240,13 +330,23 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             ) { padding ->
                 SettingsScreen(
                     state = settings,
-                    onToggle = settingsViewModel::toggle,
+                    onExportBackup = { uri ->
+                        settingsViewModel.exportToUri(context.contentResolver, uri)
+                    },
+                    onRestoreBackup = { uri ->
+                        settingsViewModel.restoreFromUri(context.contentResolver, uri)
+                    },
                     contentPadding = padding,
                     modifier = modifier,
                 )
             }
         }
     }
+
+    ShareCardDialog(
+        content = shareCardContent,
+        onDismiss = { shareCardContent = null },
+    )
 }
 
 @Composable
@@ -255,17 +355,17 @@ private fun TopLevel(
     tab: DDTopLevelTab,
     onTabChange: (Screen) -> Unit,
     onAdd: () -> Unit,
-    snackbarHost: @Composable (Dp) -> Unit,
+    snackbarHost: @Composable () -> Unit,
     toolbarActions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    // 검색(F5)은 아직 화면이 없어 핸들러를 넘기지 않는다 — 탭도 그려지지 않는다.
     DDScreenScaffold(
         title = title,
         screenType = DDScreenType.TopLevel,
         selectedTab = tab,
         onDashboardClick = { onTabChange(Screen.Dashboard) },
         onCollectionClick = { onTabChange(Screen.Collection) },
+        onSearchClick = { onTabChange(Screen.Lookup) },
         onAddClick = onAdd,
         toolbarActions = toolbarActions,
         snackbarHost = snackbarHost,

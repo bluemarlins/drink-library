@@ -3,10 +3,14 @@ package com.bluemarlin.drinkdiary.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.bluemarlin.drinkdiary.domain.model.BuyRecommendationBundle
+import com.bluemarlin.drinkdiary.domain.model.DashboardOverview
 import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
 import com.bluemarlin.drinkdiary.domain.model.TagPreference
 import com.bluemarlin.drinkdiary.domain.model.TasteProfile
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
+import com.bluemarlin.drinkdiary.domain.usecase.ObserveBuyRecommendationsUseCase
+import com.bluemarlin.drinkdiary.domain.usecase.ObserveDashboardOverviewUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveTagPreferenceUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveTasteProfileUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ResolveProfileReadinessUseCase
@@ -21,17 +25,20 @@ import kotlinx.coroutines.flow.stateIn
 
 data class ProfileUiState(
     val scope: TypeScope = TypeScope.Wine,
+    val overview: DashboardOverview = DashboardOverview(),
     val profile: TasteProfile? = null,
     val tagPreferences: List<TagPreference> = emptyList(),
-    // 첫 프레임의 기본값. 실제 값은 UseCase가 계산해 곧바로 덮어쓴다.
     val readiness: ProfileReadiness =
         ProfileReadiness.NotReady(recordsNeeded = TasteThresholds.MIN_SAMPLES),
+    val recommendations: BuyRecommendationBundle = BuyRecommendationBundle(),
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModel(
+    private val observeOverview: ObserveDashboardOverviewUseCase,
     private val observeTasteProfile: ObserveTasteProfileUseCase,
     private val observeTagPreference: ObserveTagPreferenceUseCase,
+    private val observeRecommendations: ObserveBuyRecommendationsUseCase,
     private val resolveReadiness: ResolveProfileReadinessUseCase,
 ) : ViewModel() {
     private val scope = MutableStateFlow(TypeScope.Wine)
@@ -39,13 +46,19 @@ class ProfileViewModel(
     val uiState: StateFlow<ProfileUiState> =
         scope
             .flatMapLatest { selected ->
-                // 감각 축과 태그는 별개 경로다. 한쪽이 비어도 다른 쪽은 말할 수 있어야 한다.
-                combine(observeTasteProfile(selected), observeTagPreference(selected)) { profile, tags ->
+                combine(
+                    observeOverview(selected),
+                    observeTasteProfile(selected),
+                    observeTagPreference(selected),
+                    observeRecommendations(selected),
+                ) { overview, profile, tags, recommendations ->
                     ProfileUiState(
                         scope = selected,
+                        overview = overview,
                         profile = profile,
                         tagPreferences = tags,
                         readiness = resolveReadiness(profile),
+                        recommendations = recommendations,
                     )
                 }
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProfileUiState())
@@ -55,12 +68,20 @@ class ProfileViewModel(
     }
 
     class Factory(
+        private val observeOverview: ObserveDashboardOverviewUseCase,
         private val observeTasteProfile: ObserveTasteProfileUseCase,
         private val observeTagPreference: ObserveTagPreferenceUseCase,
+        private val observeRecommendations: ObserveBuyRecommendationsUseCase,
         private val resolveReadiness: ResolveProfileReadinessUseCase,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            ProfileViewModel(observeTasteProfile, observeTagPreference, resolveReadiness) as T
+            ProfileViewModel(
+                observeOverview = observeOverview,
+                observeTasteProfile = observeTasteProfile,
+                observeTagPreference = observeTagPreference,
+                observeRecommendations = observeRecommendations,
+                resolveReadiness = resolveReadiness,
+            ) as T
     }
 }

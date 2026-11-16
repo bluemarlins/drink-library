@@ -1,5 +1,8 @@
 package com.bluemarlin.drinkdiary.ui.settings
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -7,58 +10,93 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.bluemarlin.drinkdiary.domain.model.TagCategory
-import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
-import com.bluemarlin.drinkdiary.ui.component.DDDivider
-import com.bluemarlin.drinkdiary.ui.record.promotableTags
-import com.example.ds.component.AuraSwitch
+import com.example.ds.component.AuraButton
+import com.example.ds.component.AuraButtonSize
+import com.example.ds.component.AuraButtonVariant
+import com.example.ds.component.AuraCard
+import com.example.ds.component.AuraCardPadding
+import com.example.ds.component.AuraCardVariant
+import com.example.ds.component.AuraDivider
 import com.example.ds.component.AuraText
 import com.example.ds.foundation.theme.AuraTheme
 
+// 불필요한 지표/옵션 커스터마이징은 열지 않고, 로컬 데이터 보존(백업·복원)만 제공한다.
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
-    onToggle: (TagCategory) -> Unit,
+    onExportBackup: (Uri) -> Unit,
+    onRestoreBackup: (Uri) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
-    val layout = AuraTheme.layout
+    val createBackupLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+            if (uri != null) onExportBackup(uri)
+        }
+    val openBackupLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) onRestoreBackup(uri)
+        }
 
     DDCenteredContent(
         modifier = modifier,
         contentPadding = contentPadding,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            AuraText("기록할 때 물어볼 것", style = AuraTheme.typography.titleMedium)
-            AuraText(
-                text = "켜면 기록할 때마다 바로 보이고, 끄면 '더 남기기' 안으로 들어가요.",
-                style = AuraTheme.typography.bodySmall,
-                color = AuraTheme.colors.content.secondary,
-            )
-        }
-
-        Column(verticalArrangement = Arrangement.spacedBy(layout.gridGutter)) {
-            promotableTags.forEach { (category, hint) ->
-                AuraSwitch(
-                    checked = category in state.alwaysAskTags,
-                    onCheckedChange = { onToggle(category) },
-                    label = DrinkLabels.tagCategory(category),
-                    description = hint,
-                    modifier = Modifier.fillMaxWidth(),
+        AuraCard(
+            modifier = Modifier.fillMaxWidth(),
+            variant = AuraCardVariant.Outlined,
+            padding = AuraCardPadding.Large,
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                AuraText("내 데이터 보관함", style = AuraTheme.typography.titleMedium)
+                val summary =
+                    "현재 저장된 기록 ${state.overview.totalCount}잔 " +
+                        "(와인 ${state.overview.wineCount} · 위스키 ${state.overview.whiskeyCount})"
+                AuraText(
+                    text = summary,
+                    style = AuraTheme.typography.bodyLarge,
+                )
+                AuraText(
+                    text = "서버에 로그인하거나 기록을 보내지 않아요. 내 드라이브나 기기에 JSON 파일로 백업할 수 있습니다.",
+                    style = AuraTheme.typography.bodySmall,
+                    color = AuraTheme.colors.content.secondary,
                 )
             }
         }
 
-        DDDivider()
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            AuraButton(
+                text = "백업 파일 저장 (.json)",
+                onClick = { createBackupLauncher.launch("taste-archive-backup.json") },
+                variant = AuraButtonVariant.Primary,
+                size = AuraButtonSize.Large,
+                enabled = !state.busy && state.overview.totalCount > 0,
+                loading = state.busy,
+                fullWidth = true,
+            )
 
-        AuraText(
-            // 정직하게 말한다. 지금 켜도 **이미 저장된 기록에는 그 답이 없다.**
-            // 이 항목의 취향 판정은 앞으로 쌓이는 기록부터 시작한다 — 숨기면 사용자는
-            // "왜 아직 아무것도 안 나오지"에서 앱이 고장난 줄 안다.
-            text = "지금 켜도 이미 저장한 기록에는 그 답이 없어요. 이 항목의 취향은 앞으로 남기는 기록부터 쌓여요.",
-            style = AuraTheme.typography.bodySmall,
-            color = AuraTheme.colors.content.secondary,
-        )
+            AuraButton(
+                text = "백업에서 불러오기",
+                onClick = { openBackupLauncher.launch(arrayOf("application/json", "text/*")) },
+                variant = AuraButtonVariant.Secondary,
+                size = AuraButtonSize.Large,
+                enabled = !state.busy,
+                fullWidth = true,
+            )
+        }
+
+        AuraDivider()
+
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            AuraText("평가 기준", style = AuraTheme.typography.titleSmall)
+            AuraText(
+                text =
+                    "와인과 위스키 모두 6개의 심플한 지표로 평가하도록 고정되어 있어요. " +
+                        "기록이 쌓이면 4글자 취향 유형과 추천이 자동으로 계산됩니다.",
+                style = AuraTheme.typography.bodySmall,
+                color = AuraTheme.colors.content.secondary,
+            )
+        }
     }
 }

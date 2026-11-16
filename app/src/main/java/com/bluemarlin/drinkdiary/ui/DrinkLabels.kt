@@ -1,12 +1,14 @@
 package com.bluemarlin.drinkdiary.ui
 
 import com.bluemarlin.drinkdiary.domain.model.AbvBand
+import com.bluemarlin.drinkdiary.domain.model.BottleEntry
 import com.bluemarlin.drinkdiary.domain.model.CaskGroup
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.Origin
 import com.bluemarlin.drinkdiary.domain.model.PeatTag
+import com.bluemarlin.drinkdiary.domain.model.RecommendationReason
 import com.bluemarlin.drinkdiary.domain.model.ServingStyle
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.domain.model.TastePreference
@@ -78,20 +80,58 @@ object DrinkLabels {
             TraitAnswer.Mid -> "보통"
         }
 
-    private fun poles(trait: Trait): Pair<String, String> {
-        val (low, high) =
-            when (trait) {
-                Trait.Sweetness -> "드라이" to "달콤"
-                Trait.Body -> "가벼움" to "묵직함"
-                Trait.Intensity -> "은은함" to "진함"
-                Trait.Aftertaste -> "산뜻함" to "긴 여운"
-                Trait.Acidity -> "부드러움" to "산뜻함"
-                Trait.Tannin -> "안 떫음" to "떫음"
-                Trait.Peat -> "스모키하지 않음" to "스모키함"
-                Trait.AlcoholBurn -> "부드러움" to "화끈함"
-            }
-        return low to high
+    fun poles(trait: Trait): Pair<String, String> =
+        when (trait) {
+            Trait.Sweetness -> "드라이" to "달콤"
+            Trait.Body -> "가벼움" to "묵직함"
+            Trait.Intensity -> "은은함" to "진함"
+            Trait.Aftertaste -> "산뜻함" to "긴 여운"
+            Trait.Acidity -> "부드러움" to "산뜻함"
+            Trait.Tannin -> "안 떫음" to "떫음"
+            Trait.Peat -> "논피트" to "스모키함"
+            Trait.AlcoholBurn -> "부드러움" to "화끈함"
+        }
+
+    fun axisCodes(trait: Trait): Pair<String, String>? =
+        when (trait) {
+            Trait.Sweetness -> "D" to "S"
+            Trait.Body -> "L" to "F"
+            Trait.Intensity -> "M" to "R"
+            Trait.Aftertaste -> "Q" to "E"
+            else -> null
+        }
+
+    fun axisLetter(
+        trait: Trait,
+        preference: TastePreference?,
+    ): String? {
+        val codes = axisCodes(trait) ?: return null
+        return when (preference) {
+            TastePreference.Low -> codes.first
+            TastePreference.High -> codes.second
+            TastePreference.Neutral -> "X"
+            null -> null
+        }
     }
+
+    fun recommendationReason(reason: RecommendationReason): String =
+        when (reason) {
+            is RecommendationReason.CaskMatch ->
+                "높게 평가한 ${tagValue(TagCategory.Cask, reason.cask.name)} (${rating(reason.averageRating)}점)"
+            is RecommendationReason.WineStyleMatch ->
+                "높게 평가한 ${tagValue(TagCategory.WineStyle, reason.style.name)} (${rating(reason.averageRating)}점)"
+            is RecommendationReason.TasteAlignedStyle ->
+                "내 성향과 맞는 ${tagValue(TagCategory.WineStyle, reason.style.name)}"
+            RecommendationReason.GeneralCatalogMatch ->
+                "고루 즐기는 성향에 맞춘 추천"
+        }
+
+    fun bottleFactSummary(entry: BottleEntry): String =
+        listOfNotNull(
+            drinkType(entry.type),
+            entry.facts.cask?.let { tagValue(TagCategory.Cask, it.name) },
+            entry.facts.wineStyle?.let { tagValue(TagCategory.WineStyle, it.name) },
+        ).joinToString(" · ")
 
     fun tagCategory(category: TagCategory): String =
         when (category) {

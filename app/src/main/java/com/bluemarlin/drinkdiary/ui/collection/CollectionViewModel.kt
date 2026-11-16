@@ -4,55 +4,86 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.bluemarlin.drinkdiary.domain.model.AppResult
+import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.repository.DrinkRecordRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// null 이면 두 주종을 한 목록에 섞어 보여준다 — PRD F1 "두 주종이 하나의 컬렉션에 쌓인다".
 data class CollectionUiState(
     val filter: DrinkType? = null,
+    val statusFilter: CollectionStatus? = null,
+    val query: String = "",
+    val sortByRating: Boolean = false,
+    val allRecords: List<DrinkRecord> = emptyList(),
     val records: List<DrinkRecord> = emptyList(),
     val loaded: Boolean = false,
     val error: String? = null,
 )
 
-@OptIn(ExperimentalCoroutinesApi::class)
+private data class FilterCriteria(
+    val type: DrinkType? = null,
+    val status: CollectionStatus? = null,
+    val query: String = "",
+    val sortByRating: Boolean = false,
+)
+
 class CollectionViewModel(
     private val repository: DrinkRecordRepository,
 ) : ViewModel() {
-    private val filter = MutableStateFlow<DrinkType?>(null)
+    private val criteria = MutableStateFlow(FilterCriteria())
     private val error = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<CollectionUiState> =
         combine(
-            filter,
-            filter.flatMapLatest { repository.observeRecords(it) },
+            repository.observeRecords(null),
+            criteria,
             error,
-        ) { selected, records, message ->
+        ) { allRecords, activeCriteria, message ->
+            val filtered =
+                filterAndSort(
+                    records = allRecords,
+                    criteria = activeCriteria,
+                )
             CollectionUiState(
-                filter = selected,
-                records = records,
+                filter = activeCriteria.type,
+                statusFilter = activeCriteria.status,
+                query = activeCriteria.query,
+                sortByRating = activeCriteria.sortByRating,
+                allRecords = allRecords,
+                records = filtered,
                 loaded = true,
                 error = message,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CollectionUiState())
 
     fun selectFilter(type: DrinkType?) {
-        filter.value = type
+        criteria.update { it.copy(type = type) }
+    }
+
+    fun selectStatusFilter(status: CollectionStatus?) {
+        criteria.update { current ->
+            val next = if (current.status == status) null else status
+            current.copy(status = next)
+        }
+    }
+
+    fun updateQuery(query: String) {
+        criteria.update { it.copy(query = query) }
+    }
+
+    fun toggleSortByRating() {
+        criteria.update { it.copy(sortByRating = !it.sortByRating) }
     }
 
     fun delete(id: Long) {
         viewModelScope.launch {
-            // 삭제 실패를 조용히 넘기면 목록이 그대로라 사용자는 지워진 줄 안다(harness.md §7).
             when (repository.deleteById(id)) {
                 is AppResult.Success -> error.value = null
                 is AppResult.Failure -> error.value = "지우지 못했습니다. 다시 시도해 주세요."
@@ -61,6 +92,34 @@ class CollectionViewModel(
     }
 
     fun dismissError() = error.update { null }
+
+    private fun filterAndSort(
+        records: List<DrinkRecord>,
+        criteria: FilterCriteria,
+    ): List<DrinkRecord> {
+        val needle = criteria.query.trim().lowercase()
+        val matched =
+            records.filter { record ->
+                val typeMatches = criteria.type == null || record.type == criteria.type
+                val statusMatches = criteria.status == null || record.collectionStatus == criteria.status
+                val queryMatches =
+                    needle.isEmpty() ||
+                        record.name.lowercase().contains(needle) ||
+                        record.place?.lowercase()?.contains(needle) == true ||
+                        record.memo?.lowercase()?.contains(needle) == true ||
+                        record.vintage?.toString()?.contains(needle) == true
+                typeMatches && statusMatches && queryMatches
+            }
+
+        return if (criteria.sortByRating) {
+            matched.sortedWith(
+                compareByDescending<DrinkRecord> { it.rating }
+                    .thenByDescending { it.recordedAtMillis },
+            )
+        } else {
+            matched
+        }
+    }
 
     class Factory(
         private val repository: DrinkRecordRepository,

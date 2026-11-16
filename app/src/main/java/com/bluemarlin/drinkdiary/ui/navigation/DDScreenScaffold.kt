@@ -1,21 +1,14 @@
 package com.bluemarlin.drinkdiary.ui.navigation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.R
-import com.bluemarlin.drinkdiary.ui.component.DDSnackbarHost
-import com.bluemarlin.drinkdiary.ui.component.DDSnackbarState
 import com.example.ds.component.AuraBottomIslandItem
 import com.example.ds.component.AuraIcon
 import com.example.ds.component.AuraIconButton
@@ -53,10 +46,9 @@ fun DDScreenScaffold(
     onBackClick: (() -> Unit)? = null,
     scrollFraction: Float = 0f,
     toolbarActions: @Composable RowScope.() -> Unit = {},
-    snackbarHost: (@Composable (bottomClearance: Dp) -> Unit)? = null,
+    snackbarHost: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val defaultSnackbarState = remember { DDSnackbarState() }
     val showBottomBar = screenType == DDScreenType.TopLevel
     val backLabel = stringResource(R.string.back)
     val navIcon: (@Composable () -> Unit)? =
@@ -76,58 +68,46 @@ fun DDScreenScaffold(
             }
         }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (showBottomBar) {
-            FloatingGlassScaffold(
-                modifier = Modifier.fillMaxSize(),
-                topBar = { _ ->
-                    AuraTopAppBar(
-                        title = title,
-                        style = AuraTopAppBarStyle.FloatingCapsule,
-                        surface = AuraTopAppBarSurface.TranslucentGlass,
-                        scrollFraction = scrollFraction,
-                        navigationIcon = navIcon,
-                        actions = toolbarActions,
-                    )
-                },
-                bottomBar = { _ ->
-                    DDBottomNavigation(
-                        selectedTab = selectedTab,
-                        onDashboardClick = onDashboardClick,
-                        onCollectionClick = onCollectionClick,
-                        onSearchClick = onSearchClick,
-                        onAddClick = onAddClick,
-                    )
-                },
-                hasBottomIsland = true,
-                content = content,
-            )
-        } else {
-            AuraScaffold(
-                topBar = {
-                    AuraTopAppBar(
-                        title = title,
-                        style = AuraTopAppBarStyle.SurfaceDocked,
-                        surface = AuraTopAppBarSurface.SolidElevated,
-                        navigationIcon = navIcon,
-                        actions = toolbarActions,
-                    )
-                },
-                content = content,
-            )
-        }
-
-        val snackbarBottomClearance = if (showBottomBar) 92.dp else 12.dp
-        Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-            if (snackbarHost != null) {
-                snackbarHost(snackbarBottomClearance)
-            } else {
-                DDSnackbarHost(
-                    state = defaultSnackbarState,
-                    bottomPadding = snackbarBottomClearance,
+    if (showBottomBar) {
+        FloatingGlassScaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = { _ ->
+                AuraTopAppBar(
+                    title = title,
+                    style = AuraTopAppBarStyle.FloatingCapsule,
+                    surface = AuraTopAppBarSurface.TranslucentGlass,
+                    scrollFraction = scrollFraction,
+                    navigationIcon = navIcon,
+                    actions = toolbarActions,
                 )
-            }
-        }
+            },
+            bottomBar = { _ ->
+                DDBottomNavigation(
+                    selectedTab = selectedTab,
+                    onDashboardClick = onDashboardClick,
+                    onCollectionClick = onCollectionClick,
+                    onSearchClick = onSearchClick,
+                    onAddClick = onAddClick,
+                )
+            },
+            hasBottomIsland = true,
+            snackbarHost = snackbarHost,
+            content = content,
+        )
+    } else {
+        AuraScaffold(
+            topBar = {
+                AuraTopAppBar(
+                    title = title,
+                    style = AuraTopAppBarStyle.SurfaceDocked,
+                    surface = AuraTopAppBarSurface.SolidElevated,
+                    navigationIcon = navIcon,
+                    actions = toolbarActions,
+                )
+            },
+            snackbarHost = snackbarHost,
+            content = content,
+        )
     }
 }
 

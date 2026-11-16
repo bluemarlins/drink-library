@@ -1,20 +1,16 @@
 package com.bluemarlin.drinkdiary.ui.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.record.ProbeCopy
-import com.bluemarlin.drinkdiary.ui.theme.DDShape
 import com.example.ds.component.AuraCard
 import com.example.ds.component.AuraCardVariant
 import com.example.ds.component.AuraText
@@ -72,41 +68,6 @@ fun DDProbeQuestion(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun DDProbeProgress(
-    current: Int,
-    total: Int,
-    modifier: Modifier = Modifier,
-) {
-    val safeTotal = total.coerceAtLeast(0)
-    val safeCurrent = current.coerceIn(0, safeTotal)
-
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        repeat(safeTotal) { index ->
-            val color =
-                if (index < safeCurrent) {
-                    AuraTheme.colors.brand.primary
-                } else {
-                    AuraTheme.colors.surface.sunken
-                }
-            Box(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .height(4.dp)
-                        .background(
-                            color = color,
-                            shape = DDShape.extraSmall,
-                        ),
-            )
         }
     }
 }
