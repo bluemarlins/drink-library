@@ -11,6 +11,8 @@ interface BottleDictionary {
         type: DrinkType,
         name: String,
     ): BottleFacts?
+
+    fun entries(): List<BottleEntry>
 }
 
 // 이름으로 찾는다. 기록에 사전 id를 저장하지 않으므로 사전을 고치면 **과거 기록에도 바로 반영된다.**
@@ -18,6 +20,8 @@ interface BottleDictionary {
 class BottleMatcher(
     private val entriesProvider: () -> List<BottleEntry>,
 ) : BottleDictionary {
+    override fun entries(): List<BottleEntry> = entriesProvider()
+
     override fun lookup(
         type: DrinkType,
         name: String,
