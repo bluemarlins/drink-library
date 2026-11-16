@@ -4,14 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
+import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDDivider
 import com.bluemarlin.drinkdiary.ui.record.promotableTags
 import com.example.ds.component.AuraSwitch
@@ -27,17 +25,9 @@ fun SettingsScreen(
 ) {
     val layout = AuraTheme.layout
 
-    Column(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(contentPadding)
-                .padding(
-                    horizontal = layout.screenMarginHorizontal,
-                    vertical = layout.screenMarginVertical,
-                ),
-        verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
+    DDCenteredContent(
+        modifier = modifier,
+        contentPadding = contentPadding,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             AuraText("기록할 때 물어볼 것", style = AuraTheme.typography.titleMedium)

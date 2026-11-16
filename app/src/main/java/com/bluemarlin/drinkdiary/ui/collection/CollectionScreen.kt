@@ -1,6 +1,7 @@
 package com.bluemarlin.drinkdiary.ui.collection
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -52,30 +54,35 @@ fun CollectionScreen(
     val filterOptions = listOf(null to "전체", DrinkType.Wine to "와인", DrinkType.Whiskey to "위스키")
     val columns = layout.gridColumns.coerceAtLeast(1)
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
+    Box(
         modifier = modifier.fillMaxSize(),
-        contentPadding = gridPadding,
-        horizontalArrangement = Arrangement.spacedBy(layout.gridGutter),
-        verticalArrangement = Arrangement.spacedBy(layout.gridGutter),
+        contentAlignment = Alignment.TopCenter,
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }, key = "filter") {
-            AuraSegmentedButton(
-                options = filterOptions.map { it.second },
-                selectedIndex = filterOptions.indexOfFirst { it.first == state.filter }.coerceAtLeast(0),
-                onOptionSelected = { index -> onFilterChange(filterOptions[index].first) },
-                fullWidth = true,
-            )
-        }
-
-        // 아직 한 번도 읽지 않은 상태를 "기록이 없다"로 말하지 않는다 — 로딩과 빈 목록은 다르다.
-        if (state.loaded && state.records.isEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }, key = "empty") {
-                EmptyCollection(filtered = state.filter != null)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columns),
+            modifier = Modifier.widthIn(max = layout.maxContentWidth).fillMaxSize(),
+            contentPadding = gridPadding,
+            horizontalArrangement = Arrangement.spacedBy(layout.gridGutter),
+            verticalArrangement = Arrangement.spacedBy(layout.gridGutter),
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }, key = "filter") {
+                AuraSegmentedButton(
+                    options = filterOptions.map { it.second },
+                    selectedIndex = filterOptions.indexOfFirst { it.first == state.filter }.coerceAtLeast(0),
+                    onOptionSelected = { index -> onFilterChange(filterOptions[index].first) },
+                    fullWidth = true,
+                )
             }
-        } else {
-            items(state.records, key = { it.id }) { record ->
-                RecordRow(record = record, onClick = { onOpen(record.id) })
+
+            // 아직 한 번도 읽지 않은 상태를 "기록이 없다"로 말하지 않는다 — 로딩과 빈 목록은 다르다.
+            if (state.loaded && state.records.isEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }, key = "empty") {
+                    EmptyCollection(filtered = state.filter != null)
+                }
+            } else {
+                items(state.records, key = { it.id }) { record ->
+                    RecordRow(record = record, onClick = { onOpen(record.id) })
+                }
             }
         }
     }

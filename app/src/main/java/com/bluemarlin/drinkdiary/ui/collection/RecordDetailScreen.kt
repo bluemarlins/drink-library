@@ -4,12 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,18 +14,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
+import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDDivider
 import com.bluemarlin.drinkdiary.ui.component.DDDrinkBadge
 import com.bluemarlin.drinkdiary.ui.component.DDRepurchaseBadge
+import com.bluemarlin.drinkdiary.ui.component.DDTwoPaneContent
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
 import com.bluemarlin.drinkdiary.ui.theme.DDShape
-import com.example.ds.component.AuraAdaptiveTwoPane
 import com.example.ds.component.AuraBadge
 import com.example.ds.component.AuraBadgeVariant
 import com.example.ds.component.AuraButton
@@ -54,15 +51,10 @@ fun RecordDetailScreen(
 
     if (record == null) {
         // 삭제 직후에도 잠깐 지나가는 상태다. "없어졌다"고 단정하지 않는다.
-        Column(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .padding(contentPadding)
-                    .padding(
-                        horizontal = layout.screenMarginHorizontal,
-                        vertical = layout.screenMarginVertical,
-                    ),
+        DDCenteredContent(
+            modifier = modifier,
+            contentPadding = contentPadding,
+            scrollable = false,
         ) {
             AuraText("기록을 불러오는 중이에요.", style = AuraTheme.typography.bodyLarge)
         }
@@ -72,11 +64,9 @@ fun RecordDetailScreen(
     var confirming by remember { mutableStateOf(false) }
 
     if (layout.supportsTwoPane) {
-        AuraAdaptiveTwoPane(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .padding(contentPadding),
+        DDTwoPaneContent(
+            modifier = modifier,
+            contentPadding = contentPadding,
             primaryPane = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -99,17 +89,9 @@ fun RecordDetailScreen(
             },
         )
     } else {
-        Column(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(contentPadding)
-                    .padding(
-                        horizontal = layout.screenMarginHorizontal,
-                        vertical = layout.screenMarginVertical,
-                    ),
-            verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
+        DDCenteredContent(
+            modifier = modifier,
+            contentPadding = contentPadding,
         ) {
             RecordOverviewSection(record)
             DDDivider()
@@ -260,9 +242,15 @@ private fun DetailRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AuraText(label, style = AuraTheme.typography.bodyLarge, color = AuraTheme.colors.content.secondary)
-        AuraText(value, style = AuraTheme.typography.bodyLarge, color = Color.Unspecified)
+        AuraText(
+            value,
+            style = AuraTheme.typography.bodyLarge,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f),
+        )
     }
 }

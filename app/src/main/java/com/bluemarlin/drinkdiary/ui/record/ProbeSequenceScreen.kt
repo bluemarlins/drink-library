@@ -1,11 +1,8 @@
 package com.bluemarlin.drinkdiary.ui.record
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,10 +14,10 @@ import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
+import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDProbeProgress
 import com.bluemarlin.drinkdiary.ui.component.DDProbeQuestion
 import com.bluemarlin.drinkdiary.ui.theme.DrinkDiaryTheme
-import com.example.ds.foundation.theme.AuraTheme
 
 @Composable
 fun ProbeSequenceScreen(
@@ -29,6 +26,7 @@ fun ProbeSequenceScreen(
     onAnswer: (Trait, TraitAnswer) -> Unit,
     onComplete: () -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
     // 기본 경로는 공통 축 4개만 묻는다. 주종 고유 축(산미·탄닌·피트·알코올)을 여기 넣으면
     // 와인 기준 탭이 7회가 되어 PRD F2의 5회 상한을 넘긴다(실기기에서 확인).
@@ -42,17 +40,10 @@ fun ProbeSequenceScreen(
     }
 
     val safeIndex = currentIndex.coerceIn(0, traits.lastIndex)
-    val layout = AuraTheme.layout
 
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .padding(
-                    horizontal = layout.screenMarginHorizontal,
-                    vertical = layout.screenMarginVertical,
-                ),
-        verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
+    DDCenteredContent(
+        modifier = modifier,
+        contentPadding = contentPadding,
     ) {
         DDProbeProgress(
             current = safeIndex + 1,

@@ -7,12 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +25,7 @@ import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.ServingStyle
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
+import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
 import com.bluemarlin.drinkdiary.ui.theme.DDShape
 import com.example.ds.component.AuraButton
@@ -53,6 +52,7 @@ fun RecordDetailStep(
     onSave: () -> Unit,
     saving: Boolean,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     // 편집 화면도 이 폼을 그대로 쓴다. 폼을 복제하면 저장 규칙이 한쪽에서만 지켜진다.
     saveLabel: String = "저장",
     // 편집에서만 채워지는 자리. 작성 경로는 마법사가 이미 취향을 물었으므로 비어 있다 —
@@ -68,16 +68,9 @@ fun RecordDetailStep(
         }
     val layout = AuraTheme.layout
 
-    Column(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = layout.screenMarginHorizontal,
-                    vertical = layout.screenMarginVertical,
-                ),
-        verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
+    DDCenteredContent(
+        modifier = modifier,
+        contentPadding = contentPadding,
     ) {
         AuraText("무엇이었나요?", style = AuraTheme.typography.headlineSmall)
 

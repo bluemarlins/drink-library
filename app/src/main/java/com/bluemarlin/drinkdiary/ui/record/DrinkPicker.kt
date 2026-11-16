@@ -1,12 +1,15 @@
 package com.bluemarlin.drinkdiary.ui.record
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.DrinkTags
@@ -14,6 +17,9 @@ import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.domain.model.WhiskyStyle
 import com.bluemarlin.drinkdiary.domain.model.WineColor
+import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
+import com.bluemarlin.drinkdiary.ui.component.DDTwoPaneContent
+import com.example.ds.component.AuraAdaptiveGrid
 import com.example.ds.component.AuraCard
 import com.example.ds.component.AuraCardPadding
 import com.example.ds.component.AuraCardVariant
@@ -75,22 +81,72 @@ private val whiskeyChoices =
 fun DrinkPicker(
     onPick: (DrinkChoice) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
     val layout = AuraTheme.layout
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .padding(
-                    horizontal = layout.screenMarginHorizontal,
-                    vertical = layout.screenMarginVertical,
-                ),
-        verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
-    ) {
-        AuraText("무엇을 마셨나요?", style = AuraTheme.typography.headlineSmall)
+    if (layout.supportsTwoPane) {
+        val groupColumns = if (layout.gridColumns >= 3) 2 else 1
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Column(
+                modifier = Modifier.widthIn(max = layout.maxContentWidth).fillMaxSize(),
+            ) {
+                AuraText(
+                    text = "무엇을 마셨나요?",
+                    style = AuraTheme.typography.headlineSmall,
+                    modifier =
+                        Modifier
+                            .padding(contentPadding)
+                            .padding(
+                                start = layout.screenMarginHorizontal,
+                                end = layout.screenMarginHorizontal,
+                                top = layout.screenMarginVertical,
+                            ),
+                )
+                DDTwoPaneContent(
+                    modifier = Modifier.weight(1f),
+                    primaryPaneFraction = 0.5f,
+                    primaryPane = {
+                        ChoiceGroup(
+                            title = "와인",
+                            choices = wineChoices,
+                            columns = groupColumns,
+                            onPick = onPick,
+                        )
+                    },
+                    secondaryPane = {
+                        ChoiceGroup(
+                            title = "위스키",
+                            choices = whiskeyChoices,
+                            columns = groupColumns,
+                            onPick = onPick,
+                        )
+                    },
+                )
+            }
+        }
+    } else {
+        DDCenteredContent(
+            modifier = modifier,
+            contentPadding = contentPadding,
+        ) {
+            AuraText("무엇을 마셨나요?", style = AuraTheme.typography.headlineSmall)
 
-        ChoiceGroup(title = "와인", choices = wineChoices, onPick = onPick)
-        ChoiceGroup(title = "위스키", choices = whiskeyChoices, onPick = onPick)
+            ChoiceGroup(
+                title = "와인",
+                choices = wineChoices,
+                columns = layout.gridColumns,
+                onPick = onPick,
+            )
+            ChoiceGroup(
+                title = "위스키",
+                choices = whiskeyChoices,
+                columns = layout.gridColumns,
+                onPick = onPick,
+            )
+        }
     }
 }
 
@@ -98,6 +154,7 @@ fun DrinkPicker(
 private fun ChoiceGroup(
     title: String,
     choices: List<DrinkChoice>,
+    columns: Int,
     onPick: (DrinkChoice) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -106,23 +163,21 @@ private fun ChoiceGroup(
             style = AuraTheme.typography.titleSmall,
             color = AuraTheme.colors.content.secondary,
         )
-        FlowRow(
+        AuraAdaptiveGrid(
+            items = choices,
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            choices.forEach { choice ->
-                AuraCard(
-                    onClick = { onPick(choice) },
-                    variant = AuraCardVariant.Outlined,
-                    padding = AuraCardPadding.None,
-                ) {
-                    AuraText(
-                        text = choice.label,
-                        style = AuraTheme.typography.titleMedium,
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp),
-                    )
-                }
+            columns = columns,
+        ) { choice ->
+            AuraCard(
+                onClick = { onPick(choice) },
+                variant = AuraCardVariant.Outlined,
+                padding = AuraCardPadding.None,
+            ) {
+                AuraText(
+                    text = choice.label,
+                    style = AuraTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp),
+                )
             }
         }
     }

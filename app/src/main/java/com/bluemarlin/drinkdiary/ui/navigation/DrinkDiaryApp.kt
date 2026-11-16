@@ -3,7 +3,6 @@ package com.bluemarlin.drinkdiary.ui.navigation
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -162,7 +161,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 onBackClick = { screen = Screen.Dashboard },
                 snackbarHost = host,
             ) { padding ->
-                RecordFlow(modifier = modifier.padding(padding))
+                RecordFlow(modifier = modifier, contentPadding = padding)
             }
 
         is Screen.Detail -> {

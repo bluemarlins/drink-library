@@ -4,11 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,10 +17,11 @@ import com.bluemarlin.drinkdiary.domain.model.TasteProfile
 import com.bluemarlin.drinkdiary.domain.model.TraitPreference
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
+import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDProfileProgressCard
 import com.bluemarlin.drinkdiary.ui.component.DDTasteSentenceCard
 import com.bluemarlin.drinkdiary.ui.component.DDTasteTypeBadge
-import com.example.ds.component.AuraAdaptiveTwoPane
+import com.bluemarlin.drinkdiary.ui.component.DDTwoPaneContent
 import com.example.ds.component.AuraBadge
 import com.example.ds.component.AuraBadgeVariant
 import com.example.ds.component.AuraSegmentedButton
@@ -49,11 +46,9 @@ fun ProfileScreen(
     val answeredSpecific = specific.filter { it.samples > 0 }
 
     if (layout.supportsTwoPane) {
-        AuraAdaptiveTwoPane(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .padding(contentPadding),
+        DDTwoPaneContent(
+            modifier = modifier,
+            contentPadding = contentPadding,
             primaryPane = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -78,17 +73,9 @@ fun ProfileScreen(
             },
         )
     } else {
-        Column(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(contentPadding)
-                    .padding(
-                        horizontal = layout.screenMarginHorizontal,
-                        vertical = layout.screenMarginVertical,
-                    ),
-            verticalArrangement = Arrangement.spacedBy(layout.sectionSpacing),
+        DDCenteredContent(
+            modifier = modifier,
+            contentPadding = contentPadding,
         ) {
             ScopeSelector(selected = state.scope, onSelect = onScopeChange)
             SummaryHeadline(readiness = state.readiness, profile = state.profile)

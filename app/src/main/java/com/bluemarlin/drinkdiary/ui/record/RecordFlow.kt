@@ -1,12 +1,8 @@
 package com.bluemarlin.drinkdiary.ui.record
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bluemarlin.drinkdiary.DrinkDiaryApplication
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
+import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDDivider
 import com.example.ds.component.AuraButton
 import com.example.ds.component.AuraButtonSize
@@ -30,7 +27,10 @@ import com.example.ds.foundation.theme.AuraTheme
 private enum class Step { PickDrink, Probes, Detail, Saved }
 
 @Composable
-fun RecordFlow(modifier: Modifier = Modifier) {
+fun RecordFlow(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+) {
     val appContainer = (LocalContext.current.applicationContext as DrinkDiaryApplication).appContainer
     val viewModel: RecordViewModel =
         viewModel(
@@ -54,6 +54,7 @@ fun RecordFlow(modifier: Modifier = Modifier) {
                         step = Step.Probes
                     },
                     modifier = modifier,
+                    contentPadding = contentPadding,
                 )
 
             Step.Probes ->
@@ -63,6 +64,7 @@ fun RecordFlow(modifier: Modifier = Modifier) {
                     onAnswer = viewModel::answer,
                     onComplete = { step = Step.Detail },
                     modifier = modifier,
+                    contentPadding = contentPadding,
                 )
 
             Step.Detail ->
@@ -74,6 +76,7 @@ fun RecordFlow(modifier: Modifier = Modifier) {
                     onSave = viewModel::save,
                     saving = state.saving,
                     modifier = modifier,
+                    contentPadding = contentPadding,
                 )
 
             Step.Saved ->
@@ -87,6 +90,7 @@ fun RecordFlow(modifier: Modifier = Modifier) {
                         step = Step.PickDrink
                     },
                     modifier = modifier,
+                    contentPadding = contentPadding,
                 )
         }
     }
@@ -98,10 +102,12 @@ fun RecordFlow(modifier: Modifier = Modifier) {
             it,
             color = AuraTheme.colors.status.error.solid,
             modifier =
-                Modifier.padding(
-                    horizontal = layout.screenMarginHorizontal,
-                    vertical = layout.screenMarginVertical,
-                ),
+                Modifier
+                    .padding(contentPadding)
+                    .padding(
+                        horizontal = layout.screenMarginHorizontal,
+                        vertical = layout.screenMarginVertical,
+                    ),
         )
     }
 }
@@ -114,18 +120,11 @@ private fun RecordSaved(
     onChooseTags: (Set<TagCategory>) -> Unit,
     onRestart: () -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
-    val layout = AuraTheme.layout
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = layout.screenMarginHorizontal,
-                    vertical = layout.screenMarginVertical,
-                ),
-        verticalArrangement = Arrangement.spacedBy(layout.gridGutter),
+    DDCenteredContent(
+        modifier = modifier,
+        contentPadding = contentPadding,
     ) {
         AuraText("기록했습니다.", style = AuraTheme.typography.headlineSmall)
         AuraText("취향 입력은 탭 ${taps}번으로 끝났습니다.", style = AuraTheme.typography.bodyLarge)

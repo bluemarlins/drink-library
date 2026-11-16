@@ -1,13 +1,11 @@
 package com.bluemarlin.drinkdiary.ui.record
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
+import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDDivider
 import com.example.ds.component.AuraText
 import com.example.ds.foundation.theme.AuraTheme
@@ -23,17 +21,11 @@ fun EditRecordScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
-    val layout = AuraTheme.layout
     if (!state.loaded) {
-        Column(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .padding(contentPadding)
-                    .padding(
-                        horizontal = layout.screenMarginHorizontal,
-                        vertical = layout.screenMarginVertical,
-                    ),
+        DDCenteredContent(
+            modifier = modifier,
+            contentPadding = contentPadding,
+            scrollable = false,
         ) {
             AuraText("기록을 불러오는 중이에요.", style = AuraTheme.typography.bodyLarge)
         }
@@ -42,15 +34,10 @@ fun EditRecordScreen(
 
     if (state.missing) {
         // 목록에서 이미 지워졌을 수 있다. 빈 폼을 보여주면 저장할 때 **새 기록이 생긴다.**
-        Column(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .padding(contentPadding)
-                    .padding(
-                        horizontal = layout.screenMarginHorizontal,
-                        vertical = layout.screenMarginVertical,
-                    ),
+        DDCenteredContent(
+            modifier = modifier,
+            contentPadding = contentPadding,
+            scrollable = false,
         ) {
             AuraText("이 기록을 찾을 수 없어요.", style = AuraTheme.typography.bodyLarge)
         }
@@ -64,7 +51,8 @@ fun EditRecordScreen(
         onFormChange = onFormChange,
         onSave = onSave,
         saving = state.saving,
-        modifier = modifier.padding(contentPadding),
+        modifier = modifier,
+        contentPadding = contentPadding,
         saveLabel = "고친 내용 저장",
         tasteSection = {
             DDDivider()

@@ -14,7 +14,7 @@
 - **기존 규격과의 충돌 해결 (Aura 기준 통일):**
   - **색상 (`02-color.md`):** 기존 Warm Paper(`#FFF8F2`), Wine/Malt 별도 팔레트 및 `ChartWine*`/`ChartWhiskey*` 16진수 상수는 `EVAL-002`(하드코딩 헥스 금지)와 충돌하므로 제거했다. 모든 표면·텍스트·브랜드·상태 색은 `AuraTheme.colors`를 사용하며, 와인/위스키 구분 배지는 `AuraBadgeVariant.Error` / `AuraBadgeVariant.Warning`으로 매핑한다.
   - **타이포그래피 (`04-typography.md`):** Aura는 Sans-only 정책을 따른다. 기존 `DisplayTasteCode`(Serif)와 `HeadlineSentence` 예외 토큰을 제거하고 `AuraTheme.typography.displayMedium` 및 `AuraTheme.typography.headlineMedium`으로 통일했다.
-  - **레이아웃 (`05-responsive-layout.md`):** 화면별 하드코딩 여백(`20.dp`/`24.dp`/`96.dp`) 대신 `AuraTheme.layout`(`screenMarginHorizontal`, `screenMarginVertical`, `sectionSpacing`, `gridGutter`, `gridColumns`, `supportsTwoPane`)을 사용한다.
+  - **레이아웃 (`05-responsive-layout.md`):** 화면별 하드코딩 여백(`20.dp`/`24.dp`/`96.dp`) 대신 `AuraTheme.layout`(`screenMarginHorizontal`, `screenMarginVertical`, `sectionSpacing`, `gridGutter`, `gridColumns`, `maxContentWidth`, `supportsTwoPane`)을 사용한다. 단일 열 폼/안내 화면과 2단 레이아웃 모두 [`DDResponsive.kt`](../../../src/main/java/com/bluemarlin/drinkdiary/ui/component/DDResponsive.kt)(`DDCenteredContent`, `DDTwoPaneContent`)를 통해 `maxContentWidth`로 최대 폭을 제한·중앙 정렬한다.
   - **내비게이션:** Rail/Drawer 없이 모든 폭에서 최상위는 `FloatingGlassScaffold` + `AuraTopAppBar(FloatingCapsule, TranslucentGlass)` + `FloatingBottomIsland(GlassStyle.LIQUID, splitAction = "+" / 기록하기)`을 사용하고, 상세/편집은 `AuraScaffold` + `AuraTopAppBar(SurfaceDocked, SolidElevated)`를 사용한다.
 
 ---
@@ -36,7 +36,7 @@
 | 별점 입력 / 읽기 전용 표시 | `AuraRatingBar` | `allowHalfRating = true` (`0.5` 단위 허용), 상세는 `onRatingChange = null` 읽기 전용 |
 | 스위치 | `AuraSwitch` | 설정 화면 태그 자동 질문 토글 |
 | 삭제 확인 다이얼로그 | `AuraDialog` (`AuraDialogVariant.Destructive`) | 기록 삭제 확인 |
-| 적응형 그리드 / 2단 레이아웃 | `LazyVerticalGrid(GridCells.Fixed(layout.gridColumns))`, `AuraAdaptiveTwoPane` | 대시보드·상세 `supportsTwoPane` 대응 |
+| 적응형 그리드 / 2단 레이아웃 | `AuraAdaptiveGrid`, `AuraAdaptiveTwoPane`, `LazyVerticalGrid(GridCells.Fixed(layout.gridColumns))` | 주종 선택 그리드(`DrinkPicker`), 대시보드·상세·주종 선택 `supportsTwoPane` 및 `maxContentWidth` 대응 |
 
 ---
 
