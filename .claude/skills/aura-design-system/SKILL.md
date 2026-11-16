@@ -40,11 +40,11 @@ Every screen and custom component you write in a consumer app **must** follow th
 ## 2. Quick Consumer Setup
 
 ### Option A: Local AAR (Recommended for Workspace Sync)
-1. Place `aura-design-system-1.0.0.aar` in `<app-module>/libs/`.
+1. Place `aura-design-system-1.1.0.aar` in `<app-module>/libs/`.
 2. In `<app-module>/build.gradle.kts`:
    ```kotlin
    dependencies {
-       implementation(files("libs/aura-design-system-1.0.0.aar"))
+       implementation(files("libs/aura-design-system-1.1.0.aar"))
    }
    ```
 3. Or run the helper script from `aura-design-system` to build & sync both the AAR and this skill kit:
@@ -63,7 +63,7 @@ dependencyResolutionManagement {
 
 // app/build.gradle.kts
 dependencies {
-    implementation("com.github.bluemarlins:aura-design-system:1.0.0")
+    implementation("com.github.bluemarlins:aura-design-system:1.1.0")
 }
 ```
 
@@ -92,7 +92,7 @@ All components live in `package com.example.ds.component`. Choose the closest Au
 | **Spatial Glass** | `FloatingGlassScaffold`, `GlassSurface`, `rememberGlassBackdropState`, `Modifier.glassBackdropSource`, `rememberFloatingScrollProgress`, `calculateBottomIslandContentPadding`, `LiquidMetaballBridge` |
 | **Actions** | `AuraButton`, `AuraIconButton`, `AuraFab`, `AuraSegmentedButton`, `AuraChipButton` |
 | **Inputs & Selection** | `AuraTextField`, `AuraNumberField`, `AuraSearchBar`, `AuraDateTimePicker`, `AuraSwitch`, `AuraCheckbox`, `AuraRadio`, `AuraSlider`, `AuraRatingBar` |
-| **Containment & Feedback** | `AuraCard`, `AuraDialog`, `AuraBadge`, `AuraBadgedBox` |
+| **Containment & Feedback** | `AuraCard`, `AuraDialog`, `AuraDivider`, `AuraBadge`, `AuraBadgedBox`, `AuraLinearProgressBar`, `AuraStepProgressBar`, `AuraSnackbar`, `AuraSnackbarHost` |
 
 ---
 
@@ -100,8 +100,8 @@ All components live in `package com.example.ds.component`. Choose the closest Au
 
 Read only what the current screen or component task needs:
 
-- **[Tokens, Typography, Layout, Motion, Elevation & Theme](references/tokens-and-theme.md)** — Exact `AuraTheme.*` accessors, all 16 typography roles, `Smallest Width × Display Ratio` responsive tokens, dual-track `AuraMotion` properties/methods, `AuraElevation`, and `AuraMaterial` resolution.
-- **[Complete Kotlin Component API Catalog](references/components-api.md)** — Exact `@Composable` signatures, enum variants, defaults, and deprecation notes (`GlassStyle` -> `AuraMaterial`) for all 21 Ready components and spatial glass utilities.
+- **[Tokens, Typography, Layout, Motion, Elevation & Theme](references/tokens-and-theme.md)** — Exact `AuraTheme.*` accessors (`colors`, `typography`, `shapes`, `layout`, `motion`, `elevation`), 16 typography roles, `Smallest Width × Display Ratio` responsive tokens, dual-track `AuraMotion` properties/methods, `AuraElevation`, and `AuraMaterial` resolution.
+- **[Complete Kotlin Component API Catalog](references/components-api.md)** — Exact `@Composable` signatures, enum variants, defaults, and deprecation notes (`GlassStyle` -> `AuraMaterial`) for all 24 Ready components and spatial glass utilities.
 - **[Motion, Layer & Visual Interaction Rules](references/motion-and-visual-rules.md)** — Z-layer boundaries (`VIS-RULE-001`–`007`), hardware/accessibility degradation matrix, `Standard` vs. `Expressive` placement, stagger choreography (`MOT-RULE-001`–`007`), and `EVAL-001`–`EVAL-008` checklist.
 - **[Production Screen & Gap-Component Recipes](references/recipes-and-patterns.md)** — Copy-ready Compose templates for `FloatingGlassScaffold` home feeds, `AuraScaffold` detail/form screens with `maxContentWidth`, `AuraAdaptiveTwoPane` master-detail layouts, `AuraDialog`, and compliant app-prefixed gap components.
 

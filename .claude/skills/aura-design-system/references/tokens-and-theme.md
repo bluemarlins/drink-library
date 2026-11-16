@@ -28,6 +28,7 @@ fun AuraTheme(
     windowInfo: AuraWindowInfo = rememberAuraWindowInfo(),
     layout: AuraLayout = AuraLayoutDefaults.fromWindowInfo(windowInfo),
     typography: AuraTypography = AuraTypographyDefaults.scaled(layout.typographyScale),
+    shapes: AuraShapes = AuraShapesDefaults.Standard,
     content: @Composable () -> Unit,
 )
 ```
@@ -35,6 +36,7 @@ fun AuraTheme(
 ### Read-Only Accessors (`object AuraTheme`)
 - `AuraTheme.colors: AuraColors`
 - `AuraTheme.typography: AuraTypography`
+- `AuraTheme.shapes: AuraShapes` (`extraSmall = 4.dp`, `small = 8.dp`, `medium = 12.dp`, `large = 16.dp`, `extraLarge = 24.dp`, `full = CircleShape`)
 - `AuraTheme.motion: AuraMotion`
 - `AuraTheme.elevation: AuraElevation`
 - `AuraTheme.window: AuraWindowInfo`

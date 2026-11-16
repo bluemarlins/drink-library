@@ -66,6 +66,7 @@ fun AuraScaffold(
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
     containerColor: Color = AuraTheme.colors.background.primary,
     contentColor: Color = AuraTheme.colors.content.primary,
     contentWindowInsets: WindowInsets = WindowInsets.systemBars,
@@ -109,6 +110,7 @@ fun FloatingGlassScaffold(
     hasBottomIsland: Boolean = true,
     bottomIslandHeight: Dp = 60.dp,
     bottomIslandMargin: Dp = 16.dp,
+    snackbarHost: @Composable () -> Unit = {},
     containerColor: Color = AuraTheme.colors.background.primary,
     contentColor: Color = AuraTheme.colors.content.primary,
     content: @Composable (PaddingValues) -> Unit,
@@ -588,5 +590,72 @@ fun AuraBadgedBox(
     badge: @Composable BoxScope.() -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
+)
+
+enum class AuraDividerOrientation { Horizontal, Vertical }
+enum class AuraDividerTone { Subtle, Default, Strong }
+
+@Composable
+fun AuraDivider(
+    modifier: Modifier = Modifier,
+    orientation: AuraDividerOrientation = AuraDividerOrientation.Horizontal,
+    tone: AuraDividerTone = AuraDividerTone.Subtle,
+    thickness: Dp = 1.dp,
+    startIndent: Dp = 0.dp,
+    endIndent: Dp = 0.dp,
+)
+
+enum class AuraProgressVariant { Brand, Success, Warning, Error, Info }
+
+@Composable
+fun AuraLinearProgressBar(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    variant: AuraProgressVariant = AuraProgressVariant.Brand,
+    height: Dp = 6.dp,
+    shape: Shape = AuraTheme.shapes.small,
+    trackColor: Color = AuraTheme.colors.surface.sunken,
+    indicatorColor: Color = Color.Unspecified,
+    contentDescription: String? = null,
+)
+
+@Composable
+fun AuraStepProgressBar(
+    currentStep: Int,
+    totalSteps: Int,
+    modifier: Modifier = Modifier,
+    variant: AuraProgressVariant = AuraProgressVariant.Brand,
+    height: Dp = 4.dp,
+    segmentSpacing: Dp = 4.dp,
+    shape: Shape = AuraTheme.shapes.extraSmall,
+    activeColor: Color = Color.Unspecified,
+    inactiveColor: Color = AuraTheme.colors.surface.sunken,
+    contentDescription: String? = null,
+)
+
+enum class AuraSnackbarVariant { Neutral, Success, Warning, Error }
+enum class AuraSnackbarDuration(val durationMillis: Long) { Short(3_000L), Long(5_000L), Indefinite(kotlin.Long.MAX_VALUE) }
+enum class AuraSnackbarResult { Dismissed, ActionPerformed }
+
+@Composable
+fun rememberAuraSnackbarHostState(): AuraSnackbarHostState
+
+@Composable
+fun AuraSnackbarHost(
+    hostState: AuraSnackbarHostState,
+    modifier: Modifier = Modifier,
+    material: AuraMaterial = AuraMaterial.Solid,
+    snackbar: @Composable (AuraSnackbarData) -> Unit = ...,
+)
+
+@Composable
+fun AuraSnackbar(
+    message: String,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onActionClick: (() -> Unit)? = null,
+    variant: AuraSnackbarVariant = AuraSnackbarVariant.Neutral,
+    material: AuraMaterial = AuraMaterial.Solid,
+    shape: Shape = AuraTheme.shapes.medium,
 )
 ```
