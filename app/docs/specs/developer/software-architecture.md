@@ -330,20 +330,16 @@ enum은 문자열로 저장한다(`harness.md` §1).
 
 ```text
 ui/
-  record/       F1·F2  기록 작성 — Probe 기반 3탭 입력
-  profile/      F3     취향 요약 (문장 우선, 차트 보조)
-                       유형은 공통 축으로만 성립하므로 축 목록도 공통 축만 보여준다.
-                       주종 고유 축은 확장 입력 경로가 생기기 전까지 답이 없으므로 숨긴다 —
-                       기본 경로가 묻지도 않는 축에 "더 기록하면 판정된다"고 약속하지 않는다.
-  collection/   F1     기록 목록 · 상세 · 삭제. 두 주종이 한 목록에 섞이고 칩으로 걸러낸다
+  record/       F1·F2  기록 작성 — 주종별 6개 지표 원탭 평가 및 단계별 뒤로가기
+  profile/      F3     Dashboard — 한눈에 보는 기록 요약, 4글자 유형 + 6축 스펙트럼, 다음 구매 추천
+  collection/   F1     기록 목록 · 검색 · 상태 필터 · 정렬 · 상세 · 삭제
   record/       F1-1   기록 편집 — EditRecordScreen. 작성과 **같은 폼**(RecordDetailStep)에
-                       취향 편집(TasteEditor)만 슬롯으로 끼운다
-  settings/     F7     기록할 때 물어볼 태그. 백업·내보내기·Pro는 화면이 생길 때 들어온다
-  ui/DrinkLabels.kt    주종·상태·축·날짜·가격 라벨. 기록 화면과 컬렉션 화면이 같은 것을
-                       다른 말로 부르지 않도록 한곳에서만 정의한다
-  lookup/       F5     매장용 빠른 조회 — 진입 즉시 검색 포커스
-  share/        F4     공유 카드 생성·미리보기
-  component/           DD* 공용 컴포넌트
+                       6개 지표 취향 편집(TasteEditor)만 슬롯으로 끼운다
+  settings/     F7     로컬 JSON 백업·복원 (SAF CreateDocument / OpenDocument). 커스터마이징 미노출
+  ui/DrinkLabels.kt    주종·상태·축·날짜·가격·추천 이유 라벨. 한곳에서만 정의한다
+  lookup/       F5     매장용 빠른 조회 — 검색바, ★ 또 살래요, 사전 매칭, 추천 요약
+  share/        F4     9:16(1080×1920) 취향 공유 카드 로컬 비트맵 생성 · 미리보기 · OS 공유
+  component/           DD* 공용 컴포넌트 (DDDashboardSummaryCard, DDTraitSpectrumRow, DDBuyRecommendationSection 등)
 ```
 
 ### 6-1. 편집 — 폼을 복제하지 않는다 (2026-08-16)

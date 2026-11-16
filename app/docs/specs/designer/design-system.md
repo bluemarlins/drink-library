@@ -1,13 +1,13 @@
 # Design System — Aura Design System 적용 및 앱 로컬 Gap 규격
 
-**최종 수정일:** 2026-11-15  
-**목적:** `app` 모듈 UI 전체에 **Aura Design System (`v1.0.0`, `com.example.ds`)**을 단일 디자인 시스템 소스로 적용하고, Aura와 충돌하던 기존 DrinkDiary 디자인 규격을 정리하며, Aura 1.0.0으로 대체 불가능한 로컬 Gap 컴포넌트를 명시한다.
+**최종 수정일:** 2026-11-16  
+**목적:** `app` 모듈 UI 전체에 **Aura Design System (`v1.1.0`, `com.example.ds`)**을 단일 디자인 시스템 소스로 적용하고, Aura와 충돌하던 기존 DrinkDiary 디자인 규격을 정리하며, 앱 로컬 유지 항목을 명시한다.
 
 ---
 
 ## 1. 적용 방식 및 소스
 
-- **참조 방식:** 로컬 AAR 참조 (`app/libs/aura-design-system-1.0.0.aar`, 출처: `bluemarlins/aura-design-system` v1.0.0 release).
+- **참조 방식:** 로컬 AAR 참조 (`app/libs/aura-design-system-1.1.0.aar`, 출처: `bluemarlins/aura-design-system` v1.1.0).
   - Compose BOM 기반 `ui`, `ui-graphics`, `foundation`, `core-ktx`만 사용한다.
   - **`androidx.compose.material3` 및 `dev.chrisbanes.haze`는 완전히 제거한다** (Gradle 의존성 및 Kotlin import 0건).
   - 앱 루트는 `DrinkDiaryTheme` → `AuraTheme(colorMode = ...)`로 연결한다.
@@ -31,11 +31,11 @@
 | 배지 (상태·주종·취향 결과) | `AuraBadge` | `Brand`, `Neutral`, `Error`(와인), `Warning`(위스키) |
 | 세그먼트 전환 | `AuraSegmentedButton` | 대시보드 범위, 컬렉션 필터, 재구매 의사 선택 |
 | 칩 선택 | `AuraChipButton` | 취향 축 편집, 라벨 태그 다중 선택, 음용 방식 |
-| 텍스트 입력 | `AuraTextField` | 술 이름·장소는 `Outlined`, 메모는 `Paperless` 다중 행 |
+| 텍스트 입력 / 검색바 | `AuraTextField`, `AuraSearchBar(Solid)` | 술 이름·장소는 `Outlined`, 메모는 `Paperless`, 컬렉션/매장 찾기는 `AuraSearchBar` |
 | 숫자 입력 | `AuraNumberField` | 빈티지(4자리 정수), 가격(`suffixText = "원"`, `formatThousands = true`) |
 | 별점 입력 / 읽기 전용 표시 | `AuraRatingBar` | `allowHalfRating = true` (`0.5` 단위 허용), 상세는 `onRatingChange = null` 읽기 전용 |
-| 스위치 | `AuraSwitch` | 설정 화면 태그 자동 질문 토글 |
-| 삭제 확인 다이얼로그 | `AuraDialog` (`AuraDialogVariant.Destructive`) | 기록 삭제 확인 |
+| 다이얼로그 (삭제·이탈·공유 미리보기) | `AuraDialog` (`Destructive` / `Standard`) | 기록 삭제 확인, 기록 이탈 확인, 9:16 취향 공유 카드 미리보기 |
+| 구분선 / 진행 막대 / 스낵바 / 모서리 토큰 | `AuraDivider`, `AuraLinearProgressBar`, `AuraStepProgressBar`, `AuraSnackbarHost`, `AuraTheme.shapes` | `1.1.0` 편입으로 기존 Gap(`DDDivider`, `DDProgressBar`, `DDProbeProgress`, `DDSnackbarHost`, `DDShape`) 전면 대체 |
 | 적응형 그리드 / 2단 레이아웃 | `AuraAdaptiveGrid`, `AuraAdaptiveTwoPane`, `LazyVerticalGrid(GridCells.Fixed(layout.gridColumns))` | 주종 선택 그리드(`DrinkPicker`), 대시보드·상세·주종 선택 `supportsTwoPane` 및 `maxContentWidth` 대응 |
 
 ---
@@ -47,24 +47,12 @@
 
 ---
 
-## 4. Aura 1.0.0으로 대체 불가능한 컴포넌트 목록 (Non-Replaceable / Gap List)
+## 4. 앱 로컬 유지 컴포넌트 목록 (Non-Design-System Scope)
 
-Aura `1.0.0` AAR에 대응 컴포넌트가 없거나 도메인 조합이 필요해 로컬 구현(Aura 토큰 전용)으로 유지한 항목:
+Aura `1.1.0` 편입으로 `DDSnackbarHost`, `DDProgressBar`, `DDProbeProgress`, `DDDivider`, `DDShape`는 모두 제거되었으며, 아래 항목만 앱 로컬 구현(Aura 토큰 전용)으로 유지합니다:
 
-1. **Snackbar (`DDSnackbarHost`, `DDSnackbarState`)** — *사용자 지정 유지 항목*
-   - 사유: `aura-design-system-1.0.0.aar`에 `Snackbar` / `Toast` 컴포넌트가 없음.
-   - 구현: `ui/component/DDSnackbar.kt`에 기존 로컬 스낵바 유지. `AuraTheme.colors.surface.inverse`, `content.inverse`, `AuraTheme.typography.bodyMedium`, `AuraTheme.motion.stateChangeDurationMillis`만 사용하며 최상위 화면에서는 `FloatingBottomIsland` 높이를 피해 배치한다.
-2. **선형 진행률 바 (`DDProgressBar`) & 단계 진행 막대 (`DDProbeProgress`)**
-   - 사유: Aura 1.0.0에 `LinearProgressIndicator` / Step Progress 컴포넌트가 없음.
-   - 구현: `AuraTheme.colors.surface.sunken`, `brand.primary`, `DDShape`만 사용하는 토큰 기반 Box 조합 유지.
-3. **수평 구분선 (`DDDivider`)**
-   - 사유: Aura 1.0.0에 독립 `Divider` 컴포넌트가 없음.
-   - 구현: `1.dp` 높이 + `AuraTheme.colors.border.subtle` 사용.
-4. **로컬 URI 이미지 로더 (`DDUriImage`)**
+1. **로컬 URI 이미지 로더 (`DDUriImage`)**
    - 사유: Aura는 디자인 시스템 컴포넌트만 제공하며 Android `ContentResolver`/`ImageDecoder` 기반 비동기 로컬 이미지 디코더를 포함하지 않음.
-   - 구현: `ui/component/UriImage.kt` 유지.
-5. **Shape 토큰 (`DDShape`)**
-   - 사유: Aura는 컴포넌트 내부에 모서리 반경을 캡슐화하고 `AuraTheme.shapes`를 노출하지 않음.
-   - 구현: Gap 컴포넌트와 이미지 클립에 한해 `4/8/12/16.dp` (`DDShape`) 사용.
-6. **도메인 복합 컴포넌트 (`DDDrinkBadge`, `DDRepurchaseBadge`, `DDTasteTypeBadge`, `DDTasteSentenceCard`, `DDProfileProgressCard`, `DDProbeQuestion`)**
-   - 사유: 앱 도메인 특화 복합 UI. 내부는 모두 `AuraCard`, `AuraBadge`, `AuraText`, `AuraTheme.*` 및 `DDProgressBar`로 구성한다.
+   - 구현: `ui/component/DDUriImage.kt` 유지 (`AuraTheme.shapes`로 클립).
+2. **도메인 복합 컴포넌트 (`DDDrinkBadge`, `DDRepurchaseBadge`, `DDTasteTypeBadge`, `DDTasteSentenceCard`, `DDProfileProgressCard`, `DDProbeQuestion`, `DDDashboardSummaryCard`, `DDTraitSpectrumRow`, `DDBuyRecommendationSection`)**
+   - 사유: 앱 도메인 특화 복합 UI. 내부는 모두 `AuraCard`, `AuraBadge`, `AuraText`, `AuraLinearProgressBar`, `AuraTheme.*`로 구성한다.
