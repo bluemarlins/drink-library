@@ -10,7 +10,9 @@ import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EditRecordTest {
@@ -35,6 +37,33 @@ class EditRecordTest {
         )
 
     private fun form() = RecordForm.of(original)
+
+    private fun loadedState() =
+        EditUiState(
+            loaded = true,
+            type = original.type,
+            form = form(),
+            taste = original.taste,
+            initialForm = form(),
+            initialTaste = original.taste,
+        )
+
+    // 뒤로 가기 확인창은 이 값으로 뜬다. 안 고쳤는데 묻거나, 고쳤는데 안 물으면 안 된다.
+    @Test
+    fun `an untouched edit has nothing to discard`() {
+        assertFalse(loadedState().dirty)
+        assertFalse(EditUiState().dirty)
+    }
+
+    @Test
+    fun `changing the form or a taste answer makes the edit dirty until it is saved`() {
+        val renamed = loadedState().copy(form = form().copy(name = "Ardbeg Ten"))
+        val reanswered = loadedState().copy(taste = original.taste.with(Trait.Body, TraitAnswer.Low))
+
+        assertTrue(renamed.dirty)
+        assertTrue(reanswered.dirty)
+        assertFalse(renamed.copy(saved = true).dirty)
+    }
 
     @Test
     fun `the drinking time is not the editing time`() {

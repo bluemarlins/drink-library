@@ -209,14 +209,14 @@ class ObserveBuyRecommendationsUseCase(
                 return 60 to
                     BottleRecommendation(
                         entry = entry,
-                        reason = RecommendationReason.GeneralCatalogMatch,
+                        reason = RecommendationReason.TasteAlignedCask(cask),
                     )
             }
             if (cask == CaskGroup.Bourbon && body == TastePreference.Low) {
                 return 50 to
                     BottleRecommendation(
                         entry = entry,
-                        reason = RecommendationReason.GeneralCatalogMatch,
+                        reason = RecommendationReason.TasteAlignedCask(cask),
                     )
             }
             if (sweetness == TastePreference.Neutral && body == TastePreference.Neutral && caskPref == null) {

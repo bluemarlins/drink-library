@@ -20,6 +20,11 @@ sealed interface RecommendationReason {
         val style: WineStyle,
     ) : RecommendationReason
 
+    // 캐스크별 평점 차이는 아직 없지만, 판정된 감각 축이 그 캐스크의 방향과 맞는 경우.
+    data class TasteAlignedCask(
+        val cask: CaskGroup,
+    ) : RecommendationReason
+
     data object GeneralCatalogMatch : RecommendationReason
 }
 

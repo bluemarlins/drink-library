@@ -210,7 +210,7 @@ private fun RecordSaved(
             style = AuraTheme.typography.bodyLarge,
         )
         AuraText(
-            text = "기록이 쌓여 취향의 대비가 생기면 MBTI형 코드와 구매 추천이 더 정확해집니다.",
+            text = "기록이 쌓여 취향의 대비가 생기면 취향 유형 코드와 구매 추천이 더 정확해집니다.",
             style = AuraTheme.typography.bodySmall,
             color = AuraTheme.colors.content.secondary,
         )

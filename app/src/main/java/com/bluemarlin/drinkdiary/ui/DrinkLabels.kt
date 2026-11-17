@@ -122,6 +122,8 @@ object DrinkLabels {
                 "높게 평가한 ${tagValue(TagCategory.WineStyle, reason.style.name)} (${rating(reason.averageRating)}점)"
             is RecommendationReason.TasteAlignedStyle ->
                 "내 성향과 맞는 ${tagValue(TagCategory.WineStyle, reason.style.name)}"
+            is RecommendationReason.TasteAlignedCask ->
+                "내 성향과 맞는 ${tagValue(TagCategory.Cask, reason.cask.name)}"
             RecommendationReason.GeneralCatalogMatch ->
                 "고루 즐기는 성향에 맞춘 추천"
         }

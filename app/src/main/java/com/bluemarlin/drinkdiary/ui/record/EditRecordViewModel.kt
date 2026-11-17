@@ -26,7 +26,13 @@ data class EditUiState(
     val saving: Boolean = false,
     val saved: Boolean = false,
     val error: String? = null,
-)
+    val initialForm: RecordForm = RecordForm(),
+    val initialTaste: TasteInput = TasteInput(),
+) {
+    // 고친 게 있는데 저장 없이 나가려는지 판단한다. 불러오기 전과 저장 후에는 버릴 것이 없다.
+    val dirty: Boolean
+        get() = loaded && !missing && !saved && (form != initialForm || taste != initialTaste)
+}
 
 fun DrinkRecord.applying(
     form: RecordForm,
@@ -69,6 +75,8 @@ class EditRecordViewModel(
                     type = record.type,
                     form = RecordForm.of(record),
                     taste = record.taste,
+                    initialForm = RecordForm.of(record),
+                    initialTaste = record.taste,
                 )
             }
         }

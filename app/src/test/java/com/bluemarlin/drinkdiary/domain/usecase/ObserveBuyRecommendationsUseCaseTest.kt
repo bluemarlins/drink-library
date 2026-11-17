@@ -191,6 +191,38 @@ class ObserveBuyRecommendationsUseCaseTest {
             assertTrue(pick.reason is RecommendationReason.CaskMatch)
         }
 
+    // 캐스크별 평점 차이가 없을 때 단맛 선호로 셰리를 고른 것은 "고루 즐기는 성향" 추천이 아니다.
+    @Test
+    fun `sherry picked from a sweet preference says so in its reason`() =
+        runBlocking {
+            val records =
+                (1..6).map { index ->
+                    val liked = index <= 3
+                    val answer = if (liked) TraitAnswer.High else TraitAnswer.Low
+                    DrinkRecord(
+                        id = index.toLong(),
+                        type = DrinkType.Whiskey,
+                        // 사전에 없는 이름이라 캐스크 선호는 성립하지 않는다.
+                        name = "처음 보는 위스키 $index",
+                        taste = taste(answer, answer, answer, answer),
+                        rating = if (liked) 5.0 else 2.0,
+                        recordedAtMillis = index.toLong(),
+                    )
+                }
+
+            val bundle = useCase(records).invoke(TypeScope.Whiskey).first()
+
+            assertEquals(
+                listOf("맥캘란 12 셰리오크", "글렌드로낙 12"),
+                bundle.discoveryBottles.map { it.entry.displayName },
+            )
+            assertTrue(
+                bundle.discoveryBottles.all {
+                    it.reason == RecommendationReason.TasteAlignedCask(CaskGroup.Sherry)
+                },
+            )
+        }
+
     @Test
     fun `wine recommendation aligns with full body and excludes dry white`() =
         runBlocking {

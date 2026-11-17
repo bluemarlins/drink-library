@@ -38,6 +38,8 @@ import com.bluemarlin.drinkdiary.ui.settings.SettingsViewModel
 import com.bluemarlin.drinkdiary.ui.share.ShareCardContent
 import com.bluemarlin.drinkdiary.ui.share.ShareCardDialog
 import com.example.ds.component.AuraAdaptiveBarState
+import com.example.ds.component.AuraDialog
+import com.example.ds.component.AuraDialogVariant
 import com.example.ds.component.AuraIcon
 import com.example.ds.component.AuraIconButton
 import com.example.ds.component.AuraIconButtonVariant
@@ -309,6 +311,17 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                         ),
                 )
             val edit by editViewModel.uiState.collectAsState()
+            var showDiscardConfirm by remember(current.id) { mutableStateOf(false) }
+            val leaveEdit: () -> Unit = {
+                if (edit.dirty) {
+                    showDiscardConfirm = true
+                } else {
+                    screen = Screen.Detail(current.id, current.returnTo)
+                }
+            }
+
+            // 위쪽 공용 BackHandler보다 나중에 등록되어 우선한다. 고친 내용이 있으면 먼저 묻는다.
+            BackHandler(onBack = leaveEdit)
 
             LaunchedEffect(edit.saved) {
                 if (edit.saved) screen = Screen.Detail(current.id, current.returnTo)
@@ -323,7 +336,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             DDScreenScaffold(
                 title = "기록 고치기",
                 screenType = DDScreenType.Editor,
-                onBackClick = { screen = Screen.Detail(current.id, current.returnTo) },
+                onBackClick = leaveEdit,
                 scrollFraction = scrollFraction,
                 snackbarHost = host,
             ) { padding ->
@@ -337,6 +350,20 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     onScrollFractionChange = { scrollFraction = it },
                 )
             }
+
+            AuraDialog(
+                visible = showDiscardConfirm,
+                title = "고치기를 그만할까요?",
+                message = "지금 고친 내용은 저장되지 않아요.",
+                variant = AuraDialogVariant.Destructive,
+                confirmText = "나가기",
+                dismissText = "계속 고치기",
+                onConfirm = {
+                    showDiscardConfirm = false
+                    screen = Screen.Detail(current.id, current.returnTo)
+                },
+                onDismissRequest = { showDiscardConfirm = false },
+            )
         }
 
         Screen.Settings -> {

@@ -63,8 +63,13 @@ class ObserveTagPreferenceUseCase(
             tagged
                 .groupBy({ it.first }, { it.second })
                 .map { (value, ratings) -> TagValueRating(value, ratings.size, ratings.average()) }
-                // 표본이 적은 값을 위에 올리면 우연이 결론처럼 보인다.
-                .sortedWith(compareByDescending<TagValueRating> { it.averageRating }.thenByDescending { it.samples })
+                // 표본이 적은 값을 위에 올리면 우연이 결론처럼 보인다. 결론에 참여할 만큼 모인 값이
+                // 먼저 오고, 그 안에서 평점순이다 — 아니면 "1잔 5.0점"이 맨 위에 선다.
+                .sortedWith(
+                    compareByDescending<TagValueRating> { it.samples >= TagThresholds.MIN_SAMPLES_PER_VALUE }
+                        .thenByDescending { it.averageRating }
+                        .thenByDescending { it.samples },
+                )
 
         // 값이 하나뿐이면 비교가 아니다 — "셰리만 마셨다"는 셰리를 좋아한다는 뜻이 아니다.
         val comparable = byValue.filter { it.samples >= TagThresholds.MIN_SAMPLES_PER_VALUE }

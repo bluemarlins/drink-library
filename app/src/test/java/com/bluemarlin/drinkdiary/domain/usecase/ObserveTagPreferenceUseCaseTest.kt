@@ -86,6 +86,14 @@ class ObserveTagPreferenceUseCaseTest {
         assertEquals(2, pref.values.size)
     }
 
+    // "1잔 5.0점"이 맨 위에 서면 우연이 결론처럼 보인다.
+    @Test
+    fun `a value below the sample floor never outranks one that reached it`() {
+        val pref = peat(List(3) { peated(4.0) } + listOf(unpeated(5.0)))!!
+
+        assertEquals(listOf(PeatTag.Peated.name, PeatTag.Unpeated.name), pref.values.map { it.value })
+    }
+
     @Test
     fun `a gap too small to matter is not called a preference`() {
         val pref = peat(List(3) { peated(4.0) } + List(3) { unpeated(3.8) })!!
