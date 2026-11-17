@@ -16,6 +16,7 @@ import com.example.ds.foundation.theme.AuraTheme
 fun EditRecordScreen(
     state: EditUiState,
     onFormChange: (RecordForm) -> Unit,
+    onPhotoPicked: (String) -> Unit,
     onAnswer: (Trait, TraitAnswer) -> Unit,
     onSave: () -> Unit,
     contentPadding: PaddingValues,
@@ -49,6 +50,7 @@ fun EditRecordScreen(
         type = state.type,
         form = state.form,
         onFormChange = onFormChange,
+        onPhotoPicked = onPhotoPicked,
         onSave = onSave,
         saving = state.saving,
         modifier = modifier,

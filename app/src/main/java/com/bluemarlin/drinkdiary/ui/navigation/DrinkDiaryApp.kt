@@ -91,6 +91,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
 
     LaunchedEffect(appContainer) {
         appContainer.localSeedLoader.seedIfNeeded()
+        appContainer.pruneRecordPhotosUseCase()
     }
 
     val collectionViewModel: CollectionViewModel =
@@ -308,6 +309,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                         EditRecordViewModel.Factory(
                             current.id,
                             appContainer.drinkRecordRepository,
+                            appContainer.recordPhotoStore,
                         ),
                 )
             val edit by editViewModel.uiState.collectAsState()
@@ -343,6 +345,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 EditRecordScreen(
                     state = edit,
                     onFormChange = editViewModel::updateForm,
+                    onPhotoPicked = editViewModel::pickPhoto,
                     onAnswer = editViewModel::answer,
                     onSave = editViewModel::save,
                     contentPadding = padding,

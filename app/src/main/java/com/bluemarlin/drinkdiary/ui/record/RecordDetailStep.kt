@@ -56,6 +56,7 @@ fun RecordDetailStep(
     type: DrinkType,
     form: RecordForm,
     onFormChange: (RecordForm) -> Unit,
+    onPhotoPicked: (String) -> Unit,
     onSave: () -> Unit,
     saving: Boolean,
     modifier: Modifier = Modifier,
@@ -68,7 +69,7 @@ fun RecordDetailStep(
     var expanded by remember { mutableStateOf(false) }
     val photoPicker =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) onFormChange(form.copy(imageUri = uri.toString()))
+            if (uri != null) onPhotoPicked(uri.toString())
         }
     val layout = AuraTheme.layout
     val motion = AuraTheme.motion

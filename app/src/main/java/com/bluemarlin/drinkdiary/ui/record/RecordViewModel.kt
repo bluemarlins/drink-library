@@ -13,6 +13,8 @@ import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.domain.repository.DrinkRecordRepository
+import com.bluemarlin.drinkdiary.domain.repository.RecordPhotoStore
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,9 +65,12 @@ data class RecordUiState(
 
 class RecordViewModel(
     private val repository: DrinkRecordRepository,
+    private val photoStore: RecordPhotoStore,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(RecordUiState())
     val uiState: StateFlow<RecordUiState> = _uiState.asStateFlow()
+
+    private var photoJob: Job? = null
 
     fun pickDrink(
         type: DrinkType,
@@ -89,13 +94,28 @@ class RecordViewModel(
 
     fun updateForm(form: RecordForm) = _uiState.update { it.copy(form = form) }
 
+    fun pickPhoto(sourceUri: String) {
+        photoJob =
+            viewModelScope.launch {
+                when (val imported = photoStore.import(sourceUri)) {
+                    is AppResult.Success ->
+                        _uiState.update { it.copy(form = it.form.copy(imageUri = imported.value)) }
+                    is AppResult.Failure ->
+                        _uiState.update { it.copy(error = PHOTO_IMPORT_ERROR) }
+                }
+            }
+    }
+
     fun save() {
-        val state = _uiState.value
-        val type = state.type ?: return
-        if (!state.form.isSavable || state.saving) return
+        val current = _uiState.value
+        if (current.type == null || !current.form.isSavable || current.saving) return
 
         _uiState.update { it.copy(saving = true, error = null) }
         viewModelScope.launch {
+            // 사진 복사가 끝나기 전에 저장하면 사진이 빠진 채 저장된다.
+            photoJob?.join()
+            val state = _uiState.value
+            val type = state.type ?: return@launch
             val record =
                 DrinkRecord(
                     type = type,
@@ -125,8 +145,11 @@ class RecordViewModel(
 
     class Factory(
         private val repository: DrinkRecordRepository,
+        private val photoStore: RecordPhotoStore,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = RecordViewModel(repository) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = RecordViewModel(repository, photoStore) as T
     }
 }
+
+internal const val PHOTO_IMPORT_ERROR = "사진을 가져오지 못했어요. 다른 사진으로 다시 시도해 주세요."

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.bluemarlin.drinkdiary.data.local.AssetBottleDictionary
 import com.bluemarlin.drinkdiary.data.local.DrinkDiaryDatabase
+import com.bluemarlin.drinkdiary.data.local.InternalRecordPhotoStore
 import com.bluemarlin.drinkdiary.data.local.LocalSeedLoader
 import com.bluemarlin.drinkdiary.data.local.MIGRATION_2_3
 import com.bluemarlin.drinkdiary.data.local.OrgJsonBackupCodec
@@ -13,12 +14,14 @@ import com.bluemarlin.drinkdiary.domain.repository.BottleDictionary
 import com.bluemarlin.drinkdiary.domain.repository.BottleMatcher
 import com.bluemarlin.drinkdiary.domain.repository.DrinkRecordBackupCodec
 import com.bluemarlin.drinkdiary.domain.repository.DrinkRecordRepository
+import com.bluemarlin.drinkdiary.domain.repository.RecordPhotoStore
 import com.bluemarlin.drinkdiary.domain.repository.UserPreferencesRepository
 import com.bluemarlin.drinkdiary.domain.usecase.BackupDrinkRecordsUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveBuyRecommendationsUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveDashboardOverviewUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveTagPreferenceUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveTasteProfileUseCase
+import com.bluemarlin.drinkdiary.domain.usecase.PruneRecordPhotosUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ResolveProfileReadinessUseCase
 
 class DrinkDiaryApplication : Application() {
@@ -42,6 +45,9 @@ class AppContainer(
 
     val drinkRecordRepository: DrinkRecordRepository =
         DrinkRecordRepositoryImpl(database.drinkRecordDao())
+
+    val recordPhotoStore: RecordPhotoStore = InternalRecordPhotoStore(application)
+    val pruneRecordPhotosUseCase = PruneRecordPhotosUseCase(drinkRecordRepository, recordPhotoStore)
 
     val userPreferencesRepository: UserPreferencesRepository =
         UserPreferencesRepositoryImpl(application)

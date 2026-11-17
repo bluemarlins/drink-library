@@ -10,6 +10,8 @@ import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.domain.repository.DrinkRecordRepository
+import com.bluemarlin.drinkdiary.domain.repository.RecordPhotoStore
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,11 +57,13 @@ fun DrinkRecord.applying(
 class EditRecordViewModel(
     private val recordId: Long,
     private val repository: DrinkRecordRepository,
+    private val photoStore: RecordPhotoStore,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EditUiState())
     val uiState: StateFlow<EditUiState> = _uiState.asStateFlow()
 
     private var original: DrinkRecord? = null
+    private var photoJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -89,13 +93,26 @@ class EditRecordViewModel(
         answer: TraitAnswer,
     ) = _uiState.update { it.copy(taste = it.taste.with(trait, answer)) }
 
+    fun pickPhoto(sourceUri: String) {
+        photoJob =
+            viewModelScope.launch {
+                when (val imported = photoStore.import(sourceUri)) {
+                    is AppResult.Success ->
+                        _uiState.update { it.copy(form = it.form.copy(imageUri = imported.value)) }
+                    is AppResult.Failure ->
+                        _uiState.update { it.copy(error = PHOTO_IMPORT_ERROR) }
+                }
+            }
+    }
+
     fun save() {
         val source = original ?: return
-        val state = _uiState.value
-        if (!state.form.isSavable || state.saving) return
+        if (!_uiState.value.form.isSavable || _uiState.value.saving) return
 
         _uiState.update { it.copy(saving = true, error = null) }
         viewModelScope.launch {
+            photoJob?.join()
+            val state = _uiState.value
             when (repository.save(source.applying(state.form, state.taste))) {
                 is AppResult.Success -> _uiState.update { it.copy(saving = false, saved = true) }
                 is AppResult.Failure ->
@@ -109,8 +126,10 @@ class EditRecordViewModel(
     class Factory(
         private val recordId: Long,
         private val repository: DrinkRecordRepository,
+        private val photoStore: RecordPhotoStore,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = EditRecordViewModel(recordId, repository) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            EditRecordViewModel(recordId, repository, photoStore) as T
     }
 }

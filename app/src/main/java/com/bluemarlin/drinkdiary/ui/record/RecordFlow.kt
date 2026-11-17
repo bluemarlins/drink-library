@@ -43,7 +43,7 @@ fun RecordFlow(
     val appContainer = (LocalContext.current.applicationContext as DrinkDiaryApplication).appContainer
     val viewModel: RecordViewModel =
         viewModel(
-            factory = RecordViewModel.Factory(appContainer.drinkRecordRepository),
+            factory = RecordViewModel.Factory(appContainer.drinkRecordRepository, appContainer.recordPhotoStore),
         )
     val state by viewModel.uiState.collectAsState()
     var step by remember { mutableStateOf(Step.PickDrink) }
@@ -133,6 +133,7 @@ fun RecordFlow(
                         type = activeType,
                         form = state.form,
                         onFormChange = viewModel::updateForm,
+                        onPhotoPicked = viewModel::pickPhoto,
                         onSave = viewModel::save,
                         saving = state.saving,
                         modifier = modifier,

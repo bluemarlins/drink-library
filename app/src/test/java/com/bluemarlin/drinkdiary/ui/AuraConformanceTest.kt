@@ -367,6 +367,7 @@ class AuraConformanceTest {
                     type = DrinkType.Wine,
                     form = form,
                     onFormChange = { form = it },
+                    onPhotoPicked = {},
                     onSave = {},
                     saving = saving,
                 )

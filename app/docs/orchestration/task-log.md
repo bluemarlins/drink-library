@@ -431,7 +431,9 @@ Billing 연동은 Phase 3(가장 마지막)으로 이동. Phase 1은 순수 기�
 | P2-11 | (계획 외 추가) 디자인 시스템 개정 및 모션/인터랙션 고도화 | agy | done | | `specs/designer/design-system.md` 전면 승격 및 앱 UI 디자인 시스템 적용 완료 (ktlint/unit test/lint 통과) |
 | P2-12 | Aura Design System 1.0.0 로컬 AAR 완전 전환 및 Material 3/Haze 제거 | Antigravity | done | | `app/libs/aura-design-system-1.0.0.aar` 로컬 참조, 0.5 단위 별점(`allowHalfRating = true`), 전 UI Aura 컴포넌트 교체, 충돌 문서(`design-system.md`/`branding.md`/`harness.md`) 통일 및 대체 불가(Gap) 목록 정리 |
 | P2-13 | Aura Design System 1.1.0 업그레이드 및 Gap 컴포넌트(`AuraShapes`, `AuraDivider`, `AuraProgressBar`, `AuraSnackbar`) 편입·마이그레이션 | Antigravity | done | (현재 작업) | `aura-design-system`에 `AuraShapes`, `AuraDivider`, `AuraLinearProgressBar`, `AuraStepProgressBar`, `AuraSnackbar`/`AuraSnackbarHost` 및 Scaffold `snackbarHost` 슬롯 추가(`v1.1.0`), `drink-library`에서 `DDShape`/`DDDivider`/`DDProgressBar`/`DDProbeProgress`/`DDSnackbar` 제거 및 문서 갱신 |
-| P2-14 | 앱 아이콘 교체 — 반반 잔(색유리) | Claude | done | (현재 작업) | 후보 3안 제작 → **사용자 확정: B′ 반반 잔 글래스**(2026-11-17). `departments/designer/icon-candidates-2026-11.md` → `specs/designer/branding.md` 5절 반영. foreground PNG 5밀도, 배경 그라데이션, 모노크롬 벡터 신설, 레거시 webp → png. `:app:assembleDebug` 통과, 실기기 확인은 미수행 |
+
+| P2-14 | 앱 아이콘 교체 — 반반 잔(색유리) | Claude | done | (현재 작업) | 후보 3안 제작 → **사용자 확정: B′ 반반 잔 글래스**(2026-11-17). `departments/designer/icon-candidates-2026-11.md` → `specs/designer/branding.md` 5절 반영. foreground PNG 5밀도, 배경 그라데이션, 모노크롬 벡터 신설, 레거시 webp → png. `:app:assembleDebug` 통과, 실기기 확인은 미수행 |
+| P2-15 | 기록 사진이 앱 재시작 후 사라지는 버그 수정 | Claude | done | (현재 작업) | 실기기 점검(`departments/qa/device-review-2026-11-17.md`) P0. 사진 선택기 임시 주소 대신 앱 내부 사본 저장, 고아 사본 정리. 백업에 사진 포함 여부는 미결 |
 
 ## Phase 3 — Billing 연동 (최종 단계)
 
