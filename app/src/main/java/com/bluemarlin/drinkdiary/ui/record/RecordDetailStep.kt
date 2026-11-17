@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
@@ -92,7 +93,6 @@ fun RecordDetailStep(
             onValueChange = { onFormChange(form.copy(name = it)) },
             label = "이름",
             placeholder = "술 이름을 입력하세요",
-            supportingText = if (form.name.isBlank()) "이름을 입력하면 저장할 수 있어요" else null,
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -185,6 +185,16 @@ fun RecordDetailStep(
             loading = saving,
             fullWidth = true,
         )
+
+        form.missingForSave?.let {
+            AuraText(
+                text = it,
+                style = AuraTheme.typography.bodySmall,
+                color = AuraTheme.colors.content.secondary,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
