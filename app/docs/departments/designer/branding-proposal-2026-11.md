@@ -1,7 +1,7 @@
 # 브랜딩 재정의 제안 — 이름 · 아이콘 · 핵심 가치 · 유형 명명 · 표기 원칙 (2026-11-18)
 
 > [!NOTE]
-> **상태: 초안 — 사용자 결정 대기.** 작성: Claude.
+> **상태: 확정 (2026-11-18, 사용자가 제안대로 확정).** `specs/designer/branding.md` 1·4-2·4-6·7절로 승격. 작성: Claude.
 > 근거: `../../specs/designer/branding.md`, `taste-type-naming.md`, `../../specs/planner/prd.md`,
 > `../../specs/planner/design-principles.md`, 실기기 점검 `../qa/device-review-2026-11-17.md`.
 > 확정되면 `specs/designer/branding.md`에 반영하고, 7절의 P2 수정은 이 원칙을 기준으로 진행한다.
