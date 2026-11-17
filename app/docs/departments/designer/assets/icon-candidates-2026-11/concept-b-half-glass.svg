@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="g-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EEEEF2"/>
+    </linearGradient>
+    <linearGradient id="g-wine-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF6A97"/>
+      <stop offset="1" stop-color="#F53D77"/>
+    </linearGradient>
+    <linearGradient id="g-whisky-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFCF3D"/>
+      <stop offset="1" stop-color="#FFB300"/>
+    </linearGradient>
+    <linearGradient id="g-rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".7"/>
+      <stop offset=".55" stop-color="#FFFFFF" stop-opacity=".1"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity=".3"/>
+    </linearGradient>
+    <filter id="g-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
+    <path id="g-wine" d="M502 250 H360 C332 365 368 500 472 528 V690 C472 716 396 716 396 750 Q396 766 412 766 H502 Z"/>
+    <path id="g-whisky" d="M472 520 H734 Q752 520 750 538 L736 736 Q734 766 704 766 H472 Z"/>
+    <clipPath id="g-wine-clip"><use href="#g-wine"/></clipPath>
+    <clipPath id="g-whisky-clip"><use href="#g-whisky"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#g-bg)"/>
+  <g transform="translate(512 512) scale(.92) translate(-549 -508)">
+    <!-- soft coloured shadows -->
+    <use href="#g-wine" fill="#EC5584" opacity=".45" transform="translate(0 20)" filter="url(#g-glow)"/>
+    <use href="#g-whisky" fill="#F5A300" opacity=".5" transform="translate(0 20)" filter="url(#g-glow)"/>
+
+    <!-- flat coloured-glass slabs -->
+    <use href="#g-wine" fill="url(#g-wine-body)"/>
+    <use href="#g-whisky" fill="url(#g-whisky-body)"/>
+    <!-- where the two slabs overlap, the colours mix -->
+    <use href="#g-whisky" fill="#F2452A" clip-path="url(#g-wine-clip)"/>
+
+    <!-- the drink: a deeper inner shape, inset from the glass edge -->
+
+    <path fill="#D2165E" opacity=".9" d="M482 364 Q482 350 468 350 H386 Q370 350 371 366 C376 436 412 490 468 506 Q482 510 482 496 Z"/>
+    <rect fill="#F57C00" opacity=".9" x="524" y="612" width="204" height="118" rx="22"/>
+
+    <!-- inner edge light -->
+    <g clip-path="url(#g-wine-clip)"><use href="#g-wine" fill="none" stroke="url(#g-rim)" stroke-width="8"/></g>
+    <g clip-path="url(#g-whisky-clip)"><use href="#g-whisky" fill="none" stroke="url(#g-rim)" stroke-width="8"/></g>
+  </g>
+</svg>

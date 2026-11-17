@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon silhouette: the same two half glasses as the launcher foreground, flat. -->
+<vector
+    android:height="108dp"
+    android:width="108dp"
+    android:viewportHeight="1024"
+    android:viewportWidth="1024"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:scaleX="0.92"
+        android:scaleY="0.92"
+        android:translateX="6.92"
+        android:translateY="44.64">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M502,250 H360 C332,365 368,500 472,528 V690 C472,716 396,716 396,750 Q396,766 412,766 H502 Z"/>
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M472,520 H734 Q752,520 750,538 L736,736 Q734,766 704,766 H472 Z"/>
+    </group>
+</vector>

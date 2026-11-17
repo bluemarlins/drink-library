@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="a-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF9F3"/>
+      <stop offset="1" stop-color="#F1E1CD"/>
+    </linearGradient>
+    <path id="a-wine" d="M300 230 H520 C545 340 520 480 430 505 V670 C430 695 505 695 505 730 Q505 745 490 745 H330 Q315 745 315 730 C315 695 390 695 390 670 V505 C300 480 275 340 300 230 Z"/>
+    <path id="a-whisky" d="M456 430 H714 Q732 430 730 448 L712 715 Q710 745 680 745 H490 Q460 745 458 715 L440 448 Q438 430 456 430 Z"/>
+    <clipPath id="a-clip"><use href="#a-wine"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#a-bg)"/>
+  <g transform="translate(512 512) scale(.92) translate(-507.5 -487.5)">
+    <use href="#a-wine" fill="#93425E"/>
+    <use href="#a-whisky" fill="#D0902E"/>
+    <use href="#a-whisky" fill="#5E2638" clip-path="url(#a-clip)"/>
+  </g>
+</svg>
