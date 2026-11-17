@@ -19,6 +19,12 @@
 .\gradlew.bat :app:ktlintFormat         # ktlint 위반 자동 수정
 ```
 
+**Git Bash에서 `gradlew.bat`을 실행하지 않는다.** 빌드는 정상 종료되는데 셸이 끝나지 않아, 호출한
+쪽에서는 타임아웃까지 "아직 도는 중"으로 보인다(2026-11-17 재현: `./gradlew.bat --version`조차
+돌아오지 않았다). 같은 명령이 PowerShell에서는 바로 끝난다. 실제 소요 시간은 유닛 테스트 전체가
+약 46초이고, 구성 캐시(`gradle.properties`의 `org.gradle.configuration-cache`)가 켜져 있어 바뀐 게
+없는 재실행은 10초 안쪽이다.
+
 단일 테스트 클래스/메서드는 `--tests`로 지정한다:
 
 ```powershell
