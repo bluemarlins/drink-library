@@ -40,11 +40,11 @@ Every screen and custom component you write in a consumer app **must** follow th
 ## 2. Quick Consumer Setup
 
 ### Option A: Local AAR (Recommended for Workspace Sync)
-1. Place `aura-design-system-1.1.0.aar` in `<app-module>/libs/`.
+1. Place `aura-design-system-1.1.1.aar` in `<app-module>/libs/`.
 2. In `<app-module>/build.gradle.kts`:
    ```kotlin
    dependencies {
-       implementation(files("libs/aura-design-system-1.1.0.aar"))
+       implementation(files("libs/aura-design-system-1.1.1.aar"))
    }
    ```
 3. Or run the helper script from `aura-design-system` to build & sync both the AAR and this skill kit:

@@ -126,7 +126,7 @@ fun DDScreenScaffold(
                 },
                 hasBottomIsland = true,
                 snackbarHost = snackbarHost,
-                content = { padding -> OpaqueBackdrop { content(padding) } },
+                content = content,
             )
         }
 
@@ -149,7 +149,7 @@ fun DDScreenScaffold(
                 },
                 hasBottomIsland = false,
                 snackbarHost = snackbarHost,
-                content = { padding -> OpaqueBackdrop { content(padding) } },
+                content = content,
             )
         }
 
@@ -204,18 +204,6 @@ private fun BoxScope.StatusBarScrim(visibility: Float) {
 }
 
 private val STATUS_SCRIM_FADE = 72.dp
-
-// FloatingGlassScaffold는 배경색을 유리가 흐리게 베끼는 콘텐츠 레이어 바깥에 칠한다. 그러면 흐린 사본이
-// 투명한 바탕 위에 그려져, 그 아래 선명한 원본이 하단 바 안으로 그대로 비친다(실기기 점검 P1-5).
-// 배경을 콘텐츠 레이어 안에 깔아 사본이 원본을 덮게 한다.
-@Composable
-private fun OpaqueBackdrop(content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize().background(AuraTheme.colors.background.primary),
-    ) {
-        content()
-    }
-}
 
 // 핸들러가 없는 탭은 그리지 않는다. 눌러도 아무 일이 없는 탭을 노출하면 사용자는 앱이
 // 고장난 것으로 읽는다(실기기에서 확인된 결함) — 화면이 생기면 핸들러와 함께 나타난다.
