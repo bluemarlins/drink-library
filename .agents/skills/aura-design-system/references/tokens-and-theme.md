@@ -75,10 +75,10 @@ fun rememberAuraReduceTransparency(): Boolean
 |---|---|---|
 | `isDark` | `Boolean` | Quick dark-mode check when adjusting translucent overlays |
 | `background` | `.primary`, `.secondary` | Layer 0 page/window canvas backgrounds |
-| `surface` | `.default`, `.raised`, `.sunken`, `.floating`, `.inverse` | Cards, wells, elevated pods, floating bar tints, dark/inverse banners |
+| `surface` | `.default`, `.raised`, `.sunken`, `.floating`, `.inverse`, `.floatingGlass` | Cards, wells, elevated pods, floating bar tints, adaptive glass tint (`#CCF7F7F9` / `#CC1C1C1E`), dark/inverse banners |
 | `content` | `.primary`, `.secondary`, `.tertiary`, `.disabled`, `.inverse` | Headings, body copy, captions/hints, disabled labels, inverse text |
 | `brand` | `.primary`, `.onPrimary`, `.primaryPressed`, `.subtle`, `.onSubtle` | Primary CTAs, active tabs/pills, light tinted highlight containers |
-| `border` | `.subtle`, `.default`, `.strong`, `.focus` | Dividers, outlined containers, hovered/high-contrast strokes, focus rings |
+| `border` | `.subtle`, `.default`, `.strong`, `.focus`, `.glassSpecular` | Dividers, outlined containers, hovered/high-contrast strokes, focus rings, glass specular rim |
 | `status` | `.error`, `.success`, `.warning`, `.info` -> each has `.solid`, `.onSolid`, `.subtle`, `.onSubtle` | Validation states, badges, semantic banners, status chips |
 | `interaction` | `.pressedOverlay`, `.selectedContainer`, `.onSelected`, `.disabledContainer`, `.scrim` | Touch compression tint, active selection highlights, disabled fills, edge/modal scrims |
 
@@ -154,6 +154,8 @@ Aura classifies the viewport along **two axes**:
 | `elasticDampingRatio` / `elasticStiffness` | `0.58f` / `320f` | `0.58f` / `320f` | `LiquidGlass` squish/metaball impulse (`elasticStretchSpring()`) |
 | `staggerDelayMillis` / `staggerBudgetMillis` | `40` / `400` | `60` / `400` | Incremental item reveal capped at `400ms` (`staggerDelay(index)`) |
 | `scrimFadeDurationMillis` | `180` | `220` | Modal backdrop scrim fade |
+| `adaptiveBarDampingRatio` / `adaptiveBarStiffness` | `0.85f` / `380f` | Same | Non-overshooting spring for Docked <-> Floating morph (`adaptiveBarMorphSpring()`) |
+| `floatingBarAppearDurationMillis` / `Disappear` | `250` / `180` | Same | Asymmetric bezier enter/exit specs (`floatingBarAppearSpec()`, `floatingBarDisappearSpec()`) |
 | `reduceMotion` | `false` (auto `true` if system scale = `0f`) | Same | Controlled automatically via `rememberAuraReducedMotion()` |
 
 ### Helper Methods on `AuraMotion`
@@ -174,6 +176,6 @@ Aura classifies the viewport along **two axes**:
 |---|---|---|---|---|---|
 | `level0` | `0.dp` | `0.00f` | `0.00f` | `0.00f` | Layer 0 canvas, flat inputs, outlined/filled cards |
 | `level1` | `2.dp` | `0.06f` | `0.04f` | `0.16f` | Elevated/glass cards, segmented thumb, edge scrim tail |
-| `level2` | `6.dp` | `0.10f` | `0.06f` | `0.28f` | Scrolled `AuraTopAppBar`, `Floating` icon button, `Secondary`/`Glass` FAB |
+| `level2` | `6.dp` | `0.14f` | `0.08f` | `0.28f` | Scrolled `AuraTopAppBar`, `Floating` icon button, `Secondary`/`Glass` FAB |
 | `level3` | `12.dp` | `0.14f` | `0.08f` | `0.40f` | `Primary`/`Surface` FAB, `FloatingGlassScaffold` edge scrim peak |
 | `level4` | `24.dp` | `0.20f` | `0.12f` | `0.56f` | Modal overlays (`AuraDialog`, popovers, full-screen dim scrims) |

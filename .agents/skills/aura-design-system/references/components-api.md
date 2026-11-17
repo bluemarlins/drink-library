@@ -113,6 +113,8 @@ fun FloatingGlassScaffold(
     snackbarHost: @Composable () -> Unit = {},
     containerColor: Color = AuraTheme.colors.background.primary,
     contentColor: Color = AuraTheme.colors.content.primary,
+    adaptiveBarState: AuraAdaptiveBarState? = null,
+    topBarClearance: Dp = 64.dp,
     content: @Composable (PaddingValues) -> Unit,
 )
 
@@ -172,8 +174,21 @@ fun LiquidMetaballBridge(
 ```kotlin
 enum class AuraTopAppBarStyle { FloatingCapsule, FloatingSplit, SurfaceDocked }
 enum class AuraTopAppBarSurface { SolidElevated, TranslucentGlass }
-enum class AuraTopAppBarScrollBehavior { Pinned, EnterAlways, CompactOnScroll }
+enum class AuraTopAppBarScrollBehavior { Pinned, EnterAlways, CompactOnScroll, AdaptiveFloating }
+enum class AdaptiveFloatingBarPhase { DockedExpanded, CollapsingTransition, FloatingVisible, FloatingHidden, FloatingPinned, CompactDocked }
 data class AuraMoreMenuAction(val id: String, val label: String)
+
+@Composable
+fun rememberAuraAdaptiveBarState(
+    collapseThreshold: Dp = 160.dp,
+    hideScrollDelta: Dp = 24.dp,
+    revealScrollDelta: Dp = 12.dp,
+    jitterSlop: Dp = 12.dp,
+): AuraAdaptiveBarState
+
+@Composable fun BindAdaptiveBarToScrollState(scrollState: ScrollState, adaptiveState: AuraAdaptiveBarState? = LocalAuraAdaptiveBarState.current)
+@Composable fun BindAdaptiveBarToLazyListState(listState: LazyListState, adaptiveState: AuraAdaptiveBarState? = LocalAuraAdaptiveBarState.current)
+@Composable fun BindAdaptiveBarToLazyGridState(gridState: LazyGridState, adaptiveState: AuraAdaptiveBarState? = LocalAuraAdaptiveBarState.current)
 
 @Composable
 fun AuraTopAppBar(
@@ -188,6 +203,9 @@ fun AuraTopAppBar(
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     subContent: (@Composable () -> Unit)? = null,
+    adaptiveState: AuraAdaptiveBarState? = LocalAuraAdaptiveBarState.current,
+    expandedTitle: String? = null,
+    expandedSubtitle: String? = null,
 )
 
 @Composable
