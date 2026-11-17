@@ -13,6 +13,7 @@ import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraChipVariant
 import com.example.ds.component.AuraText
 import com.example.ds.foundation.theme.AuraTheme
 
@@ -41,6 +42,7 @@ fun TasteEditor(
                     listOf(TraitAnswer.Low, TraitAnswer.Mid, TraitAnswer.High).forEach { answer ->
                         AuraChipButton(
                             selected = taste[trait] == answer,
+                            variant = AuraChipVariant.Tag,
                             onClick = { onAnswer(trait, answer) },
                             label = DrinkLabels.answer(trait, answer),
                         )

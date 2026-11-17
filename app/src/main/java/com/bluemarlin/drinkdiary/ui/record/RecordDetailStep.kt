@@ -3,6 +3,11 @@ package com.bluemarlin.drinkdiary.ui.record
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -11,7 +16,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +38,7 @@ import com.example.ds.component.AuraButton
 import com.example.ds.component.AuraButtonSize
 import com.example.ds.component.AuraButtonVariant
 import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraChipVariant
 import com.example.ds.component.AuraNumberField
 import com.example.ds.component.AuraRatingBar
 import com.example.ds.component.AuraRatingBarSize
@@ -38,6 +46,7 @@ import com.example.ds.component.AuraSegmentedButton
 import com.example.ds.component.AuraText
 import com.example.ds.component.AuraTextField
 import com.example.ds.component.AuraTextFieldVariant
+import com.example.ds.component.rememberFloatingScrollProgress
 import com.example.ds.foundation.theme.AuraTheme
 
 // 취향 입력 이후 단계. 필수 항목(이름·만족도·다시 살까) 외 선택 항목은 고정된 접힘 영역으로 유지해
@@ -52,6 +61,7 @@ fun RecordDetailStep(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     saveLabel: String = "저장",
+    onScrollFractionChange: (Float) -> Unit = {},
     tasteSection: @Composable () -> Unit = {},
 ) {
     val optionalTags = remember(type) { remainingTags(type) }
@@ -61,10 +71,18 @@ fun RecordDetailStep(
             if (uri != null) onFormChange(form.copy(imageUri = uri.toString()))
         }
     val layout = AuraTheme.layout
+    val motion = AuraTheme.motion
+    val scrollState = rememberScrollState()
+    val scrollProgress = rememberFloatingScrollProgress(scrollState)
+
+    LaunchedEffect(scrollProgress) {
+        onScrollFractionChange(scrollProgress)
+    }
 
     DDCenteredContent(
         modifier = modifier,
         contentPadding = contentPadding,
+        scrollState = scrollState,
     ) {
         AuraText("무엇이었나요?", style = AuraTheme.typography.headlineSmall)
 
@@ -134,7 +152,21 @@ fun RecordDetailStep(
             size = AuraButtonSize.Small,
         )
 
-        if (expanded) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter =
+                if (motion.reduceMotion) {
+                    fadeIn(motion.enterSpec())
+                } else {
+                    fadeIn(motion.enterSpec()) + expandVertically(motion.spatialSpring())
+                },
+            exit =
+                if (motion.reduceMotion) {
+                    fadeOut(motion.exitSpec())
+                } else {
+                    fadeOut(motion.exitSpec()) + shrinkVertically(motion.spatialSpring())
+                },
+        ) {
             OptionalFields(
                 type = type,
                 form = form,
@@ -148,7 +180,7 @@ fun RecordDetailStep(
             onClick = onSave,
             variant = AuraButtonVariant.Primary,
             size = AuraButtonSize.Large,
-            enabled = form.isSavable && !saving,
+            enabled = form.isSavable,
             loading = saving,
             fullWidth = true,
         )
@@ -193,6 +225,7 @@ private fun OptionalFields(
                     ServingStyle.entries.forEach { style ->
                         AuraChipButton(
                             label = DrinkLabels.servingStyle(style),
+                            variant = AuraChipVariant.Tag,
                             onClick = { onFormChange(form.copy(servingStyle = style)) },
                             selected = form.servingStyle == style,
                         )

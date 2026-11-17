@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,10 +37,12 @@ import com.bluemarlin.drinkdiary.ui.settings.SettingsScreen
 import com.bluemarlin.drinkdiary.ui.settings.SettingsViewModel
 import com.bluemarlin.drinkdiary.ui.share.ShareCardContent
 import com.bluemarlin.drinkdiary.ui.share.ShareCardDialog
+import com.example.ds.component.AuraAdaptiveBarState
 import com.example.ds.component.AuraIcon
 import com.example.ds.component.AuraIconButton
 import com.example.ds.component.AuraIconButtonVariant
 import com.example.ds.component.AuraSnackbarHost
+import com.example.ds.component.rememberAuraAdaptiveBarState
 import com.example.ds.component.rememberAuraSnackbarHostState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -72,8 +75,16 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
     val appContainer = (context.applicationContext as DrinkDiaryApplication).appContainer
     var screen by remember { mutableStateOf<Screen>(Screen.Dashboard) }
     var shareCardContent by remember { mutableStateOf<ShareCardContent?>(null) }
+    var scrollFraction by remember { mutableFloatStateOf(0f) }
+    val adaptiveBarState = rememberAuraAdaptiveBarState()
     val snackbar = rememberAuraSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(screen) {
+        scrollFraction = 0f
+        adaptiveBarState.reset()
+        adaptiveBarState.updatePinnedFlags(focused = false, menuOpen = false)
+    }
 
     LaunchedEffect(appContainer) {
         appContainer.localSeedLoader.seedIfNeeded()
@@ -153,6 +164,8 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 tab = DDTopLevelTab.Dashboard,
                 onTabChange = { screen = it },
                 onAdd = { screen = Screen.Record },
+                scrollFraction = scrollFraction,
+                adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
                 toolbarActions = {
                     AuraIconButton(
@@ -176,6 +189,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     onShareCard = { openShareForScope(profile.scope) },
                     contentPadding = padding,
                     modifier = modifier,
+                    onScrollFractionChange = { scrollFraction = it },
                 )
             }
         }
@@ -186,6 +200,8 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 tab = DDTopLevelTab.Collection,
                 onTabChange = { screen = it },
                 onAdd = { screen = Screen.Record },
+                scrollFraction = scrollFraction,
+                adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
             ) { padding ->
                 CollectionScreen(
@@ -197,6 +213,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     onOpen = { id -> screen = Screen.Detail(id, DDTopLevelTab.Collection) },
                     contentPadding = padding,
                     modifier = modifier,
+                    onScrollFractionChange = { scrollFraction = it },
                 )
             }
 
@@ -217,6 +234,8 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 tab = DDTopLevelTab.Search,
                 onTabChange = { screen = it },
                 onAdd = { screen = Screen.Record },
+                scrollFraction = scrollFraction,
+                adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
             ) { padding ->
                 LookupScreen(
@@ -225,6 +244,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     onOpenRecord = { id -> screen = Screen.Detail(id, DDTopLevelTab.Search) },
                     contentPadding = padding,
                     modifier = modifier,
+                    onScrollFractionChange = { scrollFraction = it },
                 )
             }
         }
@@ -250,6 +270,8 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 title = record?.let { DrinkLabels.drinkType(it.type) } ?: "기록",
                 screenType = DDScreenType.Detail,
                 onBackClick = { screen = tabScreen(current.returnTo) },
+                scrollFraction = scrollFraction,
+                adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
             ) { padding ->
                 RecordDetailScreen(
@@ -261,6 +283,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     },
                     contentPadding = padding,
                     modifier = modifier,
+                    onScrollFractionChange = { scrollFraction = it },
                 )
             }
         }
@@ -291,6 +314,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 title = "기록 고치기",
                 screenType = DDScreenType.Editor,
                 onBackClick = { screen = Screen.Detail(current.id, current.returnTo) },
+                scrollFraction = scrollFraction,
                 snackbarHost = host,
             ) { padding ->
                 EditRecordScreen(
@@ -300,6 +324,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     onSave = editViewModel::save,
                     contentPadding = padding,
                     modifier = modifier,
+                    onScrollFractionChange = { scrollFraction = it },
                 )
             }
         }
@@ -326,6 +351,8 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 title = "설정",
                 screenType = DDScreenType.Detail,
                 onBackClick = { screen = Screen.Dashboard },
+                scrollFraction = scrollFraction,
+                adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
             ) { padding ->
                 SettingsScreen(
@@ -338,6 +365,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     },
                     contentPadding = padding,
                     modifier = modifier,
+                    onScrollFractionChange = { scrollFraction = it },
                 )
             }
         }
@@ -355,6 +383,8 @@ private fun TopLevel(
     tab: DDTopLevelTab,
     onTabChange: (Screen) -> Unit,
     onAdd: () -> Unit,
+    scrollFraction: Float,
+    adaptiveBarState: AuraAdaptiveBarState,
     snackbarHost: @Composable () -> Unit,
     toolbarActions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
@@ -367,6 +397,8 @@ private fun TopLevel(
         onCollectionClick = { onTabChange(Screen.Collection) },
         onSearchClick = { onTabChange(Screen.Lookup) },
         onAddClick = onAdd,
+        scrollFraction = scrollFraction,
+        adaptiveBarState = adaptiveBarState,
         toolbarActions = toolbarActions,
         snackbarHost = snackbarHost,
         content = content,

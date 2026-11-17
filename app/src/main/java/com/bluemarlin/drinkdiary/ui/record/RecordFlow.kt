@@ -2,11 +2,14 @@ package com.bluemarlin.drinkdiary.ui.record
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +49,11 @@ fun RecordFlow(
     var step by remember { mutableStateOf(Step.PickDrink) }
     var probeIndex by remember { mutableIntStateOf(0) }
     var showDiscardConfirm by remember { mutableStateOf(false) }
+    var scrollFraction by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(step) {
+        if (step != Step.Detail) scrollFraction = 0f
+    }
 
     if (state.savedId != null && step != Step.Saved) step = Step.Saved
 
@@ -80,9 +88,15 @@ fun RecordFlow(
         title = "기록하기",
         screenType = DDScreenType.Editor,
         onBackClick = handleBack,
+        scrollFraction = scrollFraction,
         snackbarHost = snackbarHost,
     ) { contentPadding ->
-        Crossfade(targetState = step, label = "record-step") { current ->
+        val motion = AuraTheme.motion
+        Crossfade(
+            targetState = step,
+            animationSpec = if (motion.reduceMotion) snap() else motion.enterSpec(),
+            label = "record-step",
+        ) { current ->
             when (current) {
                 Step.PickDrink ->
                     DrinkPicker(
@@ -123,6 +137,7 @@ fun RecordFlow(
                         saving = state.saving,
                         modifier = modifier,
                         contentPadding = contentPadding,
+                        onScrollFractionChange = { scrollFraction = it },
                     )
 
                 Step.Saved ->
@@ -159,21 +174,19 @@ fun RecordFlow(
         }
     }
 
-    if (showDiscardConfirm) {
-        AuraDialog(
-            visible = true,
-            title = "기록을 그만할까요?",
-            message = "지금 입력한 내용은 저장되지 않아요.",
-            variant = AuraDialogVariant.Destructive,
-            confirmText = "나가기",
-            dismissText = "계속 기록하기",
-            onConfirm = {
-                showDiscardConfirm = false
-                onExit()
-            },
-            onDismissRequest = { showDiscardConfirm = false },
-        )
-    }
+    AuraDialog(
+        visible = showDiscardConfirm,
+        title = "기록을 그만할까요?",
+        message = "지금 입력한 내용은 저장되지 않아요.",
+        variant = AuraDialogVariant.Destructive,
+        confirmText = "나가기",
+        dismissText = "계속 기록하기",
+        onConfirm = {
+            showDiscardConfirm = false
+            onExit()
+        },
+        onDismissRequest = { showDiscardConfirm = false },
+    )
 }
 
 @Composable

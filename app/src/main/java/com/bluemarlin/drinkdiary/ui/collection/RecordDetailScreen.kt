@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +38,8 @@ import com.example.ds.component.AuraDivider
 import com.example.ds.component.AuraRatingBar
 import com.example.ds.component.AuraRatingBarSize
 import com.example.ds.component.AuraText
+import com.example.ds.component.BindAdaptiveBarToScrollState
+import com.example.ds.component.rememberFloatingScrollProgress
 import com.example.ds.foundation.theme.AuraTheme
 
 @Composable
@@ -45,8 +49,19 @@ fun RecordDetailScreen(
     onDelete: () -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onScrollFractionChange: (Float) -> Unit = {},
 ) {
     val layout = AuraTheme.layout
+    val scrollState = rememberScrollState()
+    val scrollProgress = rememberFloatingScrollProgress(scrollState)
+
+    if (!layout.supportsTwoPane && record != null) {
+        BindAdaptiveBarToScrollState(scrollState = scrollState)
+    }
+
+    LaunchedEffect(scrollProgress, layout.supportsTwoPane, record) {
+        onScrollFractionChange(if (layout.supportsTwoPane || record == null) 0f else scrollProgress)
+    }
 
     if (record == null) {
         // 삭제 직후에도 잠깐 지나가는 상태다. "없어졌다"고 단정하지 않는다.
@@ -91,6 +106,7 @@ fun RecordDetailScreen(
         DDCenteredContent(
             modifier = modifier,
             contentPadding = contentPadding,
+            scrollState = scrollState,
         ) {
             RecordOverviewSection(record)
             AuraDivider()
@@ -102,22 +118,20 @@ fun RecordDetailScreen(
         }
     }
 
-    if (confirming) {
-        AuraDialog(
-            visible = true,
-            title = "${record.name} 기록을 지울까요?",
-            // 되돌릴 수 없다는 사실을 누르기 전에 말한다.
-            message = "취향 답까지 함께 지워지고, 되돌릴 수 없어요. 취향 유형도 이 기록만큼 다시 계산됩니다.",
-            variant = AuraDialogVariant.Destructive,
-            confirmText = "지우기",
-            dismissText = "그대로 두기",
-            onConfirm = {
-                confirming = false
-                onDelete()
-            },
-            onDismissRequest = { confirming = false },
-        )
-    }
+    AuraDialog(
+        visible = confirming,
+        title = "${record.name} 기록을 지울까요?",
+        // 되돌릴 수 없다는 사실을 누르기 전에 말한다.
+        message = "취향 답까지 함께 지워지고, 되돌릴 수 없어요. 취향 유형도 이 기록만큼 다시 계산됩니다.",
+        variant = AuraDialogVariant.Destructive,
+        confirmText = "지우기",
+        dismissText = "그대로 두기",
+        onConfirm = {
+            confirming = false
+            onDelete()
+        },
+        onDismissRequest = { confirming = false },
+    )
 }
 
 @Composable
@@ -225,10 +239,11 @@ private fun RecordTasteAndActionsSection(
         fullWidth = true,
     )
 
+    // BTN-RULE-003: 1차 진입 표면에서는 Outline/Ghost를 사용하고 Destructive는 최종 확인 다이얼로그에만 사용한다.
     AuraButton(
         text = "이 기록 지우기",
         onClick = onRequestDelete,
-        variant = AuraButtonVariant.Destructive,
+        variant = AuraButtonVariant.Outline,
         size = AuraButtonSize.Large,
         fullWidth = true,
     )

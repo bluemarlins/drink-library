@@ -20,6 +20,7 @@ fun EditRecordScreen(
     onSave: () -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onScrollFractionChange: (Float) -> Unit = {},
 ) {
     if (!state.loaded) {
         DDCenteredContent(
@@ -53,6 +54,7 @@ fun EditRecordScreen(
         modifier = modifier,
         contentPadding = contentPadding,
         saveLabel = "고친 내용 저장",
+        onScrollFractionChange = onScrollFractionChange,
         tasteSection = {
             AuraDivider()
             TasteEditor(type = state.type, taste = state.taste, onAnswer = onAnswer)

@@ -18,25 +18,43 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
+import com.bluemarlin.drinkdiary.ui.component.DDRepurchaseBadge
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
+import com.example.ds.component.AuraBadgeSize
 import com.example.ds.component.AuraCard
+import com.example.ds.component.AuraCardPadding
 import com.example.ds.component.AuraCardVariant
 import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraChipVariant
 import com.example.ds.component.AuraSearchBar
 import com.example.ds.component.AuraSearchBarSurface
 import com.example.ds.component.AuraSegmentedButton
 import com.example.ds.component.AuraText
+import com.example.ds.component.BindAdaptiveBarToLazyGridState
+import com.example.ds.component.LocalAuraAdaptiveBarState
+import com.example.ds.component.LocalGlassBackdropState
 import com.example.ds.foundation.theme.AuraTheme
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -49,9 +67,42 @@ fun CollectionScreen(
     onOpen: (Long) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onScrollFractionChange: (Float) -> Unit = {},
 ) {
     val layout = AuraTheme.layout
     val direction = LocalLayoutDirection.current
+    val density = LocalDensity.current
+    val gridState = rememberLazyGridState()
+    val backdropState = LocalGlassBackdropState.current
+    val adaptiveBarState = LocalAuraAdaptiveBarState.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    BindAdaptiveBarToLazyGridState(gridState = gridState)
+
+    val thresholdPx = remember(density) { with(density) { 64.dp.toPx().coerceAtLeast(1f) } }
+    val scrollProgress by remember(gridState, thresholdPx) {
+        derivedStateOf {
+            if (gridState.firstVisibleItemIndex > 0) {
+                1f
+            } else {
+                (gridState.firstVisibleItemScrollOffset / thresholdPx).coerceIn(0f, 1f)
+            }
+        }
+    }
+
+    LaunchedEffect(scrollProgress) {
+        onScrollFractionChange(scrollProgress)
+    }
+    LaunchedEffect(gridState, backdropState) {
+        if (backdropState == null) return@LaunchedEffect
+        snapshotFlow {
+            gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset
+        }.distinctUntilChanged().collect {
+            backdropState.invalidateBackdrop()
+        }
+    }
+
     val gridPadding =
         PaddingValues(
             start = contentPadding.calculateStartPadding(direction) + layout.screenMarginHorizontal,
@@ -67,6 +118,7 @@ fun CollectionScreen(
         contentAlignment = Alignment.TopCenter,
     ) {
         LazyVerticalGrid(
+            state = gridState,
             columns = GridCells.Fixed(columns),
             modifier = Modifier.widthIn(max = layout.maxContentWidth).fillMaxSize(),
             contentPadding = gridPadding,
@@ -77,9 +129,18 @@ fun CollectionScreen(
                 AuraSearchBar(
                     query = state.query,
                     onQueryChange = onQueryChange,
+                    onSearch = {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                    },
                     placeholder = "술 이름, 구입처, 메모 검색",
                     surface = AuraSearchBarSurface.Solid,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { focusState ->
+                                adaptiveBarState?.updatePinnedFlags(focused = focusState.isFocused)
+                            },
                 )
             }
 
@@ -97,17 +158,20 @@ fun CollectionScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         AuraChipButton(
-                            label = "★ 또 살래요",
+                            label = "또 살래요",
+                            variant = AuraChipVariant.Filter,
                             selected = state.statusFilter == CollectionStatus.Repurchase,
                             onClick = { onStatusFilterChange(CollectionStatus.Repurchase) },
                         )
                         AuraChipButton(
                             label = "안 맞아요",
+                            variant = AuraChipVariant.Filter,
                             selected = state.statusFilter == CollectionStatus.NotForMe,
                             onClick = { onStatusFilterChange(CollectionStatus.NotForMe) },
                         )
                         AuraChipButton(
-                            label = if (state.sortByRating) "평점 높은 순 ✓" else "평점 높은 순",
+                            label = "평점 높은 순",
+                            variant = AuraChipVariant.Filter,
                             selected = state.sortByRating,
                             onClick = onToggleSortByRating,
                         )
@@ -153,9 +217,14 @@ private fun RecordRow(
     record: DrinkRecord,
     onClick: () -> Unit,
 ) {
-    AuraCard(onClick = onClick, modifier = Modifier.fillMaxWidth(), variant = AuraCardVariant.Outlined) {
+    AuraCard(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        variant = AuraCardVariant.Outlined,
+        padding = AuraCardPadding.Medium,
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -182,10 +251,9 @@ private fun RecordRow(
                         modifier = Modifier.weight(1f, fill = false),
                     )
                     if (record.collectionStatus == CollectionStatus.Repurchase) {
-                        AuraText(
-                            text = "★",
-                            style = AuraTheme.typography.labelSmall,
-                            color = AuraTheme.colors.brand.primary,
+                        DDRepurchaseBadge(
+                            text = "재구매",
+                            size = AuraBadgeSize.Small,
                         )
                     }
                 }

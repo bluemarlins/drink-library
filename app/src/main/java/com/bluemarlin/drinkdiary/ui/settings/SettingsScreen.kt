@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
@@ -19,6 +21,8 @@ import com.example.ds.component.AuraCardPadding
 import com.example.ds.component.AuraCardVariant
 import com.example.ds.component.AuraDivider
 import com.example.ds.component.AuraText
+import com.example.ds.component.BindAdaptiveBarToScrollState
+import com.example.ds.component.rememberFloatingScrollProgress
 import com.example.ds.foundation.theme.AuraTheme
 
 // 불필요한 지표/옵션 커스터마이징은 열지 않고, 로컬 데이터 보존(백업·복원)만 제공한다.
@@ -29,7 +33,15 @@ fun SettingsScreen(
     onRestoreBackup: (Uri) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onScrollFractionChange: (Float) -> Unit = {},
 ) {
+    val scrollState = rememberScrollState()
+    val scrollProgress = rememberFloatingScrollProgress(scrollState)
+    BindAdaptiveBarToScrollState(scrollState = scrollState)
+    LaunchedEffect(scrollProgress) {
+        onScrollFractionChange(scrollProgress)
+    }
+
     val createBackupLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
             if (uri != null) onExportBackup(uri)
@@ -42,6 +54,7 @@ fun SettingsScreen(
     DDCenteredContent(
         modifier = modifier,
         contentPadding = contentPadding,
+        scrollState = scrollState,
     ) {
         AuraCard(
             modifier = Modifier.fillMaxWidth(),

@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,6 +32,8 @@ import com.example.ds.component.AuraButtonVariant
 import com.example.ds.component.AuraDivider
 import com.example.ds.component.AuraSegmentedButton
 import com.example.ds.component.AuraText
+import com.example.ds.component.BindAdaptiveBarToScrollState
+import com.example.ds.component.rememberFloatingScrollProgress
 import com.example.ds.foundation.theme.AuraTheme
 
 @Composable
@@ -41,9 +45,20 @@ fun ProfileScreen(
     onShareCard: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
+    onScrollFractionChange: (Float) -> Unit = {},
 ) {
     val layout = AuraTheme.layout
     val preferences = state.profile?.preferences.orEmpty()
+    val scrollState = rememberScrollState()
+    val scrollProgress = rememberFloatingScrollProgress(scrollState)
+
+    if (!layout.supportsTwoPane) {
+        BindAdaptiveBarToScrollState(scrollState = scrollState)
+    }
+
+    LaunchedEffect(scrollProgress, layout.supportsTwoPane) {
+        onScrollFractionChange(if (layout.supportsTwoPane) 0f else scrollProgress)
+    }
 
     if (layout.supportsTwoPane) {
         DDTwoPaneContent(
@@ -85,6 +100,7 @@ fun ProfileScreen(
         DDCenteredContent(
             modifier = modifier,
             contentPadding = contentPadding,
+            scrollState = scrollState,
         ) {
             DDDashboardSummaryCard(
                 overview = state.overview,

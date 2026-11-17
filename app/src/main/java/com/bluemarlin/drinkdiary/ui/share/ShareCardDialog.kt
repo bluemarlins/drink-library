@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,15 +29,19 @@ fun ShareCardDialog(
     content: ShareCardContent?,
     onDismiss: () -> Unit,
 ) {
-    if (content == null) return
+    var cachedContent by remember { mutableStateOf<ShareCardContent?>(null) }
+    if (content != null) {
+        cachedContent = content
+    }
+    val activeContent = content ?: cachedContent ?: return
 
     val colors = AuraTheme.colors
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val bitmap = remember(content, colors) { ShareCardRenderer.render(content, colors) }
+    val bitmap = remember(activeContent, colors) { ShareCardRenderer.render(activeContent, colors) }
 
     AuraDialog(
-        visible = true,
+        visible = content != null,
         title = "내 취향 카드 (9:16)",
         confirmText = "이미지 공유하기",
         dismissText = "닫기",
@@ -53,11 +60,11 @@ fun ShareCardDialog(
         ) {
             Image(
                 bitmap = bitmap.asImageBitmap(),
-                contentDescription = "${content.type.code} 취향 공유 카드 미리보기",
+                contentDescription = "${activeContent.type.code} 취향 공유 카드 미리보기",
                 contentScale = ContentScale.Fit,
                 modifier =
                     Modifier
-                        .heightIn(max = 360.dp)
+                        .heightIn(max = 320.dp)
                         .aspectRatio(9f / 16f)
                         .clip(AuraTheme.shapes.medium),
             )

@@ -1,6 +1,7 @@
 package com.bluemarlin.drinkdiary.ui.record
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -72,8 +73,10 @@ fun ProbeSequenceScreen(
             )
         }
 
+        val motion = AuraTheme.motion
         Crossfade(
             targetState = safeIndex,
+            animationSpec = if (motion.reduceMotion) snap() else motion.enterSpec(),
             label = "ProbeSequenceAnimation",
             modifier = Modifier.fillMaxWidth(),
         ) { index ->

@@ -5,9 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.BottleEntry
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
@@ -26,6 +31,9 @@ import com.example.ds.component.AuraDivider
 import com.example.ds.component.AuraSearchBar
 import com.example.ds.component.AuraSearchBarSurface
 import com.example.ds.component.AuraText
+import com.example.ds.component.BindAdaptiveBarToScrollState
+import com.example.ds.component.LocalAuraAdaptiveBarState
+import com.example.ds.component.rememberFloatingScrollProgress
 import com.example.ds.foundation.theme.AuraTheme
 
 // F5: 매장에서 오프라인으로 "전에 마셨나? 좋아했나?"를 15초 안에 판단하는 빠른 조회 화면.
@@ -36,10 +44,24 @@ fun LookupScreen(
     onOpenRecord: (Long) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onScrollFractionChange: (Float) -> Unit = {},
 ) {
+    val scrollState = rememberScrollState()
+    val scrollProgress = rememberFloatingScrollProgress(scrollState)
+    val adaptiveBarState = LocalAuraAdaptiveBarState.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    BindAdaptiveBarToScrollState(scrollState = scrollState)
+
+    LaunchedEffect(scrollProgress) {
+        onScrollFractionChange(scrollProgress)
+    }
+
     DDCenteredContent(
         modifier = modifier,
         contentPadding = contentPadding,
+        scrollState = scrollState,
     ) {
         AuraText("매장에서 바로 찾기", style = AuraTheme.typography.headlineSmall)
         AuraText(
@@ -51,9 +73,18 @@ fun LookupScreen(
         AuraSearchBar(
             query = state.query,
             onQueryChange = onQueryChange,
+            onSearch = {
+                keyboardController?.hide()
+                focusManager.clearFocus()
+            },
             placeholder = "와인 또는 위스키 이름 검색",
             surface = AuraSearchBarSurface.Solid,
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { focusState ->
+                        adaptiveBarState?.updatePinnedFlags(focused = focusState.isFocused)
+                    },
         )
 
         if (state.query.isNotBlank()) {
@@ -65,7 +96,7 @@ fun LookupScreen(
         } else {
             if (state.repurchaseCandidates.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    AuraText("★ 또 살래요 리스트", style = AuraTheme.typography.titleMedium)
+                    AuraText("또 살래요 리스트", style = AuraTheme.typography.titleMedium)
                     state.repurchaseCandidates.forEach { record ->
                         LookupRecordCard(record = record, onClick = { onOpenRecord(record.id) })
                     }
@@ -152,13 +183,13 @@ private fun LookupRecordCard(
 ) {
     val badgeVariant =
         when (record.collectionStatus) {
-            CollectionStatus.Repurchase -> AuraBadgeVariant.Brand
+            CollectionStatus.Repurchase -> AuraBadgeVariant.Success
             CollectionStatus.NotForMe -> AuraBadgeVariant.Error
             CollectionStatus.Normal -> AuraBadgeVariant.Neutral
         }
     val statusText =
         when (record.collectionStatus) {
-            CollectionStatus.Repurchase -> "★ 또 살래요 · ${DrinkLabels.rating(record.rating)}"
+            CollectionStatus.Repurchase -> "또 살래요 · ${DrinkLabels.rating(record.rating)}"
             CollectionStatus.NotForMe -> "안 맞아요 · ${DrinkLabels.rating(record.rating)}"
             CollectionStatus.Normal -> "무난해요 · ${DrinkLabels.rating(record.rating)}"
         }

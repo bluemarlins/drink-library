@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.DrinkTags
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
@@ -86,6 +89,7 @@ fun DrinkPicker(
     val layout = AuraTheme.layout
     if (layout.supportsTwoPane) {
         val groupColumns = if (layout.gridColumns >= 3) 2 else 1
+        val direction = LocalLayoutDirection.current
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter,
@@ -97,16 +101,15 @@ fun DrinkPicker(
                     text = "무엇을 마셨나요?",
                     style = AuraTheme.typography.headlineSmall,
                     modifier =
-                        Modifier
-                            .padding(contentPadding)
-                            .padding(
-                                start = layout.screenMarginHorizontal,
-                                end = layout.screenMarginHorizontal,
-                                top = layout.screenMarginVertical,
-                            ),
+                        Modifier.padding(
+                            start = contentPadding.calculateStartPadding(direction) + layout.screenMarginHorizontal,
+                            end = contentPadding.calculateEndPadding(direction) + layout.screenMarginHorizontal,
+                            top = contentPadding.calculateTopPadding() + layout.screenMarginVertical,
+                        ),
                 )
                 DDTwoPaneContent(
                     modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
                     primaryPaneFraction = 0.5f,
                     primaryPane = {
                         ChoiceGroup(

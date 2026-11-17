@@ -17,6 +17,7 @@ import com.bluemarlin.drinkdiary.domain.model.WhiskyStyle
 import com.bluemarlin.drinkdiary.domain.model.WineColor
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.example.ds.component.AuraChipButton
+import com.example.ds.component.AuraChipVariant
 import com.example.ds.component.AuraText
 import com.example.ds.foundation.theme.AuraTheme
 
@@ -77,6 +78,7 @@ private fun TagRow(
                 val isSelected = selected == value
                 AuraChipButton(
                     selected = isSelected,
+                    variant = AuraChipVariant.Tag,
                     // 같은 값을 다시 누르면 해제.
                     onClick = { onSelect(if (isSelected) null else value) },
                     label = DrinkLabels.tagValue(category, value, type),

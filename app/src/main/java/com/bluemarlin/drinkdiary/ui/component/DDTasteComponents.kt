@@ -339,7 +339,7 @@ fun DDBuyRecommendationSection(
 
         if (bundle.repurchasePicks.isNotEmpty()) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                AuraText("실패 없는 내 재구매 픽 ★", style = AuraTheme.typography.titleSmall)
+                AuraText("실패 없는 내 재구매 픽", style = AuraTheme.typography.titleSmall)
                 bundle.repurchasePicks.forEach { record ->
                     RepurchasePickCard(record = record, onClick = { onOpenRecord(record.id) })
                 }
@@ -406,8 +406,8 @@ private fun RepurchasePickCard(
                 )
             }
             AuraBadge(
-                label = "★ ${DrinkLabels.rating(record.rating)}",
-                variant = AuraBadgeVariant.Brand,
+                label = "${DrinkLabels.rating(record.rating)} / 5",
+                variant = AuraBadgeVariant.Success,
             )
         }
     }
