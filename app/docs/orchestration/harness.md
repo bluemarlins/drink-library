@@ -34,12 +34,12 @@
 - 구조적 로컬 영속성은 Room, 키-값 설정은 SharedPreferences가 아니라 DataStore를 쓴다.
 - DB/파일/네트워크 작업은 메인 스레드에서 실행하지 않는다. 비동기·반응형은 Coroutines와 Flow를
   기본으로 한다.
-- 기술 스택 기본값: Kotlin, Jetpack Compose, Aura Design System (`app/libs/aura-design-system-1.0.0.aar`), AndroidX/Jetpack 공식 컴포넌트(Material 3 미사용).
+- 기술 스택 기본값: Kotlin, Jetpack Compose, Aura Design System (`app/libs/aura-design-system-1.1.0.aar`), AndroidX/Jetpack 공식 컴포넌트(Material 3 미사용).
 
 ## 2. UI 규칙
 
 - Composable은 최대한 stateless로 만들고 상태/이벤트는 상위에서 주입한다.
-- 화면별 커스텀 UI보다 **Aura Design System (`com.example.ds`) 컴포넌트**를 직접 우선 사용한다. Aura에 없는 항목(Gap)에 한해 `ui/component/`의 로컬 구현(`DDSnackbarHost`, `DDProgressBar`, `DDDivider`, `DDUriImage`, 도메인 복합 컴포넌트)을 사용한다.
+- 화면별 커스텀 UI보다 **Aura Design System (`com.example.ds`) 컴포넌트**를 직접 우선 사용한다. Aura에 없는 항목(Gap)에 한해 `ui/component/`의 로컬 구현(`DDUriImage`, 도메인 복합 컴포넌트)을 사용한다 (`AuraDivider`, `AuraLinearProgressBar`, `AuraStepProgressBar`, `AuraSnackbarHost`, `AuraTheme.shapes`는 Aura 1.1.0 API를 직접 사용).
 - 삭제처럼 되돌리기 어려운 액션은 항상 `AuraButton(variant = AuraButtonVariant.Destructive)` 또는 `AuraDialog(variant = AuraDialogVariant.Destructive)`를 사용한다. 한 화면의 Primary 액션은 1개로 제한한다.
 - 색상/타이포/모션/레이아웃 간격은 `AuraTheme.colors`, `AuraTheme.typography`, `AuraTheme.motion`, `AuraTheme.layout`을 통해서만 사용한다. 화면에 하드코딩된 `Color(0x...)`나 임의 여백 값을 새로 추가하지 않는다.
 - 상태 호이스팅과 단방향 데이터 흐름(UDF)을 따른다. 화면 수준 상태는 ViewModel이 관리한다.
