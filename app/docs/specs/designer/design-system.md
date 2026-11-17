@@ -7,7 +7,7 @@
 
 ## 1. 적용 방식 및 소스
 
-- **참조 방식:** 로컬 AAR 참조 (`app/libs/aura-design-system-1.1.0.aar`, 출처: `bluemarlins/aura-design-system` v1.1.0).
+- **참조 방식:** 로컬 AAR 참조 (`app/libs/aura-design-system-1.1.1.aar`, 출처: `bluemarlins/aura-design-system` v1.1.1). 1.1.1은 1.1.0에 `FloatingGlassScaffold` 배경 레이어 수정만 더한 패치다(2026-11-18).
   - Compose BOM 기반 `ui`, `ui-graphics`, `foundation`, `core-ktx`만 사용한다.
   - **`androidx.compose.material3` 및 `dev.chrisbanes.haze`는 완전히 제거한다** (Gradle 의존성 및 Kotlin import 0건).
   - 앱 루트는 `DrinkDiaryTheme` → `AuraTheme(colorMode = ..., material = AuraMaterial.LiquidGlass, glass = AuraGlassDefaults.forColorMode(...))`로 연결한다. (`AuraTheme.material`은 하위 모든 Glass 서피스의 최대 상한(Ceiling)으로 동작하며, `reduceTransparency` 활성 시 자동으로 `Solid`(`solidFallbackAlpha = 0.98f`)로 폴백한다.)
