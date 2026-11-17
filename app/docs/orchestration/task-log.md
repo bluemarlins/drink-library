@@ -433,7 +433,7 @@ Billing 연동은 Phase 3(가장 마지막)으로 이동. Phase 1은 순수 기�
 | P2-13 | Aura Design System 1.1.0 업그레이드 및 Gap 컴포넌트(`AuraShapes`, `AuraDivider`, `AuraProgressBar`, `AuraSnackbar`) 편입·마이그레이션 | Antigravity | done | (현재 작업) | `aura-design-system`에 `AuraShapes`, `AuraDivider`, `AuraLinearProgressBar`, `AuraStepProgressBar`, `AuraSnackbar`/`AuraSnackbarHost` 및 Scaffold `snackbarHost` 슬롯 추가(`v1.1.0`), `drink-library`에서 `DDShape`/`DDDivider`/`DDProgressBar`/`DDProbeProgress`/`DDSnackbar` 제거 및 문서 갱신 |
 | P2-14 | 앱 아이콘 교체 — 반반 잔(색유리) | Claude | done | (현재 작업) | 후보 3안 제작 → **사용자 확정: B′ 반반 잔 글래스**(2026-11-17). `departments/designer/icon-candidates-2026-11.md` → `specs/designer/branding.md` 5절 반영. foreground PNG 5밀도, 배경 그라데이션, 모노크롬 벡터 신설, 레거시 webp → png. `:app:assembleDebug` 통과, 실기기 확인은 미수행 |
 | P2-15 | 기록 사진이 앱 재시작 후 사라지는 버그 수정 | Claude | done | (현재 작업) | 실기기 점검(`departments/qa/device-review-2026-11-17.md`) P0. 사진 선택기 임시 주소 대신 앱 내부 사본 저장, 고아 사본 정리. 백업에 사진 포함 여부는 미결 |
-| P2-16 | 실기기 점검 P1 수정 — 저장 불가 이유, 상세 태그, 검색 결과 없음 → 기록하기, 상태바 스크림, 기록하기 재진입 상태 초기화 | Claude | done | (현재 작업) | `departments/qa/device-review-2026-11-17.md`. 실기기 재확인 미수행(기기 연결 끊김). P1-5 하단 바 유리 스타일은 명세 변경이 필요해 보류 |
+| P2-16 | 실기기 점검 P1 수정 — 저장 불가 이유, 상세 태그, 검색 결과 없음 → 기록하기, 상태바 스크림, 기록하기 재진입 상태 초기화 | Claude | done | (현재 작업) | `departments/qa/device-review-2026-11-17.md`. 실기기 재확인 미수행(기기 연결 끊김). P1-5 하단 바는 사용자 결정으로 `FROSTED` 전환, `design-system.md` 개정 |
 
 ## Phase 3 — Billing 연동 (최종 단계)
 

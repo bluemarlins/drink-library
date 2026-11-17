@@ -66,8 +66,8 @@
 
 ### 5. 하단 내비게이션 뒤로 비친 슬라이더가 "선택 표시"처럼 보인다
 
-> **보류 — 사용자 결정 필요**: `FloatingBottomIsland`의 `GlassStyle.LIQUID`는 흐림 없이 굴절만 해서 뒤 내용이
-> 그대로 읽힌다. `FROSTED`로 바꾸면 해결되지만 `specs/designer/design-system.md`가 `LIQUID`를 확정해 두었다.
+> **수정 (2026-11-17, 사용자 결정)**: `FloatingBottomIsland`를 `GlassStyle.LIQUID` → `FROSTED`로 바꿨다.
+> `LIQUID`는 흐림 없이 굴절만 해서 뒤 내용이 그대로 읽혔다. `specs/designer/design-system.md`도 함께 고쳤다.
 대시보드에서 하단 바가 반투명해 뒤쪽 "단맛" 슬라이더의 파란 점과 눈금이 바 안에 비친다.
 "대시보드"와 "컬렉션" 사이에 정체불명의 파란 점이 있는 것처럼 보이고, `+` 버튼은 "달콤 (S)" 글자를 가린다.
 공유 카드 다이얼로그도 배경 글자가 비쳐 읽기 어렵다.

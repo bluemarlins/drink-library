@@ -245,7 +245,7 @@ private fun DDBottomNavigation(
         items = entries.map { it.second },
         selectedIndex = entries.indexOfFirst { it.first == selectedTab }.coerceAtLeast(0),
         onItemSelected = { index -> entries[index].third() },
-        glassStyle = GlassStyle.LIQUID,
+        glassStyle = GlassStyle.FROSTED,
         splitActionIcon = if (onAddClick != null) addIcon else null,
         splitActionLabel = if (onAddClick != null) "기록하기" else null,
         isActionSplit = onAddClick != null,
