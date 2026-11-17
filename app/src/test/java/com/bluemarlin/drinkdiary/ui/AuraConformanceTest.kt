@@ -337,6 +337,8 @@ class AuraConformanceTest {
         }
 
         composeRule.onNodeWithText("매장에서 바로 찾기").assertDoesNotExist()
+        // 화면 언어는 한국어다 — 스크린리더가 읽는 설명도 마찬가지(branding.md 7-1 R1).
+        composeRule.onNodeWithContentDescription("검색어 지우기").assertExists()
         composeRule.onNodeWithText("'처음 본 와인' 기록하기").performScrollTo().performClick()
         assertEquals("처음 본 와인", recorded)
     }

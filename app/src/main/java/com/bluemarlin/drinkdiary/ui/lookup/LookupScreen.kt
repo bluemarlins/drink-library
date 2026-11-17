@@ -89,6 +89,7 @@ fun LookupScreen(
                 focusManager.clearFocus()
             },
             placeholder = "와인 또는 위스키 이름 검색",
+            clearContentDescription = "검색어 지우기",
             surface = AuraSearchBarSurface.Solid,
             modifier =
                 Modifier

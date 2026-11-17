@@ -134,6 +134,7 @@ fun CollectionScreen(
                         focusManager.clearFocus()
                     },
                     placeholder = "술 이름, 구입처, 메모 검색",
+                    clearContentDescription = "검색어 지우기",
                     surface = AuraSearchBarSurface.Solid,
                     modifier =
                         Modifier
