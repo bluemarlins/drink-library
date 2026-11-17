@@ -184,6 +184,9 @@ private fun RecordOverviewSection(record: DrinkRecord) {
     }
 
     DetailRow("다시 살까", DrinkLabels.collectionStatus(record.collectionStatus))
+    record.tags.entries.forEach { (category, value) ->
+        DetailRow(DrinkLabels.tagCategory(category), DrinkLabels.tagValue(category, value, record.type))
+    }
     record.price?.let { DetailRow("가격", DrinkLabels.price(it)) }
     record.place?.let { DetailRow("어디에서", it) }
 

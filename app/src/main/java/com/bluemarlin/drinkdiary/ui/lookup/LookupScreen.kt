@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -24,6 +28,8 @@ import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDDrinkBadge
 import com.example.ds.component.AuraBadge
 import com.example.ds.component.AuraBadgeVariant
+import com.example.ds.component.AuraButton
+import com.example.ds.component.AuraButtonVariant
 import com.example.ds.component.AuraCard
 import com.example.ds.component.AuraCardPadding
 import com.example.ds.component.AuraCardVariant
@@ -42,6 +48,7 @@ fun LookupScreen(
     state: LookupUiState,
     onQueryChange: (String) -> Unit,
     onOpenRecord: (Long) -> Unit,
+    onRecordNew: (String) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     onScrollFractionChange: (Float) -> Unit = {},
@@ -51,6 +58,7 @@ fun LookupScreen(
     val adaptiveBarState = LocalAuraAdaptiveBarState.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    var searchFocused by remember { mutableStateOf(false) }
 
     BindAdaptiveBarToScrollState(scrollState = scrollState)
 
@@ -63,12 +71,15 @@ fun LookupScreen(
         contentPadding = contentPadding,
         scrollState = scrollState,
     ) {
-        AuraText("매장에서 바로 찾기", style = AuraTheme.typography.headlineSmall)
-        AuraText(
-            text = "이름 일부만 입력해도 내가 좋아했던 술인지 바로 확인할 수 있어요.",
-            style = AuraTheme.typography.bodySmall,
-            color = AuraTheme.colors.content.secondary,
-        )
+        // 검색 중에는 소개 문구를 접는다. 작은 화면에서는 키보드 위에 결과가 한 건밖에 안 남는다.
+        if (!searchFocused && state.query.isBlank()) {
+            AuraText("매장에서 바로 찾기", style = AuraTheme.typography.headlineSmall)
+            AuraText(
+                text = "이름 일부만 입력해도 내가 좋아했던 술인지 바로 확인할 수 있어요.",
+                style = AuraTheme.typography.bodySmall,
+                color = AuraTheme.colors.content.secondary,
+            )
+        }
 
         AuraSearchBar(
             query = state.query,
@@ -83,15 +94,18 @@ fun LookupScreen(
                 Modifier
                     .fillMaxWidth()
                     .onFocusChanged { focusState ->
+                        searchFocused = focusState.isFocused
                         adaptiveBarState?.updatePinnedFlags(focused = focusState.isFocused)
                     },
         )
 
         if (state.query.isNotBlank()) {
             SearchResultsSection(
+                query = state.query.trim(),
                 records = state.matchedRecords,
                 catalogMatches = state.matchedCatalogBottles,
                 onOpenRecord = onOpenRecord,
+                onRecordNew = onRecordNew,
             )
         } else {
             if (state.repurchaseCandidates.isNotEmpty()) {
@@ -115,9 +129,11 @@ fun LookupScreen(
 
 @Composable
 private fun SearchResultsSection(
+    query: String,
     records: List<DrinkRecord>,
     catalogMatches: List<BottleEntry>,
     onOpenRecord: (Long) -> Unit,
+    onRecordNew: (String) -> Unit,
 ) {
     if (records.isEmpty() && catalogMatches.isEmpty()) {
         AuraCard(
@@ -125,11 +141,20 @@ private fun SearchResultsSection(
             variant = AuraCardVariant.Outlined,
             padding = AuraCardPadding.Medium,
         ) {
-            AuraText(
-                text = "아직 마신 기록이나 사전에서 찾지 못했어요.",
-                style = AuraTheme.typography.bodyMedium,
-                color = AuraTheme.colors.content.secondary,
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                AuraText(
+                    text = "아직 마신 기록이나 사전에서 찾지 못했어요.",
+                    style = AuraTheme.typography.bodyMedium,
+                    color = AuraTheme.colors.content.secondary,
+                )
+                // 매장에서 처음 본 술이다. 찾던 이름 그대로 바로 기록으로 넘긴다.
+                AuraButton(
+                    text = "'$query' 기록하기",
+                    onClick = { onRecordNew(query) },
+                    variant = AuraButtonVariant.Primary,
+                    fullWidth = true,
+                )
+            }
         }
         return
     }

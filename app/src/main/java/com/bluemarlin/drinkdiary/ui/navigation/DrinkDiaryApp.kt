@@ -57,7 +57,10 @@ private sealed interface Screen {
 
     data object Lookup : Screen
 
-    data object Record : Screen
+    // 검색에서 못 찾은 이름으로 들어오면 그 이름을 채워 둔다.
+    data class Record(
+        val prefillName: String = "",
+    ) : Screen
 
     data class Detail(
         val id: Long,
@@ -113,7 +116,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         }
     }
 
-    BackHandler(enabled = screen != Screen.Dashboard && screen != Screen.Record) {
+    BackHandler(enabled = screen != Screen.Dashboard && screen !is Screen.Record) {
         screen =
             when (val current = screen) {
                 is Screen.Detail -> tabScreen(current.returnTo)
@@ -176,7 +179,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 title = "테이스트 아카이브",
                 tab = DDTopLevelTab.Dashboard,
                 onTabChange = { screen = it },
-                onAdd = { screen = Screen.Record },
+                onAdd = { screen = Screen.Record() },
                 scrollFraction = scrollFraction,
                 adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
@@ -212,7 +215,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 title = "컬렉션",
                 tab = DDTopLevelTab.Collection,
                 onTabChange = { screen = it },
-                onAdd = { screen = Screen.Record },
+                onAdd = { screen = Screen.Record() },
                 scrollFraction = scrollFraction,
                 adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
@@ -246,7 +249,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 title = "매장 찾기",
                 tab = DDTopLevelTab.Search,
                 onTabChange = { screen = it },
-                onAdd = { screen = Screen.Record },
+                onAdd = { screen = Screen.Record() },
                 scrollFraction = scrollFraction,
                 adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
@@ -255,6 +258,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     state = lookup,
                     onQueryChange = lookupViewModel::updateQuery,
                     onOpenRecord = { id -> screen = Screen.Detail(id, DDTopLevelTab.Search) },
+                    onRecordNew = { name -> screen = Screen.Record(prefillName = name) },
                     contentPadding = padding,
                     modifier = modifier,
                     onScrollFractionChange = { scrollFraction = it },
@@ -262,8 +266,9 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             }
         }
 
-        Screen.Record ->
+        is Screen.Record ->
             RecordFlow(
+                prefillName = current.prefillName,
                 onExit = { screen = Screen.Dashboard },
                 onShareTasteCard = { type ->
                     val scope =

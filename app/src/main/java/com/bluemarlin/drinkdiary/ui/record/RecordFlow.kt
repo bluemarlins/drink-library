@@ -36,6 +36,7 @@ private enum class Step { PickDrink, Probes, Detail, Saved }
 @Composable
 fun RecordFlow(
     onExit: () -> Unit,
+    prefillName: String,
     onShareTasteCard: (DrinkType) -> Unit,
     snackbarHost: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -46,6 +47,16 @@ fun RecordFlow(
             factory = RecordViewModel.Factory(appContainer.drinkRecordRepository, appContainer.recordPhotoStore),
         )
     val state by viewModel.uiState.collectAsState()
+
+    // 이 ViewModel은 화면을 떠나도 남는다(Activity 범위). 비우지 않고 나가면 다음 진입이
+    // 저장 완료 화면이나 지난번 입력에서 시작한다.
+    val exit: () -> Unit = {
+        viewModel.startOver()
+        onExit()
+    }
+    LaunchedEffect(Unit) {
+        if (prefillName.isNotBlank()) viewModel.updateForm(RecordForm(name = prefillName))
+    }
     var step by remember { mutableStateOf(Step.PickDrink) }
     var probeIndex by remember { mutableIntStateOf(0) }
     var showDiscardConfirm by remember { mutableStateOf(false) }
@@ -66,7 +77,7 @@ fun RecordFlow(
                 if (state.form.name.isNotBlank() || state.form.rating > 0.0 || state.taste.answers.isNotEmpty()) {
                     showDiscardConfirm = true
                 } else {
-                    onExit()
+                    exit()
                 }
             Step.Probes ->
                 if (probeIndex > 0) {
@@ -78,7 +89,7 @@ fun RecordFlow(
                 probeIndex = traits.lastIndex.coerceAtLeast(0)
                 step = Step.Probes
             }
-            Step.Saved -> onExit()
+            Step.Saved -> exit()
         }
     }
 
@@ -152,7 +163,7 @@ fun RecordFlow(
                             probeIndex = 0
                             step = Step.PickDrink
                         },
-                        onDone = onExit,
+                        onDone = exit,
                         modifier = modifier,
                         contentPadding = contentPadding,
                     )
@@ -184,7 +195,7 @@ fun RecordFlow(
         dismissText = "계속 기록하기",
         onConfirm = {
             showDiscardConfirm = false
-            onExit()
+            exit()
         },
         onDismissRequest = { showDiscardConfirm = false },
     )

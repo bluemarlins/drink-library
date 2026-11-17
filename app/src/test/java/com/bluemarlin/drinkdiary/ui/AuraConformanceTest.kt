@@ -21,7 +21,9 @@ import com.bluemarlin.drinkdiary.domain.model.BuyRecommendationBundle
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DashboardOverview
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
+import com.bluemarlin.drinkdiary.domain.model.DrinkTags
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
+import com.bluemarlin.drinkdiary.domain.model.Origin
 import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
 import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.TastePreference
@@ -31,6 +33,7 @@ import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.domain.model.TraitPreference
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
+import com.bluemarlin.drinkdiary.domain.model.WineColor
 import com.bluemarlin.drinkdiary.ui.collection.CollectionScreen
 import com.bluemarlin.drinkdiary.ui.collection.CollectionUiState
 import com.bluemarlin.drinkdiary.ui.collection.RecordDetailScreen
@@ -302,12 +305,34 @@ class AuraConformanceTest {
                     state = LookupUiState(repurchaseCandidates = records),
                     onQueryChange = {},
                     onOpenRecord = {},
+                    onRecordNew = {},
                     contentPadding = PaddingValues(),
                 )
             }
         }
         composeRule.onNodeWithText("매장에서 바로 찾기").assertIsDisplayed()
         composeRule.onNodeWithText("또 살래요 · 4.5").assertIsDisplayed()
+    }
+
+    // 매장에서 처음 본 술은 찾던 이름 그대로 기록으로 넘어가야 한다.
+    @Test
+    fun `LookupScreen offers to record a name it cannot find`() {
+        var recorded: String? = null
+        composeRule.setContent {
+            DrinkDiaryTheme(windowInfo = compactWindow) {
+                LookupScreen(
+                    state = LookupUiState(query = " 처음 본 와인 "),
+                    onQueryChange = {},
+                    onOpenRecord = {},
+                    onRecordNew = { recorded = it },
+                    contentPadding = PaddingValues(),
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("매장에서 바로 찾기").assertDoesNotExist()
+        composeRule.onNodeWithText("'처음 본 와인' 기록하기").performScrollTo().performClick()
+        assertEquals("처음 본 와인", recorded)
     }
 
     @Test
@@ -323,6 +348,26 @@ class AuraConformanceTest {
         composeRule.onNodeWithText("와인").assertIsDisplayed()
         composeRule.onNodeWithText("위스키").assertIsDisplayed()
         composeRule.onNodeWithText("다시 살래요").assertIsDisplayed()
+    }
+
+    // 기록할 때 고른 색·산지 같은 태그는 상세 화면에서 다시 확인할 수 있어야 한다.
+    @Test
+    fun `RecordDetailScreen lists the label tags of the record`() {
+        composeRule.setContent {
+            DrinkDiaryTheme(windowInfo = compactWindow) {
+                RecordDetailScreen(
+                    record = sampleRecord().copy(tags = DrinkTags(wineColor = WineColor.Red, origin = Origin.OldWorld)),
+                    onEdit = {},
+                    onDelete = {},
+                    contentPadding = PaddingValues(),
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("색").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("레드").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("산지").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("구대륙").performScrollTo().assertIsDisplayed()
     }
 
     @Test
