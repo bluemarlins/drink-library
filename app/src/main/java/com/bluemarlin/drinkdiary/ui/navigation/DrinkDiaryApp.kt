@@ -44,6 +44,7 @@ import com.example.ds.component.AuraIconButtonVariant
 import com.example.ds.component.AuraSnackbarHost
 import com.example.ds.component.rememberAuraAdaptiveBarState
 import com.example.ds.component.rememberAuraSnackbarHostState
+import com.example.ds.foundation.theme.AuraMaterial
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -119,7 +120,16 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
     }
 
     val host: @Composable () -> Unit = {
-        AuraSnackbarHost(hostState = snackbar)
+        val snackbarMaterial =
+            if (screen is Screen.Edit || screen is Screen.Record) {
+                AuraMaterial.Solid
+            } else {
+                AuraMaterial.Glass
+            }
+        AuraSnackbarHost(
+            hostState = snackbar,
+            material = snackbarMaterial,
+        )
     }
 
     val openShareForScope: (TypeScope) -> Unit = { scope ->

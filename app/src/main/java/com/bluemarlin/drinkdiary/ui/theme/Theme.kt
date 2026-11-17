@@ -2,6 +2,8 @@ package com.bluemarlin.drinkdiary.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import com.example.ds.foundation.glass.AuraGlass
+import com.example.ds.foundation.glass.AuraGlassDefaults
 import com.example.ds.foundation.layout.AuraWindowInfo
 import com.example.ds.foundation.layout.rememberAuraWindowInfo
 import com.example.ds.foundation.motion.AuraMotion
@@ -15,10 +17,14 @@ import com.example.ds.foundation.theme.rememberAuraReduceTransparency
 @Composable
 fun DrinkDiaryTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    material: AuraMaterial = AuraMaterial.Solid,
+    material: AuraMaterial = AuraMaterial.LiquidGlass,
     motionProfile: AuraMotionProfile = AuraMotionProfile.Standard,
     reduceTransparency: Boolean = rememberAuraReduceTransparency(),
     motion: AuraMotion = AuraMotionDefaults.forProfile(motionProfile),
+    glass: AuraGlass =
+        AuraGlassDefaults.forColorMode(
+            if (darkTheme) AuraColorMode.Dark else AuraColorMode.Light,
+        ),
     windowInfo: AuraWindowInfo = rememberAuraWindowInfo(),
     content: @Composable () -> Unit,
 ) {
@@ -28,6 +34,7 @@ fun DrinkDiaryTheme(
         motionProfile = motionProfile,
         reduceTransparency = reduceTransparency,
         motion = motion,
+        glass = glass,
         windowInfo = windowInfo,
         content = content,
     )

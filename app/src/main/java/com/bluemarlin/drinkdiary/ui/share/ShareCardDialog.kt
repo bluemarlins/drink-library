@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.ds.component.AuraDialog
+import com.example.ds.component.AuraDialogVariant
 import com.example.ds.component.AuraText
 import com.example.ds.foundation.theme.AuraTheme
 import kotlinx.coroutines.launch
@@ -43,6 +44,7 @@ fun ShareCardDialog(
     AuraDialog(
         visible = content != null,
         title = "내 취향 카드 (9:16)",
+        variant = AuraDialogVariant.Glass,
         confirmText = "이미지 공유하기",
         dismissText = "닫기",
         onConfirm = {

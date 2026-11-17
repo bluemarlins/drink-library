@@ -95,8 +95,10 @@ fun DDScreenScaffold(
                     // MOT-RULE-003: 화면당 최대 1개의 focal spatial chrome에만 Expressive 트랙을 중첩 적용한다.
                     AuraTheme(
                         colorMode = AuraTheme.colorMode,
+                        material = AuraTheme.material,
                         motionProfile = AuraMotionProfile.Expressive,
                         reduceTransparency = AuraTheme.reduceTransparency,
+                        glass = AuraTheme.glass,
                         windowInfo = AuraTheme.window,
                     ) {
                         DDBottomNavigation(

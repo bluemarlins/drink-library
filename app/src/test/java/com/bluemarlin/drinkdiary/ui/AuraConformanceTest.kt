@@ -55,6 +55,7 @@ import com.example.ds.component.AuraSnackbarHost
 import com.example.ds.component.AuraText
 import com.example.ds.component.rememberAuraAdaptiveBarState
 import com.example.ds.component.rememberAuraSnackbarHostState
+import com.example.ds.foundation.glass.AuraGlassDefaults
 import com.example.ds.foundation.layout.AuraWindowInfo
 import com.example.ds.foundation.motion.AuraMotionDefaults
 import com.example.ds.foundation.motion.AuraMotionProfile
@@ -143,24 +144,31 @@ class AuraConformanceTest {
     }
 
     @Test
-    fun `DrinkDiaryTheme enforces Solid material and Standard root motion track in Light and Dark`() {
+    fun `DrinkDiaryTheme provides LiquidGlass ceiling, AuraGlass tokens, and Standard root motion track`() {
         var lightMaterial: AuraMaterial? = null
         var lightProfile: AuraMotionProfile? = null
+        var lightFallbackAlpha = 0f
         var darkIsDark: Boolean? = null
+        var darkLiquidAlpha = 0f
 
         composeRule.setContent {
             DrinkDiaryTheme(darkTheme = false) {
                 lightMaterial = AuraTheme.material
                 lightProfile = AuraTheme.motion.profile
+                lightFallbackAlpha = AuraTheme.glass.solidFallbackAlpha
             }
             DrinkDiaryTheme(darkTheme = true) {
                 darkIsDark = AuraTheme.colors.isDark
+                darkLiquidAlpha = AuraTheme.glass.liquidTint.alpha
             }
         }
 
-        assertEquals(AuraMaterial.Solid, lightMaterial)
+        assertEquals(AuraMaterial.LiquidGlass, lightMaterial)
         assertEquals(AuraMotionProfile.Standard, lightProfile)
+        assertEquals(0.98f, lightFallbackAlpha, 0.001f)
         assertEquals(true, darkIsDark)
+        assertEquals(AuraGlassDefaults.Dark.liquidTint.alpha, darkLiquidAlpha, 0.001f)
+        assertTrue(darkLiquidAlpha >= 0.65f)
     }
 
     @Test
@@ -470,5 +478,40 @@ class AuraConformanceTest {
         }
         composeRule.waitForIdle()
         assertEquals(AdaptiveFloatingBarPhase.FloatingPinned, adaptiveState.phase)
+    }
+
+    @Test
+    fun `Solid theme material ceiling caps nested TopLevel chrome to Solid fallback`() {
+        var resolvedInsideTheme: AuraMaterial? = null
+
+        composeRule.setContent {
+            DrinkDiaryTheme(material = AuraMaterial.Solid, reduceTransparency = false) {
+                resolvedInsideTheme = AuraTheme.effectiveMaterial(AuraMaterial.LiquidGlass)
+                DDScreenScaffold(
+                    title = "테이스트 아카이브",
+                    screenType = DDScreenType.TopLevel,
+                    selectedTab = DDTopLevelTab.Dashboard,
+                    onDashboardClick = {},
+                    onCollectionClick = {},
+                    onSearchClick = {},
+                    onAddClick = {},
+                ) {
+                    AuraText("대시보드 본문")
+                }
+            }
+        }
+
+        assertEquals(AuraMaterial.Solid, resolvedInsideTheme)
+        val fallbackMatcher =
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.TestTag,
+                "aura_glass_surface_solid_fallback",
+            )
+        assertTrue(
+            composeRule
+                .onAllNodes(fallbackMatcher, useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty(),
+        )
     }
 }
