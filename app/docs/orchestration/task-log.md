@@ -435,7 +435,7 @@ Billing 연동은 Phase 3(가장 마지막)으로 이동. Phase 1은 순수 기�
 | P2-15 | 기록 사진이 앱 재시작 후 사라지는 버그 수정 | Claude | done | (현재 작업) | 실기기 점검(`departments/qa/device-review-2026-11-17.md`) P0. 사진 선택기 임시 주소 대신 앱 내부 사본 저장, 고아 사본 정리. 백업에 사진 포함 여부는 미결 |
 | P2-16 | 실기기 점검 P1 수정 — 저장 불가 이유, 상세 태그, 검색 결과 없음 → 기록하기, 상태바 스크림, 기록하기 재진입 상태 초기화 | Claude | done | (현재 작업) | `departments/qa/device-review-2026-11-17.md`. 실기기 재확인 완료. P1-5 하단 바는 사용자 결정으로 `FROSTED` 전환(`design-system.md` 개정) + Aura 스캐폴드의 배경 레이어 결함을 앱에서 우회 |
 | P2-17 | Aura 1.1.1 반영 — `FloatingGlassScaffold` 배경 레이어 수정 | Claude | done | (현재 작업) | aura-design-system `ddf8594`(수정)·`0e478e9`(1.1.1). 앱 AAR 교체, `OpaqueBackdrop` 우회 제거. GitHub 릴리스/태그 1.1.1은 미게시 |
-| P2-18 | 브랜딩 재정의 확정 + 원칙 기준 P2 수정 — 앱 이름 "취향 아카이브", 탭 "내 취향·아카이브·매장 찾기", 용어집 적용, 유형 이름 문법·깔끔함·글자 해설, 추천 이유 정리, 사진 빼기 | Claude | done | (현재 작업) | `specs/designer/branding.md` 1·4-2·4-6·7절. 실기기 확인. P2-15·17은 Aura 변경 필요로 남김, P2-19 보류 |
+| P2-18 | 브랜딩 재정의 확정 + 원칙 기준 P2 수정 — 앱 이름 "취향 아카이브", 탭 "내 취향·아카이브·매장 찾기", 용어집 적용, 유형 이름 문법·깔끔함·글자 해설, 추천 이유 정리, 사진 빼기 | Claude | done | (현재 작업) | `specs/designer/branding.md` 1·4-2·4-6·7절. 실기기 확인. P2-15·17은 Aura 1.1.2로 수정(P2-17 실기기 미확인), P2-19 보류 |
 
 ## Phase 3 — Billing 연동 (최종 단계)
 
