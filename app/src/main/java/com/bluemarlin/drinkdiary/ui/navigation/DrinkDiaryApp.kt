@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bluemarlin.drinkdiary.DrinkDiaryApplication
@@ -22,7 +23,6 @@ import com.bluemarlin.drinkdiary.R
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
-import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.collection.CollectionScreen
 import com.bluemarlin.drinkdiary.ui.collection.CollectionViewModel
 import com.bluemarlin.drinkdiary.ui.collection.RecordDetailScreen
@@ -153,7 +153,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 }
                 is ProfileReadiness.NotReady -> {
                     snackbar.showSnackbar(
-                        "기록이 ${readiness.recordsNeeded}개 더 모이면 취향 카드를 만들 수 있어요.",
+                        "${readiness.recordsNeeded}잔 더 기록하면 취향 카드를 만들 수 있어요.",
                     )
                 }
             }
@@ -176,7 +176,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             val profile by profileViewModel.uiState.collectAsState()
 
             TopLevel(
-                title = "테이스트 아카이브",
+                title = stringResource(R.string.nav_dashboard),
                 tab = DDTopLevelTab.Dashboard,
                 onTabChange = { screen = it },
                 onAdd = { screen = Screen.Record() },
@@ -212,7 +212,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
 
         Screen.Collection ->
             TopLevel(
-                title = "컬렉션",
+                title = stringResource(R.string.nav_collection),
                 tab = DDTopLevelTab.Collection,
                 onTabChange = { screen = it },
                 onAdd = { screen = Screen.Record() },
@@ -246,7 +246,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             val lookup by lookupViewModel.uiState.collectAsState()
 
             TopLevel(
-                title = "매장 찾기",
+                title = stringResource(R.string.nav_search),
                 tab = DDTopLevelTab.Search,
                 onTabChange = { screen = it },
                 onAdd = { screen = Screen.Record() },
@@ -285,7 +285,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         is Screen.Detail -> {
             val record = collection.allRecords.firstOrNull { it.id == current.id }
             DDScreenScaffold(
-                title = record?.let { DrinkLabels.drinkType(it.type) } ?: "기록",
+                title = record?.name ?: "기록",
                 screenType = DDScreenType.Detail,
                 onBackClick = { screen = tabScreen(current.returnTo) },
                 scrollFraction = scrollFraction,

@@ -71,7 +71,7 @@ fun SettingsScreen(
                     style = AuraTheme.typography.bodyLarge,
                 )
                 AuraText(
-                    text = "서버에 로그인하거나 기록을 보내지 않아요. 내 드라이브나 기기에 JSON 파일로 백업할 수 있습니다.",
+                    text = "서버에 로그인하거나 기록을 보내지 않아요. 내 드라이브나 기기에 백업 파일로 저장할 수 있습니다.",
                     style = AuraTheme.typography.bodySmall,
                     color = AuraTheme.colors.content.secondary,
                 )
@@ -105,8 +105,8 @@ fun SettingsScreen(
             AuraText("평가 기준", style = AuraTheme.typography.titleSmall)
             AuraText(
                 text =
-                    "와인과 위스키 모두 6개의 심플한 지표로 평가하도록 고정되어 있어요. " +
-                        "기록이 쌓이면 4글자 취향 유형과 추천이 자동으로 계산됩니다.",
+                    "와인과 위스키 모두 맛 기준 6가지로 기록해요. " +
+                        "기록이 쌓이면 취향 유형과 추천이 자동으로 계산됩니다.",
                 style = AuraTheme.typography.bodySmall,
                 color = AuraTheme.colors.content.secondary,
             )

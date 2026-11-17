@@ -167,7 +167,7 @@ private fun RecordOverviewSection(record: DrinkRecord) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AuraText("만족도", style = AuraTheme.typography.bodyLarge, color = AuraTheme.colors.content.secondary)
+        AuraText("별점", style = AuraTheme.typography.bodyLarge, color = AuraTheme.colors.content.secondary)
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -179,7 +179,7 @@ private fun RecordOverviewSection(record: DrinkRecord) {
                 size = AuraRatingBarSize.Small,
                 showValueText = false,
             )
-            AuraText("${DrinkLabels.rating(record.rating)} / 5", style = AuraTheme.typography.bodyLarge)
+            AuraText(DrinkLabels.ratingText(record.rating), style = AuraTheme.typography.bodyLarge)
         }
     }
 

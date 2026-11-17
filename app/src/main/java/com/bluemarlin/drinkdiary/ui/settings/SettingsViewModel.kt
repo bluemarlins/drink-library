@@ -94,7 +94,7 @@ class SettingsViewModel(
                     "백업 파일을 읽지 못했습니다."
                 } else {
                     when (val result = backupUseCase.restoreFromJson(rawJson)) {
-                        is AppResult.Failure -> "올바른 테이스트 아카이브 백업 파일이 아니에요."
+                        is AppResult.Failure -> "올바른 취향 아카이브 백업 파일이 아니에요."
                         is AppResult.Success -> {
                             val summary = result.value
                             if (summary.skippedCount > 0) {

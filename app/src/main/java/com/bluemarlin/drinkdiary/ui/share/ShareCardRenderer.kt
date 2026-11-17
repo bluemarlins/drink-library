@@ -74,7 +74,7 @@ object ShareCardRenderer {
                 TypeScope.Combined -> "와인 & 위스키 통합 취향 카드"
             }
 
-        canvas.drawText("테이스트 아카이브 · $scopeLabel", 140f, 210f, secondaryText)
+        canvas.drawText("취향 아카이브 · $scopeLabel", 140f, 210f, secondaryText)
 
         val codePaint =
             TextPaint(Paint.ANTI_ALIAS_FLAG).apply {

@@ -213,11 +213,7 @@ private fun LookupRecordCard(
             CollectionStatus.Normal -> AuraBadgeVariant.Neutral
         }
     val statusText =
-        when (record.collectionStatus) {
-            CollectionStatus.Repurchase -> "또 살래요 · ${DrinkLabels.rating(record.rating)}"
-            CollectionStatus.NotForMe -> "안 맞아요 · ${DrinkLabels.rating(record.rating)}"
-            CollectionStatus.Normal -> "무난해요 · ${DrinkLabels.rating(record.rating)}"
-        }
+        "${DrinkLabels.collectionStatus(record.collectionStatus)} · ${DrinkLabels.ratingText(record.rating)}"
 
     AuraCard(
         modifier = Modifier.fillMaxWidth(),

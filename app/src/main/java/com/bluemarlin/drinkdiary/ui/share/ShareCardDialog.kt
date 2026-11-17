@@ -43,7 +43,7 @@ fun ShareCardDialog(
 
     AuraDialog(
         visible = content != null,
-        title = "내 취향 카드 (9:16)",
+        title = "내 취향 카드",
         variant = AuraDialogVariant.Glass,
         confirmText = "이미지 공유하기",
         dismissText = "닫기",
@@ -71,7 +71,7 @@ fun ShareCardDialog(
                         .clip(AuraTheme.shapes.medium),
             )
             AuraText(
-                text = "로컬에서 생성되며 SNS 스토리 비율(1080×1920)로 공유할 수 있어요.",
+                text = "스토리에 올리기 좋은 세로 이미지로 공유해요. 이미지는 이 기기에서만 만들어져요.",
                 style = AuraTheme.typography.bodySmall,
                 color = AuraTheme.colors.content.secondary,
             )

@@ -155,8 +155,6 @@ fun RecordFlow(
                 Step.Saved ->
                     RecordSaved(
                         type = activeType,
-                        answeredCount = state.taste.answers.size,
-                        leaning = state.taste.leaningCount,
                         onShare = { onShareTasteCard(activeType) },
                         onRestart = {
                             viewModel.startOver()
@@ -204,8 +202,6 @@ fun RecordFlow(
 @Composable
 private fun RecordSaved(
     type: DrinkType,
-    answeredCount: Int,
-    leaning: Int,
     onShare: () -> Unit,
     onRestart: () -> Unit,
     onDone: () -> Unit,
@@ -218,11 +214,11 @@ private fun RecordSaved(
     ) {
         AuraText("기록했습니다.", style = AuraTheme.typography.headlineSmall)
         AuraText(
-            text = "지표 ${answeredCount}개 평가 완료 · 뚜렷한 인상을 남긴 축 ${leaning}개.",
+            text = "이번 잔까지 내 취향에 반영했어요.",
             style = AuraTheme.typography.bodyLarge,
         )
         AuraText(
-            text = "기록이 쌓여 취향의 대비가 생기면 취향 유형 코드와 구매 추천이 더 정확해집니다.",
+            text = "기록이 쌓일수록 취향 유형과 다음 한 병 추천이 더 정확해져요.",
             style = AuraTheme.typography.bodySmall,
             color = AuraTheme.colors.content.secondary,
         )
@@ -241,7 +237,7 @@ private fun RecordSaved(
             fullWidth = true,
         )
         AuraButton(
-            text = "대시보드로 돌아가기",
+            text = "내 취향으로 돌아가기",
             onClick = onDone,
             variant = AuraButtonVariant.Ghost,
             size = AuraButtonSize.Medium,

@@ -143,6 +143,12 @@ fun RecordDetailStep(
                     contentDescription = "선택한 사진",
                     modifier = Modifier.size(64.dp).clip(AuraTheme.shapes.small),
                 )
+                AuraButton(
+                    text = "사진 빼기",
+                    onClick = { onFormChange(form.copy(imageUri = null)) },
+                    variant = AuraButtonVariant.Ghost,
+                    size = AuraButtonSize.Small,
+                )
             }
         }
 

@@ -17,7 +17,7 @@ class TasteTypeCopyTest {
         val type = TasteType(L, H, H, H)
 
         assertEquals("DFRE", type.code)
-        assertEquals("드라이한 묵직한 취향", TasteTypeCopy.shortName(type))
+        assertEquals("드라이하고 묵직한 취향", TasteTypeCopy.shortName(type))
         assertEquals("드라이하고 묵직하며 향이 진하고 여운이 깁니다.", TasteTypeCopy.sentence(type))
     }
 
@@ -26,8 +26,17 @@ class TasteTypeCopyTest {
         val type = TasteType(H, L, L, L)
 
         assertEquals("SLMQ", type.code)
-        assertEquals("달콤한 가벼운 취향", TasteTypeCopy.shortName(type))
-        assertEquals("달콤하고 가벼우며 향이 은은하고 산뜻하게 끝납니다.", TasteTypeCopy.sentence(type))
+        assertEquals("달콤하고 가벼운 취향", TasteTypeCopy.shortName(type))
+        assertEquals("달콤하고 가벼우며 향이 은은하고 깔끔하게 끝납니다.", TasteTypeCopy.sentence(type))
+    }
+
+    // 코드 글자가 왜 그 글자인지 되짚을 수 있어야 한다. 영어 낱말은 이 해설에서만 나온다.
+    @Test
+    fun `legend explains every letter of the code`() {
+        assertEquals(
+            "D Dry 드라이 · F Full 묵직함 · X 향의 세기 가리지 않음 · Q Quick 깔끔함",
+            TasteTypeCopy.legend(TasteType(L, H, N, L)),
+        )
     }
 
     // 중립 축이 있어도 문장이 끝나야 한다. 마지막 방향 축이 종결형으로 닫히는지 본다.
@@ -36,7 +45,7 @@ class TasteTypeCopyTest {
         val type = TasteType(L, H, N, H)
 
         assertEquals("DFXE", type.code)
-        assertEquals("드라이한 묵직한 취향", TasteTypeCopy.shortName(type))
+        assertEquals("드라이하고 묵직한 취향", TasteTypeCopy.shortName(type))
         assertEquals(
             "드라이하고 묵직하며 여운이 깁니다. 향의 세기는 크게 가리지 않으세요.",
             TasteTypeCopy.sentence(type),

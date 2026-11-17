@@ -133,9 +133,9 @@ private fun TraitSpectrumSection(
 
     val title =
         when (scope) {
-            TypeScope.Wine -> "와인 6개 지표 성향"
-            TypeScope.Whiskey -> "위스키 6개 지표 성향"
-            TypeScope.Combined -> "통합 공통 4축 성향"
+            TypeScope.Wine -> "와인 맛 기준 6가지"
+            TypeScope.Whiskey -> "위스키 맛 기준 6가지"
+            TypeScope.Combined -> "와인·위스키 공통 맛 기준 4가지"
         }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -202,7 +202,7 @@ private fun SummaryHeadline(
                 )
                 DDTasteSentenceCard(
                     sentence = TasteTypeCopy.sentence(readiness.type),
-                    details = listOf("기록 ${recordCount}개를 바탕으로 판정했어요."),
+                    details = listOf("${recordCount}잔을 바탕으로 판정했어요.", TasteTypeCopy.legend(readiness.type)),
                 )
                 AuraButton(
                     text = "내 취향 카드 공유하기",
@@ -219,7 +219,7 @@ private fun SummaryHeadline(
                 if (recordCount == 0) {
                     "첫 기록을 남기면 여기서 취향이 보이기 시작해요."
                 } else {
-                    "지금까지 ${recordCount}개를 기록했어요. ${readiness.recordsNeeded}개만 더 남기면 유형이 나와요."
+                    "지금까지 ${recordCount}잔을 기록했어요. ${readiness.recordsNeeded}잔만 더 남기면 취향 유형이 나와요."
                 }
             val target = recordCount + readiness.recordsNeeded
             DDProfileProgressCard(
@@ -271,7 +271,7 @@ private fun TagPreferenceBlock(
                     color = AuraTheme.colors.content.secondary,
                 )
                 AuraText(
-                    text = "%.1f점".format(value.averageRating),
+                    text = DrinkLabels.averageRatingText(value.averageRating),
                     style = AuraTheme.typography.bodyMedium,
                 )
             }

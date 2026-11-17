@@ -22,7 +22,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// 기록 화면과 컬렉션 화면이 같은 것을 다른 말로 부르지 않도록 라벨을 한곳에 모은다.
+// 기록 화면과 아카이브 화면이 같은 것을 다른 말로 부르지 않도록 라벨을 한곳에 모은다.
 // 문구는 리소스가 아니라 코드에 둔다(software-architecture.md 7절 — 한국어 단일 확정).
 object DrinkLabels {
     fun drinkType(type: DrinkType): String =
@@ -85,10 +85,10 @@ object DrinkLabels {
             Trait.Sweetness -> "드라이" to "달콤"
             Trait.Body -> "가벼움" to "묵직함"
             Trait.Intensity -> "은은함" to "진함"
-            Trait.Aftertaste -> "산뜻함" to "긴 여운"
+            Trait.Aftertaste -> "깔끔함" to "긴 여운"
             Trait.Acidity -> "부드러움" to "산뜻함"
             Trait.Tannin -> "안 떫음" to "떫음"
-            Trait.Peat -> "논피트" to "스모키함"
+            Trait.Peat -> "스모키하지 않음" to "스모키함"
             Trait.AlcoholBurn -> "부드러움" to "화끈함"
         }
 
@@ -117,15 +117,15 @@ object DrinkLabels {
     fun recommendationReason(reason: RecommendationReason): String =
         when (reason) {
             is RecommendationReason.CaskMatch ->
-                "높게 평가한 ${tagValue(TagCategory.Cask, reason.cask.name)} (${rating(reason.averageRating)}점)"
+                "같은 캐스크에 준 내 평균 ${averageRatingText(reason.averageRating)}"
             is RecommendationReason.WineStyleMatch ->
-                "높게 평가한 ${tagValue(TagCategory.WineStyle, reason.style.name)} (${rating(reason.averageRating)}점)"
+                "같은 스타일에 준 내 평균 ${averageRatingText(reason.averageRating)}"
             is RecommendationReason.TasteAlignedStyle ->
-                "내 성향과 맞는 ${tagValue(TagCategory.WineStyle, reason.style.name)}"
+                "내 취향 유형과 맞는 스타일"
             is RecommendationReason.TasteAlignedCask ->
-                "내 성향과 맞는 ${tagValue(TagCategory.Cask, reason.cask.name)}"
+                "내 취향 유형과 맞는 캐스크"
             RecommendationReason.GeneralCatalogMatch ->
-                "고루 즐기는 성향에 맞춘 추천"
+                "고루 즐기는 취향에 맞춘 추천"
         }
 
     fun bottleFactSummary(entry: BottleEntry): String =
@@ -256,6 +256,19 @@ object DrinkLabels {
             .format(dateFormat)
 
     fun price(won: Long): String = "%,d원".format(Locale.KOREA, won)
+
+    // 별점 표기는 두 가지뿐이다(branding.md 7-2): 기록 하나는 0.5 단위, 평균은 소수 한 자리.
+    fun ratingText(value: Double): String = "${rating(value)}점"
+
+    fun averageRatingText(value: Double): String = "%.1f점".format(Locale.US, value)
+
+    // 와인·위스키 한쪽에만 있는 맛 기준을 표시할 때 쓴다.
+    fun exclusiveTo(trait: Trait): String =
+        when (trait) {
+            Trait.Acidity, Trait.Tannin -> "와인 전용"
+            Trait.Peat, Trait.AlcoholBurn -> "위스키 전용"
+            else -> "공통"
+        }
 
     fun rating(value: Double): String {
         val snapped = kotlin.math.round(value * 2.0) / 2.0

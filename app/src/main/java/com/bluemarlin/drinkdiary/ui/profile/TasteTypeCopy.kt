@@ -12,8 +12,11 @@ import com.bluemarlin.drinkdiary.ui.DrinkLabels
 // (branding.md 4-5절 '지켜야 할 선').
 object TasteTypeCopy {
     fun shortName(type: TasteType): String {
-        val words = type.directional.take(2).map { (trait, preference) -> adjective(trait, preference) }
-        return if (words.isEmpty()) "고루 즐기는 취향" else words.joinToString(" ") + " 취향"
+        // 앞 형용사는 연결형으로 잇는다: "드라이하고 묵직한 취향"(branding.md 4-6 N1).
+        val picked = type.directional.take(2)
+        if (picked.isEmpty()) return "고루 즐기는 취향"
+        val lead = picked.dropLast(1).joinToString("") { (trait, preference) -> connecting(trait, preference) + " " }
+        return lead + picked.last().let { (trait, preference) -> adjective(trait, preference) } + " 취향"
     }
 
     fun sentence(type: TasteType): String {
@@ -37,6 +40,30 @@ object TasteTypeCopy {
         return "$body. ${Josa.topic(names)} 크게 가리지 않으세요."
     }
 
+    // 코드 글자가 어디서 왔는지 한 줄로 보여준다. 영어는 여기서만 쓴다(branding.md 4-6 N3, 7-1 R1).
+    fun legend(type: TasteType): String =
+        type.preferences.joinToString(" · ") { (trait, preference) ->
+            val letter = DrinkLabels.axisLetter(trait, preference).orEmpty()
+            if (preference == TastePreference.Neutral) {
+                "$letter ${DrinkLabels.trait(trait)} 가리지 않음"
+            } else {
+                "$letter ${englishWord(letter)} ${DrinkLabels.preference(trait, preference)}"
+            }
+        }
+
+    private fun englishWord(letter: String): String =
+        when (letter) {
+            "S" -> "Sweet"
+            "D" -> "Dry"
+            "F" -> "Full"
+            "L" -> "Light"
+            "R" -> "Rich"
+            "M" -> "Mild"
+            "E" -> "Enduring"
+            "Q" -> "Quick"
+            else -> ""
+        }
+
     private fun adjective(
         trait: Trait,
         preference: TastePreference,
@@ -46,7 +73,7 @@ object TasteTypeCopy {
             Trait.Sweetness -> if (high) "달콤한" else "드라이한"
             Trait.Body -> if (high) "묵직한" else "가벼운"
             Trait.Intensity -> if (high) "진한" else "은은한"
-            Trait.Aftertaste -> if (high) "여운이 긴" else "산뜻한"
+            Trait.Aftertaste -> if (high) "여운이 긴" else "깔끔한"
             else -> DrinkLabels.trait(trait)
         }
     }
@@ -60,7 +87,7 @@ object TasteTypeCopy {
             Trait.Sweetness -> if (high) "달콤하고" else "드라이하고"
             Trait.Body -> if (high) "묵직하며" else "가벼우며"
             Trait.Intensity -> if (high) "향이 진하고" else "향이 은은하고"
-            Trait.Aftertaste -> if (high) "여운이 길고" else "산뜻하게 끝나고"
+            Trait.Aftertaste -> if (high) "여운이 길고" else "깔끔하게 끝나고"
             else -> DrinkLabels.trait(trait)
         }
     }
@@ -74,7 +101,7 @@ object TasteTypeCopy {
             Trait.Sweetness -> if (high) "달콤합니다" else "드라이합니다"
             Trait.Body -> if (high) "묵직합니다" else "가볍습니다"
             Trait.Intensity -> if (high) "향이 진합니다" else "향이 은은합니다"
-            Trait.Aftertaste -> if (high) "여운이 깁니다" else "산뜻하게 끝납니다"
+            Trait.Aftertaste -> if (high) "여운이 깁니다" else "깔끔하게 끝납니다"
             else -> DrinkLabels.trait(trait)
         }
     }

@@ -170,7 +170,7 @@ fun CollectionScreen(
                             onClick = { onStatusFilterChange(CollectionStatus.NotForMe) },
                         )
                         AuraChipButton(
-                            label = "평점 높은 순",
+                            label = "별점 높은 순",
                             variant = AuraChipVariant.Filter,
                             selected = state.sortByRating,
                             onClick = onToggleSortByRating,
@@ -252,7 +252,7 @@ private fun RecordRow(
                     )
                     if (record.collectionStatus == CollectionStatus.Repurchase) {
                         DDRepurchaseBadge(
-                            text = "재구매",
+                            text = DrinkLabels.collectionStatus(CollectionStatus.Repurchase),
                             size = AuraBadgeSize.Small,
                         )
                     }
@@ -266,7 +266,7 @@ private fun RecordRow(
             }
 
             AuraText(
-                text = DrinkLabels.rating(record.rating),
+                text = DrinkLabels.ratingText(record.rating),
                 style = AuraTheme.typography.titleLarge,
             )
         }

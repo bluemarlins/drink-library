@@ -5,10 +5,10 @@
       것들뿐이다: 런처 이름과 DDScreenScaffold가 참조하는 라벨.
       구 제품의 문자열 176개는 화면과 함께 폐기했다.
     -->
-    <string name="app_name">테이스트 아카이브</string>
+    <string name="app_name">취향 아카이브</string>
     <string name="back">뒤로</string>
 
-    <string name="nav_dashboard">대시보드</string>
-    <string name="nav_collection">컬렉션</string>
-    <string name="nav_search">검색</string>
+    <string name="nav_dashboard">내 취향</string>
+    <string name="nav_collection">아카이브</string>
+    <string name="nav_search">매장 찾기</string>
 </resources>

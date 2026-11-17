@@ -29,7 +29,7 @@ fun TasteEditor(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(AuraTheme.layout.sectionSpacing),
     ) {
-        AuraText("그때 남긴 취향 (6개 지표)", style = AuraTheme.typography.titleMedium)
+        AuraText("그때 남긴 취향 (맛 기준 6가지)", style = AuraTheme.typography.titleMedium)
 
         Trait.of(type).forEach { trait ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

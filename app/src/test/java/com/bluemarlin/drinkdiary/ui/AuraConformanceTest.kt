@@ -17,6 +17,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.bluemarlin.drinkdiary.domain.model.BottleEntry
+import com.bluemarlin.drinkdiary.domain.model.BottleFacts
+import com.bluemarlin.drinkdiary.domain.model.BottleRecommendation
 import com.bluemarlin.drinkdiary.domain.model.BuyRecommendationBundle
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DashboardOverview
@@ -25,6 +28,7 @@ import com.bluemarlin.drinkdiary.domain.model.DrinkTags
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.Origin
 import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
+import com.bluemarlin.drinkdiary.domain.model.RecommendationReason
 import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.TastePreference
 import com.bluemarlin.drinkdiary.domain.model.TasteProfile
@@ -34,9 +38,11 @@ import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.domain.model.TraitPreference
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
 import com.bluemarlin.drinkdiary.domain.model.WineColor
+import com.bluemarlin.drinkdiary.domain.model.WineStyle
 import com.bluemarlin.drinkdiary.ui.collection.CollectionScreen
 import com.bluemarlin.drinkdiary.ui.collection.CollectionUiState
 import com.bluemarlin.drinkdiary.ui.collection.RecordDetailScreen
+import com.bluemarlin.drinkdiary.ui.component.DDBuyRecommendationSection
 import com.bluemarlin.drinkdiary.ui.component.DDDrinkBadge
 import com.bluemarlin.drinkdiary.ui.component.DDRepurchaseBadge
 import com.bluemarlin.drinkdiary.ui.lookup.LookupScreen
@@ -292,8 +298,8 @@ class AuraConformanceTest {
         }
 
         composeRule.onNodeWithText("바롤로 리제르바").assertIsDisplayed()
-        composeRule.onNodeWithText("재구매").assertIsDisplayed()
-        composeRule.onNodeWithText("또 살래요").assertIsDisplayed()
+        // 필터 칩과 카드 배지가 같은 이름을 쓴다(branding.md 7-2 — 한 개념에 한 이름).
+        assertEquals(2, composeRule.onAllNodesWithText("또 살래요").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -311,7 +317,7 @@ class AuraConformanceTest {
             }
         }
         composeRule.onNodeWithText("매장에서 바로 찾기").assertIsDisplayed()
-        composeRule.onNodeWithText("또 살래요 · 4.5").assertIsDisplayed()
+        composeRule.onNodeWithText("또 살래요 · 4.5점").assertIsDisplayed()
     }
 
     // 매장에서 처음 본 술은 찾던 이름 그대로 기록으로 넘어가야 한다.
@@ -347,7 +353,34 @@ class AuraConformanceTest {
 
         composeRule.onNodeWithText("와인").assertIsDisplayed()
         composeRule.onNodeWithText("위스키").assertIsDisplayed()
-        composeRule.onNodeWithText("다시 살래요").assertIsDisplayed()
+        composeRule.onNodeWithText("또 살래요").assertIsDisplayed()
+    }
+
+    // 같은 이유를 카드마다 되풀이하지 않는다. 이유가 하나뿐이면 섹션에 한 번만 쓴다.
+    @Test
+    fun `DDBuyRecommendationSection states a shared reason once`() {
+        val reason = RecommendationReason.WineStyleMatch(WineStyle.FullRed, averageRating = 4.25)
+        val bottles =
+            listOf("바롤로", "리오하").map { name ->
+                BottleRecommendation(
+                    entry = BottleEntry(DrinkType.Wine, name, emptySet(), BottleFacts(wineStyle = WineStyle.FullRed)),
+                    reason = reason,
+                )
+            }
+        composeRule.setContent {
+            DrinkDiaryTheme(windowInfo = compactWindow) {
+                DDBuyRecommendationSection(
+                    scope = TypeScope.Wine,
+                    bundle = BuyRecommendationBundle(hasEnoughData = true, discoveryBottles = bottles),
+                    onOpenRecord = {},
+                )
+            }
+        }
+
+        assertEquals(
+            1,
+            composeRule.onAllNodesWithText("같은 스타일에 준 내 평균 4.3점", substring = true).fetchSemanticsNodes().size,
+        )
     }
 
     // 기록할 때 고른 색·산지 같은 태그는 상세 화면에서 다시 확인할 수 있어야 한다.

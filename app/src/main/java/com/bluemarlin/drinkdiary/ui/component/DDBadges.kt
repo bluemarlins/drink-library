@@ -32,7 +32,7 @@ fun DDDrinkBadge(
 @Composable
 fun DDRepurchaseBadge(
     modifier: Modifier = Modifier,
-    text: String = "다시 살래요",
+    text: String = "또 살래요",
     size: AuraBadgeSize = AuraBadgeSize.Medium,
 ) {
     AuraBadge(

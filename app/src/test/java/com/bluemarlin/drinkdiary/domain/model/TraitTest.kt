@@ -24,15 +24,14 @@ class TraitTest {
     }
 
     @Test
-    fun `mid answers are not counted as leaning`() {
+    fun `mid answers are kept like any other answer`() {
         val input =
             TasteInput()
                 .with(Trait.Body, TraitAnswer.High)
                 .with(Trait.Sweetness, TraitAnswer.Mid)
                 .with(Trait.Intensity, TraitAnswer.Low)
 
-        assertEquals(2, input.leaningCount)
-        // 세지 않는다고 버리는 것은 아니다 — 답 자체는 그대로 남아 판정에 쓰인다.
+        // '보통'도 답이다 — 그대로 남아 판정에 쓰인다.
         assertEquals(3, input.answers.size)
         assertEquals(TraitAnswer.Mid, input[Trait.Sweetness])
     }

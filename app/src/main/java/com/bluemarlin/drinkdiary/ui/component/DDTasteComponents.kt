@@ -74,13 +74,13 @@ fun DDDashboardSummaryCard(
                     modifier = Modifier.weight(1f),
                 )
                 SummaryStatCell(
-                    label = "평균 만족도",
-                    value = overview.averageRating?.let { "${DrinkLabels.rating(it)} / 5" } ?: "-",
+                    label = "평균 별점",
+                    value = overview.averageRating?.let { DrinkLabels.averageRatingText(it) } ?: "-",
                     modifier = Modifier.weight(0.75f),
                 )
                 SummaryStatCell(
                     label = "또 살래요 ★",
-                    value = "${overview.repurchaseCount}병",
+                    value = "${overview.repurchaseCount}잔",
                     modifier = Modifier.weight(0.75f),
                 )
             }
@@ -138,7 +138,7 @@ fun DDTraitSpectrumRow(
             ) {
                 AuraText(DrinkLabels.trait(pref.trait), style = AuraTheme.typography.bodyLarge)
                 if (!pref.trait.shared) {
-                    AuraBadge(label = "고유 지표", variant = AuraBadgeVariant.Neutral)
+                    AuraBadge(label = DrinkLabels.exclusiveTo(pref.trait), variant = AuraBadgeVariant.Neutral)
                 }
             }
 
@@ -163,7 +163,7 @@ fun DDTraitSpectrumRow(
 
                 TraitStatus.NeedsRecords ->
                     AuraText(
-                        text = "${recordsNeeded(pref)}개 더 필요",
+                        text = "${recordsNeeded(pref)}잔 더 필요",
                         style = AuraTheme.typography.bodySmall,
                         color = AuraTheme.colors.content.secondary,
                         textAlign = TextAlign.End,
@@ -284,7 +284,7 @@ fun DDBuyRecommendationSection(
                 padding = AuraCardPadding.Medium,
             ) {
                 AuraText(
-                    text = "${bundle.recordsNeeded}잔만 더 기록하면 내 취향 축과 맞는 다음 술 스타일을 추천해 드려요.",
+                    text = "${bundle.recordsNeeded}잔만 더 기록하면 내 취향과 맞는 다음 술 스타일을 추천해 드려요.",
                     style = AuraTheme.typography.bodyMedium,
                     color = AuraTheme.colors.content.secondary,
                 )
@@ -330,8 +330,21 @@ fun DDBuyRecommendationSection(
             if (bundle.discoveryBottles.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     AuraText("아직 안 마셔본 추천 종류", style = AuraTheme.typography.titleSmall)
+                    // 이유가 모두 같으면 카드마다 되풀이하지 않고 한 번만 말한다.
+                    val sharedReason =
+                        bundle.discoveryBottles
+                            .map { it.reason }
+                            .distinct()
+                            .singleOrNull()
+                    sharedReason?.let {
+                        AuraText(
+                            text = "추천 이유: ${DrinkLabels.recommendationReason(it)}",
+                            style = AuraTheme.typography.bodySmall,
+                            color = AuraTheme.colors.content.secondary,
+                        )
+                    }
                     bundle.discoveryBottles.forEach { rec ->
-                        RecommendedBottleCard(rec)
+                        RecommendedBottleCard(rec, showReason = sharedReason == null)
                     }
                 }
             }
@@ -339,7 +352,7 @@ fun DDBuyRecommendationSection(
 
         if (bundle.repurchasePicks.isNotEmpty()) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                AuraText("실패 없는 내 재구매 픽", style = AuraTheme.typography.titleSmall)
+                AuraText("또 살래요라고 남긴 술", style = AuraTheme.typography.titleSmall)
                 bundle.repurchasePicks.forEach { record ->
                     RepurchasePickCard(record = record, onClick = { onOpenRecord(record.id) })
                 }
@@ -349,7 +362,10 @@ fun DDBuyRecommendationSection(
 }
 
 @Composable
-private fun RecommendedBottleCard(rec: BottleRecommendation) {
+private fun RecommendedBottleCard(
+    rec: BottleRecommendation,
+    showReason: Boolean,
+) {
     AuraCard(
         modifier = Modifier.fillMaxWidth(),
         variant = AuraCardVariant.Outlined,
@@ -369,7 +385,11 @@ private fun RecommendedBottleCard(rec: BottleRecommendation) {
                 DDDrinkBadge(drinkType = rec.entry.type)
             }
             AuraText(
-                text = "${DrinkLabels.bottleFactSummary(rec.entry)} · ${DrinkLabels.recommendationReason(rec.reason)}",
+                text =
+                    listOfNotNull(
+                        DrinkLabels.bottleFactSummary(rec.entry),
+                        DrinkLabels.recommendationReason(rec.reason).takeIf { showReason },
+                    ).joinToString(" · "),
                 style = AuraTheme.typography.bodySmall,
                 color = AuraTheme.colors.content.secondary,
             )
@@ -406,7 +426,7 @@ private fun RepurchasePickCard(
                 )
             }
             AuraBadge(
-                label = "${DrinkLabels.rating(record.rating)} / 5",
+                label = DrinkLabels.ratingText(record.rating),
                 variant = AuraBadgeVariant.Success,
             )
         }
