@@ -26,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
@@ -40,6 +40,8 @@ import com.example.ds.component.AuraButtonSize
 import com.example.ds.component.AuraButtonVariant
 import com.example.ds.component.AuraChipButton
 import com.example.ds.component.AuraChipVariant
+import com.example.ds.component.AuraFloatingActionBar
+import com.example.ds.component.AuraFloatingActionBarDefaults
 import com.example.ds.component.AuraNumberField
 import com.example.ds.component.AuraRatingBar
 import com.example.ds.component.AuraRatingBarSize
@@ -58,11 +60,8 @@ fun RecordDetailStep(
     form: RecordForm,
     onFormChange: (RecordForm) -> Unit,
     onPhotoPicked: (String) -> Unit,
-    onSave: () -> Unit,
-    saving: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
-    saveLabel: String = "저장",
     onScrollFractionChange: (Float) -> Unit = {},
     tasteSection: @Composable () -> Unit = {},
 ) {
@@ -164,10 +163,11 @@ fun RecordDetailStep(
             }
         }
 
+        // Ghost 버튼은 안쪽 여백 때문에 글자가 다른 항목보다 들여 써져 보인다. 사진 버튼과 같은 Outline으로 맞춘다.
         AuraButton(
             text = if (expanded) "덜 남기기" else "더 남기기 (선택)",
             onClick = { expanded = !expanded },
-            variant = AuraButtonVariant.Ghost,
+            variant = AuraButtonVariant.Outline,
             size = AuraButtonSize.Small,
         )
 
@@ -193,28 +193,34 @@ fun RecordDetailStep(
                 onFormChange = onFormChange,
             )
         }
+    }
+}
 
+// 기록하기·기록 고치기 공용 저장 독. 저장할 수 없는 이유는 버튼 위에 함께 보여 준다.
+@Composable
+fun RecordSaveBar(
+    form: RecordForm,
+    saving: Boolean,
+    onSave: () -> Unit,
+    label: String = "저장",
+) {
+    AuraFloatingActionBar(supportingText = form.missingForSave) {
         AuraButton(
-            text = if (saving) "저장 중" else saveLabel,
+            text = if (saving) "저장 중" else label,
             onClick = onSave,
             variant = AuraButtonVariant.Primary,
             size = AuraButtonSize.Large,
             enabled = form.isSavable,
             loading = saving,
             fullWidth = true,
+            modifier = Modifier.weight(1f),
         )
-
-        form.missingForSave?.let {
-            AuraText(
-                text = it,
-                style = AuraTheme.typography.bodySmall,
-                color = AuraTheme.colors.content.secondary,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
-        }
     }
 }
+
+fun recordSaveBarHeight(form: RecordForm): Dp =
+    AuraFloatingActionBarDefaults.Height +
+        if (form.missingForSave != null) AuraFloatingActionBarDefaults.SupportingTextHeight else 0.dp
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

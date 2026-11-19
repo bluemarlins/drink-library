@@ -25,12 +25,15 @@ import com.bluemarlin.drinkdiary.ui.collection.CollectionFilterAction
 import com.bluemarlin.drinkdiary.ui.collection.CollectionScreen
 import com.bluemarlin.drinkdiary.ui.collection.CollectionViewModel
 import com.bluemarlin.drinkdiary.ui.collection.RecordDetailScreen
+import com.bluemarlin.drinkdiary.ui.collection.RecordEditBar
 import com.bluemarlin.drinkdiary.ui.collection.collectionFilterSummary
 import com.bluemarlin.drinkdiary.ui.profile.ProfileScreen
 import com.bluemarlin.drinkdiary.ui.profile.ProfileViewModel
 import com.bluemarlin.drinkdiary.ui.record.EditRecordScreen
 import com.bluemarlin.drinkdiary.ui.record.EditRecordViewModel
 import com.bluemarlin.drinkdiary.ui.record.RecordFlow
+import com.bluemarlin.drinkdiary.ui.record.RecordSaveBar
+import com.bluemarlin.drinkdiary.ui.record.recordSaveBarHeight
 import com.bluemarlin.drinkdiary.ui.settings.SettingsScreen
 import com.bluemarlin.drinkdiary.ui.settings.SettingsViewModel
 import com.bluemarlin.drinkdiary.ui.share.ShareCardContent
@@ -246,10 +249,15 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 scrollFraction = scrollFraction,
                 adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
+                bottomAction =
+                    if (record != null) {
+                        { RecordEditBar(onEdit = { screen = Screen.Edit(current.id, current.returnTo) }) }
+                    } else {
+                        null
+                    },
             ) { padding ->
                 RecordDetailScreen(
                     record = record,
-                    onEdit = { screen = Screen.Edit(current.id, current.returnTo) },
                     onDelete = {
                         collectionViewModel.delete(current.id)
                         screen = tabScreen(current.returnTo)
@@ -300,14 +308,28 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 screenType = DDScreenType.Editor,
                 onBackClick = leaveEdit,
                 scrollFraction = scrollFraction,
+                adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
+                bottomAction =
+                    if (edit.loaded && !edit.missing) {
+                        {
+                            RecordSaveBar(
+                                form = edit.form,
+                                saving = edit.saving,
+                                onSave = editViewModel::save,
+                                label = "고친 내용 저장",
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                bottomActionHeight = recordSaveBarHeight(edit.form),
             ) { padding ->
                 EditRecordScreen(
                     state = edit,
                     onFormChange = editViewModel::updateForm,
                     onPhotoPicked = editViewModel::pickPhoto,
                     onAnswer = editViewModel::answer,
-                    onSave = editViewModel::save,
                     contentPadding = padding,
                     modifier = modifier,
                     onScrollFractionChange = { scrollFraction = it },
@@ -336,6 +358,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                         SettingsViewModel.Factory(
                             observeOverview = appContainer.observeDashboardOverviewUseCase,
                             backupUseCase = appContainer.backupDrinkRecordsUseCase,
+                            preferences = appContainer.userPreferencesRepository,
                         ),
                 )
             val settings by settingsViewModel.uiState.collectAsState()
@@ -364,6 +387,8 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     onRestoreBackup = { uri ->
                         settingsViewModel.restoreFromUri(context.contentResolver, uri)
                     },
+                    onSurfaceStyleChange = settingsViewModel::selectSurfaceStyle,
+                    onColorModeChange = settingsViewModel::selectColorMode,
                     contentPadding = padding,
                     modifier = modifier,
                     onScrollFractionChange = { scrollFraction = it },

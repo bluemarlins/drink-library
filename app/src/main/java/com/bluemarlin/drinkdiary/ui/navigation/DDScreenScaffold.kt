@@ -8,14 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.R
 import com.example.ds.component.AuraAdaptiveBarState
 import com.example.ds.component.AuraBottomIslandItem
+import com.example.ds.component.AuraFloatingActionBarDefaults
 import com.example.ds.component.AuraIcon
 import com.example.ds.component.AuraIconButton
 import com.example.ds.component.AuraIconButtonVariant
-import com.example.ds.component.AuraScaffold
 import com.example.ds.component.AuraTopAppBar
 import com.example.ds.component.AuraTopAppBarScrollBehavior
 import com.example.ds.component.AuraTopAppBarStyle
@@ -41,8 +42,8 @@ enum class DDTopLevelTab {
     Settings,
 }
 
-// Aura 1.1.0의 Navigation 원칙(NAV-RULE-001): TopLevel·Detail은 FloatingGlassScaffold + FloatingCapsule,
-// Editor(고밀도 입력 폼)는 AuraScaffold + SurfaceDocked를 사용한다.
+// Aura Navigation 원칙(NAV-RULE-001): 모든 화면이 FloatingGlassScaffold + FloatingCapsule을 쓴다.
+// TopLevel은 하단 내비게이션 아일랜드, Detail·Editor는 선택적 하단 액션 독(AuraFloatingActionBar)을 둔다.
 @Composable
 fun DDScreenScaffold(
     title: String,
@@ -58,6 +59,8 @@ fun DDScreenScaffold(
     adaptiveBarState: AuraAdaptiveBarState = rememberAuraAdaptiveBarState(minimizeOnScrollDown = true),
     toolbarActions: @Composable RowScope.() -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
+    bottomAction: (@Composable () -> Unit)? = null,
+    bottomActionHeight: Dp = AuraFloatingActionBarDefaults.Height,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val backLabel = stringResource(R.string.back)
@@ -84,7 +87,7 @@ fun DDScreenScaffold(
                 modifier = Modifier.fillMaxSize(),
                 adaptiveBarState = adaptiveBarState,
                 // 큰 제목이 액션 줄에 들어가 앱바가 한 줄(56dp)이다. 기본값 112dp는 두 줄 기준이라 빈 띠가 남는다.
-                topBarClearance = if (AuraTheme.window.heightClass == AuraHeightClass.Compact) 48.dp else 64.dp,
+                topBarClearance = oneLineTopBarClearance(),
                 topBar = { _ ->
                     // 큰 제목을 액션 줄에 둔다. 기본 배치는 빈 액션 줄 아래로 제목을 한 줄 내려 그린다.
                     AuraTopAppBar(
@@ -125,10 +128,13 @@ fun DDScreenScaffold(
             )
         }
 
-        DDScreenType.Detail -> {
+        // 상세·편집은 같은 floating 크롬을 쓴다(Aura NAV-RULE-001: 짧은 작업 화면도 floating 유지).
+        // 저장·고치기 같은 주 액션은 폼 끝 인라인 버튼 대신 하단 AuraFloatingActionBar에 둔다.
+        DDScreenType.Detail, DDScreenType.Editor -> {
             FloatingGlassScaffold(
                 modifier = Modifier.fillMaxSize(),
                 adaptiveBarState = adaptiveBarState,
+                topBarClearance = oneLineTopBarClearance(),
                 topBar = { _ ->
                     AuraTopAppBar(
                         title = title,
@@ -139,26 +145,15 @@ fun DDScreenScaffold(
                         adaptiveState = adaptiveBarState,
                         navigationIcon = navIcon,
                         actions = toolbarActions,
+                        // 상세는 본문 첫 줄이 이미 술 이름이라 큰 제목을 두 번 쓰지 않는다. 스크롤하면 캡슐 제목으로 나타난다.
+                        expandedTitle = if (screenType == DDScreenType.Detail) "" else null,
+                        inlineExpandedTitle = screenType == DDScreenType.Editor,
                     )
                 },
-                hasBottomIsland = false,
-                snackbarHost = snackbarHost,
-                content = content,
-            )
-        }
-
-        DDScreenType.Editor -> {
-            AuraScaffold(
-                topBar = {
-                    AuraTopAppBar(
-                        title = title,
-                        style = AuraTopAppBarStyle.SurfaceDocked,
-                        surface = AuraTopAppBarSurface.SolidElevated,
-                        scrollFraction = scrollFraction,
-                        navigationIcon = navIcon,
-                        actions = toolbarActions,
-                    )
-                },
+                bottomBar = { _ -> bottomAction?.invoke() },
+                hasBottomIsland = bottomAction != null,
+                bottomIslandHeight = bottomActionHeight,
+                bottomIslandMargin = AuraFloatingActionBarDefaults.BottomMargin,
                 snackbarHost = snackbarHost,
                 content = content,
             )
@@ -213,3 +208,6 @@ private fun DDBottomNavigation(
         onSplitActionClick = onAddClick,
     )
 }
+
+@Composable
+private fun oneLineTopBarClearance(): Dp = if (AuraTheme.window.heightClass == AuraHeightClass.Compact) 48.dp else 64.dp

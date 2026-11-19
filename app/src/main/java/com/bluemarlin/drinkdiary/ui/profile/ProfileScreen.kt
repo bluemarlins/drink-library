@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +15,8 @@ import com.bluemarlin.drinkdiary.ui.component.DDBentoGrid
 import com.bluemarlin.drinkdiary.ui.component.DDBentoItem
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.example.ds.component.AuraSegmentedButton
+import com.example.ds.component.AuraSkeleton
+import com.example.ds.component.AuraSkeletonText
 import com.example.ds.component.AuraText
 import com.example.ds.component.BindAdaptiveBarToScrollState
 import com.example.ds.component.rememberFloatingScrollProgress
@@ -50,6 +53,11 @@ fun ProfileScreen(
         contentPadding = contentPadding,
         scrollState = scrollState,
     ) {
+        if (!state.loaded) {
+            ProfileSkeleton(columns = columns)
+            return@DDCenteredContent
+        }
+
         DDBentoGrid(
             columns = columns,
             spacing = gap,
@@ -104,4 +112,32 @@ private fun ScopeSelector(
         onOptionSelected = { index -> onSelect(scopes[index].first) },
         fullWidth = true,
     )
+}
+
+@Composable
+private fun ProfileSkeleton(columns: Int) {
+    val layout = AuraTheme.layout
+    val card = AuraTheme.shapes.extraLarge
+    DDBentoGrid(
+        columns = columns,
+        spacing = layout.gridGutter,
+        items =
+            listOf(
+                DDBentoItem("month", span = 2) {
+                    AuraSkeleton(
+                        Modifier.fillMaxWidth().height(144.dp),
+                        shape = card,
+                        contentDescription = "요약을 불러오는 중",
+                    )
+                },
+                DDBentoItem("latest", span = 1) { AuraSkeleton(Modifier.fillMaxWidth().height(160.dp), shape = card) },
+                DDBentoItem(
+                    "frequent",
+                    span = 1,
+                ) { AuraSkeleton(Modifier.fillMaxWidth().height(160.dp), shape = card) },
+                DDBentoItem("total", span = 2) { AuraSkeleton(Modifier.fillMaxWidth().height(112.dp), shape = card) },
+            ),
+    )
+    AuraSkeletonText(lines = 1, lineHeight = 20.dp, modifier = Modifier.fillMaxWidth(0.3f))
+    AuraSkeleton(Modifier.fillMaxWidth().height(48.dp), shape = AuraTheme.shapes.full)
 }

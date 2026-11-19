@@ -101,6 +101,13 @@ fun RecordFlow(
         onBackClick = handleBack,
         scrollFraction = scrollFraction,
         snackbarHost = snackbarHost,
+        bottomAction =
+            if (step == Step.Detail) {
+                { RecordSaveBar(form = state.form, saving = state.saving, onSave = viewModel::save) }
+            } else {
+                null
+            },
+        bottomActionHeight = recordSaveBarHeight(state.form),
     ) { contentPadding ->
         val motion = AuraTheme.motion
         Crossfade(
@@ -145,8 +152,6 @@ fun RecordFlow(
                         form = state.form,
                         onFormChange = viewModel::updateForm,
                         onPhotoPicked = viewModel::pickPhoto,
-                        onSave = viewModel::save,
-                        saving = state.saving,
                         modifier = modifier,
                         contentPadding = contentPadding,
                         onScrollFractionChange = { scrollFraction = it },

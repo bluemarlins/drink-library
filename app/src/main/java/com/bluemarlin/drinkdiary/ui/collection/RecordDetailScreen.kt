@@ -35,6 +35,7 @@ import com.example.ds.component.AuraButtonVariant
 import com.example.ds.component.AuraDialog
 import com.example.ds.component.AuraDialogVariant
 import com.example.ds.component.AuraDivider
+import com.example.ds.component.AuraFloatingActionBar
 import com.example.ds.component.AuraRatingBar
 import com.example.ds.component.AuraRatingBarSize
 import com.example.ds.component.AuraText
@@ -45,7 +46,6 @@ import com.example.ds.foundation.theme.AuraTheme
 @Composable
 fun RecordDetailScreen(
     record: DrinkRecord?,
-    onEdit: () -> Unit,
     onDelete: () -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
@@ -96,7 +96,6 @@ fun RecordDetailScreen(
                 ) {
                     RecordTasteAndActionsSection(
                         record = record,
-                        onEdit = onEdit,
                         onRequestDelete = { confirming = true },
                     )
                 }
@@ -112,7 +111,6 @@ fun RecordDetailScreen(
             AuraDivider()
             RecordTasteAndActionsSection(
                 record = record,
-                onEdit = onEdit,
                 onRequestDelete = { confirming = true },
             )
         }
@@ -201,7 +199,6 @@ private fun RecordOverviewSection(record: DrinkRecord) {
 @Composable
 private fun RecordTasteAndActionsSection(
     record: DrinkRecord,
-    onEdit: () -> Unit,
     onRequestDelete: () -> Unit,
 ) {
     AuraText("그때 남긴 취향", style = AuraTheme.typography.titleMedium)
@@ -232,16 +229,8 @@ private fun RecordTasteAndActionsSection(
 
     AuraDivider()
 
-    // 고치기가 지우기보다 위에 있고 채워진 버튼이다. 오타 하나 때문에 지우고 다시 쓰게
-    // 만들면 그 기록의 날짜가 바뀌고, 취향 판정의 표본도 한 번 흔들린다.
-    AuraButton(
-        text = "고치기",
-        onClick = onEdit,
-        variant = AuraButtonVariant.Primary,
-        size = AuraButtonSize.Large,
-        fullWidth = true,
-    )
-
+    // 고치기는 하단 독(RecordEditBar)에 늘 떠 있다. 오타 하나 때문에 지우고 다시 쓰게 만들면
+    // 그 기록의 날짜가 바뀌고 취향 판정의 표본도 흔들리므로, 지우기만 본문 끝에 둔다.
     // BTN-RULE-003: 1차 진입 표면에서는 Outline/Ghost를 사용하고 Destructive는 최종 확인 다이얼로그에만 사용한다.
     AuraButton(
         text = "이 기록 지우기",
@@ -267,6 +256,20 @@ private fun DetailRow(
             value,
             style = AuraTheme.typography.bodyLarge,
             textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+fun RecordEditBar(onEdit: () -> Unit) {
+    AuraFloatingActionBar {
+        AuraButton(
+            text = "고치기",
+            onClick = onEdit,
+            variant = AuraButtonVariant.Primary,
+            size = AuraButtonSize.Large,
+            fullWidth = true,
             modifier = Modifier.weight(1f),
         )
     }

@@ -18,7 +18,6 @@ fun EditRecordScreen(
     onFormChange: (RecordForm) -> Unit,
     onPhotoPicked: (String) -> Unit,
     onAnswer: (Trait, TraitAnswer) -> Unit,
-    onSave: () -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     onScrollFractionChange: (Float) -> Unit = {},
@@ -51,11 +50,8 @@ fun EditRecordScreen(
         form = state.form,
         onFormChange = onFormChange,
         onPhotoPicked = onPhotoPicked,
-        onSave = onSave,
-        saving = state.saving,
         modifier = modifier,
         contentPadding = contentPadding,
-        saveLabel = "고친 내용 저장",
         onScrollFractionChange = onScrollFractionChange,
         tasteSection = {
             AuraDivider()

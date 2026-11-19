@@ -2,10 +2,12 @@ package com.bluemarlin.drinkdiary.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -16,6 +18,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -24,6 +27,7 @@ import com.bluemarlin.drinkdiary.domain.model.BottleFacts
 import com.bluemarlin.drinkdiary.domain.model.BottleRecommendation
 import com.bluemarlin.drinkdiary.domain.model.BuyRecommendationBundle
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
+import com.bluemarlin.drinkdiary.domain.model.ColorModePreference
 import com.bluemarlin.drinkdiary.domain.model.DashboardOverview
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.DrinkTags
@@ -33,6 +37,7 @@ import com.bluemarlin.drinkdiary.domain.model.MonthSummary
 import com.bluemarlin.drinkdiary.domain.model.Origin
 import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
 import com.bluemarlin.drinkdiary.domain.model.RecommendationReason
+import com.bluemarlin.drinkdiary.domain.model.SurfaceStyle
 import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.TastePreference
 import com.bluemarlin.drinkdiary.domain.model.TasteProfile
@@ -63,10 +68,12 @@ import com.bluemarlin.drinkdiary.ui.record.DrinkPicker
 import com.bluemarlin.drinkdiary.ui.record.ProbeSequenceScreen
 import com.bluemarlin.drinkdiary.ui.record.RecordDetailStep
 import com.bluemarlin.drinkdiary.ui.record.RecordForm
+import com.bluemarlin.drinkdiary.ui.record.RecordSaveBar
 import com.bluemarlin.drinkdiary.ui.settings.SettingsScreen
 import com.bluemarlin.drinkdiary.ui.settings.SettingsUiState
 import com.bluemarlin.drinkdiary.ui.theme.DrinkDiaryTheme
 import com.example.ds.component.AdaptiveFloatingBarPhase
+import com.example.ds.component.AuraFloatingActionBarTestTag
 import com.example.ds.component.AuraSnackbarHost
 import com.example.ds.component.AuraText
 import com.example.ds.component.rememberAuraAdaptiveBarState
@@ -144,6 +151,7 @@ class AuraConformanceTest {
                     ),
             )
         return ProfileUiState(
+            loaded = true,
             scope = TypeScope.Wine,
             overview =
                 DashboardOverview(
@@ -487,7 +495,6 @@ class AuraConformanceTest {
             DrinkDiaryTheme(windowInfo = compactWindow) {
                 RecordDetailScreen(
                     record = sampleRecord().copy(tags = DrinkTags(wineColor = WineColor.Red, origin = Origin.OldWorld)),
-                    onEdit = {},
                     onDelete = {},
                     contentPadding = PaddingValues(),
                 )
@@ -508,7 +515,6 @@ class AuraConformanceTest {
             DrinkDiaryTheme(windowInfo = compactWindow) {
                 RecordDetailScreen(
                     record = sampleRecord(),
-                    onEdit = {},
                     onDelete = { deleted = true },
                     contentPadding = PaddingValues(),
                 )
@@ -529,9 +535,8 @@ class AuraConformanceTest {
     }
 
     @Test
-    fun `RecordDetailStep preserves Loading semantics and reduceMotion snaps transitions`() {
+    fun `RecordDetailStep keeps the rating readout in the app's words and expands optional fields`() {
         var form by mutableStateOf(RecordForm())
-        var saving by mutableStateOf(false)
 
         composeRule.setContent {
             DrinkDiaryTheme(
@@ -543,13 +548,12 @@ class AuraConformanceTest {
                     form = form,
                     onFormChange = { form = it },
                     onPhotoPicked = {},
-                    onSave = {},
-                    saving = saving,
                 )
             }
         }
 
-        composeRule.onNodeWithText("저장").performScrollTo().assertIsNotEnabled()
+        // 저장 버튼은 폼이 아니라 하단 독(RecordSaveBar)에 있다.
+        composeRule.onNodeWithText("저장").assertDoesNotExist()
         // 고르기 전에는 점수를 보이지 않고, 용어집에 없는 "N / 5" 형식도 쓰지 않는다.
         composeRule.onNodeWithText("0점").assertDoesNotExist()
         composeRule.onNodeWithText("/ 5", substring = true).assertDoesNotExist()
@@ -558,17 +562,74 @@ class AuraConformanceTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText("3.5점").assertIsDisplayed()
         composeRule.onNodeWithText("/ 5", substring = true).assertDoesNotExist()
-        composeRule.onNodeWithText("저장").performScrollTo().assertIsEnabled()
 
         composeRule.onNodeWithText("더 남기기 (선택)").performScrollTo().performClick()
         composeRule.onNodeWithText("빈티지").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `RecordSaveBar explains why saving is blocked and shows Loading semantics while saving`() {
+        var form by mutableStateOf(RecordForm())
+        var saving by mutableStateOf(false)
+
+        composeRule.setContent {
+            DrinkDiaryTheme(motion = AuraMotionDefaults.Standard.copy(reduceMotion = true)) {
+                Box(Modifier.fillMaxSize()) {
+                    RecordSaveBar(form = form, saving = saving, onSave = {})
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("저장").assertIsNotEnabled()
+        composeRule.onNodeWithText(RecordForm().missingForSave!!).assertIsDisplayed()
+
+        form = form.copy(name = "샤블리", rating = 3.5)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("저장").assertIsEnabled()
 
         saving = true
         composeRule.waitForIdle()
         composeRule
             .onNodeWithText("저장 중")
-            .performScrollTo()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "In progress"))
+    }
+
+    @Test
+    fun `Editor scaffold floats its top bar and hosts the save dock`() {
+        composeRule.setContent {
+            DrinkDiaryTheme(windowInfo = compactWindow) {
+                DDScreenScaffold(
+                    title = "기록 고치기",
+                    screenType = DDScreenType.Editor,
+                    onBackClick = {},
+                    bottomAction = {
+                        RecordSaveBar(form = RecordForm(name = "샤블리", rating = 4.0), saving = false, onSave = {})
+                    },
+                ) { _ -> }
+            }
+        }
+
+        composeRule.onAllNodesWithText("기록 고치기").onFirst().assertExists()
+        composeRule.onNodeWithTag(AuraFloatingActionBarTestTag).assertIsDisplayed()
+        composeRule.onNodeWithText("저장").assertIsEnabled()
+    }
+
+    @Test
+    fun `ProfileScreen shows skeletons instead of an empty month before the first load`() {
+        composeRule.setContent {
+            DrinkDiaryTheme(windowInfo = compactWindow) {
+                ProfileScreen(
+                    state = ProfileUiState(),
+                    onScopeChange = {},
+                    onOpenCollection = {},
+                    onOpenRecord = {},
+                    onShareCard = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("요약을 불러오는 중").assertExists()
+        composeRule.onNodeWithText("이번 달은 아직 기록이 없어요.").assertDoesNotExist()
     }
 
     @Test
@@ -617,11 +678,37 @@ class AuraConformanceTest {
                     state = SettingsUiState(overview = overview),
                     onExportBackup = {},
                     onRestoreBackup = {},
+                    onSurfaceStyleChange = {},
+                    onColorModeChange = {},
                     contentPadding = PaddingValues(),
                 )
             }
         }
         composeRule.onNodeWithText("내 데이터 보관함").assertIsDisplayed()
+    }
+
+    @Test
+    fun `SettingsScreen offers surface material and color mode choices`() {
+        var style: SurfaceStyle? = null
+        var mode: ColorModePreference? = null
+        composeRule.setContent {
+            DrinkDiaryTheme(windowInfo = compactWindow) {
+                SettingsScreen(
+                    state = SettingsUiState(),
+                    onExportBackup = {},
+                    onRestoreBackup = {},
+                    onSurfaceStyleChange = { style = it },
+                    onColorModeChange = { mode = it },
+                    contentPadding = PaddingValues(),
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("글래스모피즘").performScrollTo().performClick()
+        composeRule.onNodeWithText("다크").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        assertEquals(SurfaceStyle.GlassMorphism, style)
+        assertEquals(ColorModePreference.Dark, mode)
     }
 
     @Test
