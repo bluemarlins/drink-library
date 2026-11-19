@@ -455,9 +455,14 @@ class AuraConformanceTest {
         }
 
         composeRule.onNodeWithText("저장").performScrollTo().assertIsNotEnabled()
+        // 고르기 전에는 점수를 보이지 않고, 용어집에 없는 "N / 5" 형식도 쓰지 않는다.
+        composeRule.onNodeWithText("0점").assertDoesNotExist()
+        composeRule.onNodeWithText("/ 5", substring = true).assertDoesNotExist()
 
-        form = form.copy(name = "샤블리", rating = 4.0)
+        form = form.copy(name = "샤블리", rating = 3.5)
         composeRule.waitForIdle()
+        composeRule.onNodeWithText("3.5점").assertIsDisplayed()
+        composeRule.onNodeWithText("/ 5", substring = true).assertDoesNotExist()
         composeRule.onNodeWithText("저장").performScrollTo().assertIsEnabled()
 
         composeRule.onNodeWithText("더 남기기 (선택)").performScrollTo().performClick()

@@ -97,15 +97,27 @@ fun RecordDetailStep(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        AuraRatingBar(
-            rating = form.rating.toFloat(),
-            onRatingChange = { onFormChange(form.copy(rating = it.toDouble())) },
-            maxStars = 5,
-            allowHalfRating = true,
-            size = AuraRatingBarSize.Large,
-            label = "얼마나 좋았나요?",
-            showValueText = true,
-        )
+        // Aura 기본 표시는 "3.5 / 5"라 용어집(branding.md 7절)과 어긋난다. 앱 문구로 대신 쓴다.
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            AuraText("얼마나 좋았나요?", style = AuraTheme.typography.labelLarge)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AuraRatingBar(
+                    rating = form.rating.toFloat(),
+                    onRatingChange = { onFormChange(form.copy(rating = it.toDouble())) },
+                    maxStars = 5,
+                    allowHalfRating = true,
+                    size = AuraRatingBarSize.Large,
+                    showValueText = false,
+                )
+                // 0점은 아직 고르지 않은 상태다. "0점"이라고 매긴 것처럼 보이지 않게 숫자를 감춘다.
+                if (form.rating > 0.0) {
+                    AuraText(DrinkLabels.ratingText(form.rating), style = AuraTheme.typography.bodyLarge)
+                }
+            }
+        }
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             AuraText("다시 살 건가요?", style = AuraTheme.typography.titleMedium)
