@@ -3,46 +3,21 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+    <!-- 톱니 8개: 바깥 원 위로 짧은 막대 -->
     <path
         android:fillColor="#00000000"
-        android:pathData="M4,7 L20,7"
+        android:pathData="M12,2.5 L12,5 M12,19 L12,21.5 M2.5,12 L5,12 M19,12 L21.5,12 M5.3,5.3 L7.05,7.05 M16.95,16.95 L18.7,18.7 M5.3,18.7 L7.05,16.95 M16.95,7.05 L18.7,5.3"
         android:strokeColor="#FF000000"
         android:strokeWidth="2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:strokeLineCap="round" />
     <path
         android:fillColor="#00000000"
-        android:pathData="M4,12 L20,12"
+        android:pathData="M12,5 A7,7 0 1,1 11.99,5 Z"
         android:strokeColor="#FF000000"
-        android:strokeWidth="2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:strokeWidth="2" />
     <path
         android:fillColor="#00000000"
-        android:pathData="M4,17 L20,17"
+        android:pathData="M12,9 A3,3 0 1,1 11.99,9 Z"
         android:strokeColor="#FF000000"
-        android:strokeWidth="2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M9,4.5 L9,9.5"
-        android:strokeColor="#FF000000"
-        android:strokeWidth="2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M15,9.5 L15,14.5"
-        android:strokeColor="#FF000000"
-        android:strokeWidth="2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M8,14.5 L8,19.5"
-        android:strokeColor="#FF000000"
-        android:strokeWidth="2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:strokeWidth="2" />
 </vector>

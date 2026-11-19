@@ -3,8 +3,6 @@ package com.bluemarlin.drinkdiary.ui.collection
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -36,19 +34,18 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
-import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDRepurchaseBadge
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
 import com.example.ds.component.AuraBadgeSize
+import com.example.ds.component.AuraButton
+import com.example.ds.component.AuraButtonSize
+import com.example.ds.component.AuraButtonVariant
 import com.example.ds.component.AuraCard
 import com.example.ds.component.AuraCardPadding
 import com.example.ds.component.AuraCardVariant
-import com.example.ds.component.AuraChipButton
-import com.example.ds.component.AuraChipVariant
 import com.example.ds.component.AuraSearchBar
 import com.example.ds.component.AuraSearchBarSurface
-import com.example.ds.component.AuraSegmentedButton
 import com.example.ds.component.AuraText
 import com.example.ds.component.BindAdaptiveBarToLazyGridState
 import com.example.ds.component.LocalAuraAdaptiveBarState
@@ -56,15 +53,12 @@ import com.example.ds.component.LocalGlassBackdropState
 import com.example.ds.foundation.theme.AuraTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CollectionScreen(
     state: CollectionUiState,
-    onFilterChange: (DrinkType?) -> Unit,
-    onStatusFilterChange: (CollectionStatus?) -> Unit,
     onQueryChange: (String) -> Unit,
-    onToggleSortByRating: () -> Unit,
     onOpen: (Long) -> Unit,
+    onRecordNew: (String) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     onScrollFractionChange: (Float) -> Unit = {},
@@ -110,7 +104,6 @@ fun CollectionScreen(
             top = contentPadding.calculateTopPadding() + layout.screenMarginVertical,
             bottom = contentPadding.calculateBottomPadding() + layout.screenMarginVertical,
         )
-    val filterOptions = listOf(null to "전체", DrinkType.Wine to "와인", DrinkType.Whiskey to "위스키")
     val columns = layout.gridColumns.coerceAtLeast(1)
 
     Box(
@@ -145,46 +138,15 @@ fun CollectionScreen(
                 )
             }
 
-            item(span = { GridItemSpan(maxLineSpan) }, key = "filter") {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    AuraSegmentedButton(
-                        options = filterOptions.map { it.second },
-                        selectedIndex = filterOptions.indexOfFirst { it.first == state.filter }.coerceAtLeast(0),
-                        onOptionSelected = { index -> onFilterChange(filterOptions[index].first) },
-                        fullWidth = true,
-                    )
-
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        AuraChipButton(
-                            label = "또 살래요",
-                            variant = AuraChipVariant.Filter,
-                            selected = state.statusFilter == CollectionStatus.Repurchase,
-                            onClick = { onStatusFilterChange(CollectionStatus.Repurchase) },
-                        )
-                        AuraChipButton(
-                            label = "안 맞아요",
-                            variant = AuraChipVariant.Filter,
-                            selected = state.statusFilter == CollectionStatus.NotForMe,
-                            onClick = { onStatusFilterChange(CollectionStatus.NotForMe) },
-                        )
-                        AuraChipButton(
-                            label = "별점 높은 순",
-                            variant = AuraChipVariant.Filter,
-                            selected = state.sortByRating,
-                            onClick = onToggleSortByRating,
-                        )
-                    }
-                }
-            }
-
             if (state.loaded && state.records.isEmpty()) {
                 val hasActiveFilter =
                     state.filter != null || state.statusFilter != null || state.query.isNotBlank()
                 item(span = { GridItemSpan(maxLineSpan) }, key = "empty") {
-                    EmptyCollection(filtered = hasActiveFilter)
+                    EmptyCollection(
+                        filtered = hasActiveFilter,
+                        query = state.query.trim(),
+                        onRecordNew = onRecordNew,
+                    )
                 }
             } else {
                 items(state.records, key = { it.id }) { record ->
@@ -196,20 +158,33 @@ fun CollectionScreen(
 }
 
 @Composable
-private fun EmptyCollection(filtered: Boolean) {
+private fun EmptyCollection(
+    filtered: Boolean,
+    query: String,
+    onRecordNew: (String) -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         AuraText(
-            text = if (filtered) "조건에 맞는 일기가 없어요" else "아직 일기가 없어요",
+            text = if (filtered) "조건에 맞는 기록이 없어요" else "아직 기록이 없어요",
             style = AuraTheme.typography.titleMedium,
         )
         AuraText(
-            text = if (filtered) "검색어나 필터를 바꾸어 보세요." else "아래 + 를 눌러 첫 일기를 써 보세요.",
+            text = if (filtered) "검색어나 필터를 바꾸어 보세요." else "아래 + 를 눌러 한 잔 기록해 보세요.",
             style = AuraTheme.typography.bodyMedium,
             color = AuraTheme.colors.content.secondary,
         )
+        // 찾던 술이 없으면 그 이름으로 바로 기록을 시작한다. 이름은 기록 화면에 채워 둔다.
+        if (query.isNotEmpty()) {
+            AuraButton(
+                text = "'$query' 기록하기",
+                onClick = { onRecordNew(query) },
+                variant = AuraButtonVariant.Secondary,
+                size = AuraButtonSize.Medium,
+            )
+        }
     }
 }
 

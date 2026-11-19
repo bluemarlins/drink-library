@@ -22,7 +22,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// 기록 화면과 아카이브 화면이 같은 것을 다른 말로 부르지 않도록 라벨을 한곳에 모은다.
+// 기록 화면과 일지 화면이 같은 것을 다른 말로 부르지 않도록 라벨을 한곳에 모은다.
 // 문구는 리소스가 아니라 코드에 둔다(software-architecture.md 7절 — 한국어 단일 확정).
 object DrinkLabels {
     fun drinkType(type: DrinkType): String =

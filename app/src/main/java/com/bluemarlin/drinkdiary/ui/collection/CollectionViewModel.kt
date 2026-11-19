@@ -67,19 +67,17 @@ class CollectionViewModel(
         criteria.update { it.copy(type = type) }
     }
 
+    // 앱바 필터 메뉴는 묶음마다 하나를 고른다. 같은 항목을 다시 골라도 꺼지지 않는다 — "전체"가 따로 있다.
     fun selectStatusFilter(status: CollectionStatus?) {
-        criteria.update { current ->
-            val next = if (current.status == status) null else status
-            current.copy(status = next)
-        }
+        criteria.update { it.copy(status = status) }
     }
 
     fun updateQuery(query: String) {
         criteria.update { it.copy(query = query) }
     }
 
-    fun toggleSortByRating() {
-        criteria.update { it.copy(sortByRating = !it.sortByRating) }
+    fun selectSortByRating(byRating: Boolean) {
+        criteria.update { it.copy(sortByRating = byRating) }
     }
 
     fun delete(id: Long) {

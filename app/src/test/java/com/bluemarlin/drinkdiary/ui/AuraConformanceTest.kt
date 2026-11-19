@@ -1,5 +1,6 @@
 package com.bluemarlin.drinkdiary.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -26,6 +28,8 @@ import com.bluemarlin.drinkdiary.domain.model.DashboardOverview
 import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.domain.model.DrinkTags
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
+import com.bluemarlin.drinkdiary.domain.model.LogHighlights
+import com.bluemarlin.drinkdiary.domain.model.MonthSummary
 import com.bluemarlin.drinkdiary.domain.model.Origin
 import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
 import com.bluemarlin.drinkdiary.domain.model.RecommendationReason
@@ -39,19 +43,22 @@ import com.bluemarlin.drinkdiary.domain.model.TraitPreference
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
 import com.bluemarlin.drinkdiary.domain.model.WineColor
 import com.bluemarlin.drinkdiary.domain.model.WineStyle
+import com.bluemarlin.drinkdiary.ui.collection.CollectionFilterAction
 import com.bluemarlin.drinkdiary.ui.collection.CollectionScreen
 import com.bluemarlin.drinkdiary.ui.collection.CollectionUiState
 import com.bluemarlin.drinkdiary.ui.collection.RecordDetailScreen
-import com.bluemarlin.drinkdiary.ui.component.DDBuyRecommendationSection
+import com.bluemarlin.drinkdiary.ui.collection.applyFilterItem
+import com.bluemarlin.drinkdiary.ui.collection.collectionFilterSections
+import com.bluemarlin.drinkdiary.ui.collection.collectionFilterSummary
 import com.bluemarlin.drinkdiary.ui.component.DDDrinkBadge
 import com.bluemarlin.drinkdiary.ui.component.DDRepurchaseBadge
-import com.bluemarlin.drinkdiary.ui.lookup.LookupScreen
-import com.bluemarlin.drinkdiary.ui.lookup.LookupUiState
 import com.bluemarlin.drinkdiary.ui.navigation.DDScreenScaffold
 import com.bluemarlin.drinkdiary.ui.navigation.DDScreenType
 import com.bluemarlin.drinkdiary.ui.navigation.DDTopLevelTab
+import com.bluemarlin.drinkdiary.ui.profile.NextBottleCard
 import com.bluemarlin.drinkdiary.ui.profile.ProfileScreen
 import com.bluemarlin.drinkdiary.ui.profile.ProfileUiState
+import com.bluemarlin.drinkdiary.ui.profile.tasteHighlights
 import com.bluemarlin.drinkdiary.ui.record.DrinkPicker
 import com.bluemarlin.drinkdiary.ui.record.ProbeSequenceScreen
 import com.bluemarlin.drinkdiary.ui.record.RecordDetailStep
@@ -146,6 +153,18 @@ class AuraConformanceTest {
                     averageRating = 4.5,
                     repurchaseCount = 2,
                 ),
+            highlights =
+                LogHighlights(
+                    latest = sampleRecord(),
+                    thisMonth =
+                        MonthSummary(
+                            month = 11,
+                            count = 3,
+                            wineCount = 2,
+                            whiskeyCount = 1,
+                            weeklyCounts = listOf(1, 2, 0, 0, 0),
+                        ),
+                ),
             profile = profile,
             readiness = ProfileReadiness.Ready(type),
             recommendations = BuyRecommendationBundle(hasEnoughData = true, repurchasePicks = listOf(sampleRecord())),
@@ -187,12 +206,12 @@ class AuraConformanceTest {
         composeRule.setContent {
             DrinkDiaryTheme(reduceTransparency = true) {
                 DDScreenScaffold(
-                    title = "음주일기",
+                    title = "요약",
                     screenType = DDScreenType.TopLevel,
                     selectedTab = DDTopLevelTab.Dashboard,
                     onDashboardClick = {},
                     onCollectionClick = {},
-                    onSearchClick = {},
+                    onSettingsClick = {},
                     onAddClick = {},
                 ) {
                     innerIslandProfile = AuraTheme.motion.profile
@@ -203,8 +222,12 @@ class AuraConformanceTest {
 
         // Content body stays on Standard while glass chrome degrades cleanly to Solid fallback tag.
         assertEquals(AuraMotionProfile.Standard, innerIslandProfile)
-        composeRule.onNodeWithText("음주일기").assertIsDisplayed()
-        composeRule.onNodeWithContentDescription("일기 쓰기").assertIsDisplayed()
+        composeRule.onAllNodesWithText("요약").onFirst().assertIsDisplayed()
+        // 하단 탭은 요약 · 일지 · 설정이다. 매장 찾기는 없다(prd.md F5, 2026-11-19).
+        composeRule.onNodeWithText("일지").assertIsDisplayed()
+        composeRule.onNodeWithText("설정").assertIsDisplayed()
+        composeRule.onNodeWithText("매장 찾기").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("기록하기").assertIsDisplayed()
         val fallbackMatcher =
             SemanticsMatcher.expectValue(
                 SemanticsProperties.TestTag,
@@ -240,7 +263,7 @@ class AuraConformanceTest {
 
         composeRule.onNodeWithText("와인").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("뒤로").assertIsDisplayed()
-        assertTrue(composeRule.onAllNodesWithText("일기 쓰기").fetchSemanticsNodes().isEmpty())
+        assertTrue(composeRule.onAllNodesWithText("기록하기").fetchSemanticsNodes().isEmpty())
 
         composeRule.runOnIdle {
             scope.launch {
@@ -273,11 +296,36 @@ class AuraConformanceTest {
         listOf(extraSmallWindow, compactWindow, squareWindow, expandedWindow).forEach { window ->
             currentWindow = window
             composeRule.waitForIdle()
-            composeRule.onNodeWithText("내 음주일기").assertIsDisplayed()
-            composeRule.onNodeWithText((state.readiness as ProfileReadiness.Ready).type.code).assertIsDisplayed()
+            // 요약은 벤토 카드다(branding.md 7-2 카드 이름). 커버 화면 2열, 펼친 화면 4열.
+            // 앞 창 크기에서 아래로 스크롤해 둔 상태가 남으므로 카드마다 스크롤해서 확인한다.
+            composeRule.onNodeWithText("이번 달 · 11월").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("최근에 마신 술", substring = true).performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("누적").performScrollTo().assertIsDisplayed()
+            composeRule
+                .onNodeWithText((state.readiness as ProfileReadiness.Ready).type.code)
+                .performScrollTo()
+                .assertIsDisplayed()
+            composeRule.onNodeWithText("맛 기준").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("다음 한 병").performScrollTo().assertIsDisplayed()
             val expectedTwoPane = window == squareWindow || window == expandedWindow
             assertEquals(expectedTwoPane, supportsTwoPane)
         }
+    }
+
+    // 맛 기준 카드는 뚜렷한 방향부터 보여준다. 중립은 문장 카드가 말한다.
+    @Test
+    fun `taste highlights keep the clearest directions and skip neutral`() {
+        val picked =
+            tasteHighlights(
+                listOf(
+                    TraitPreference(Trait.Sweetness, TastePreference.Low, 6, 0.5, 1),
+                    TraitPreference(Trait.Body, TastePreference.Neutral, 6, 0.9, 1),
+                    TraitPreference(Trait.Intensity, TastePreference.High, 6, 0.8, 1),
+                    TraitPreference(Trait.Aftertaste, null, 2, 0.0, 0),
+                ),
+            )
+
+        assertEquals(listOf(Trait.Intensity, Trait.Sweetness), picked.map { it.trait })
     }
 
     @Test
@@ -287,60 +335,106 @@ class AuraConformanceTest {
             DrinkDiaryTheme(windowInfo = compactWindow) {
                 CollectionScreen(
                     state = CollectionUiState(allRecords = records, records = records, loaded = true),
-                    onFilterChange = {},
-                    onStatusFilterChange = {},
                     onQueryChange = {},
-                    onToggleSortByRating = {},
                     onOpen = {},
+                    onRecordNew = {},
                     contentPadding = PaddingValues(),
                 )
             }
         }
 
         composeRule.onNodeWithText("바롤로 리제르바").assertIsDisplayed()
-        // 필터 칩과 카드 배지가 같은 이름을 쓴다(branding.md 7-2 — 한 개념에 한 이름).
-        assertEquals(2, composeRule.onAllNodesWithText("또 살래요").fetchSemanticsNodes().size)
+        // 필터는 앱바 메뉴로 옮겼다. 목록에는 카드 배지의 "또 살래요"만 남는다.
+        assertEquals(1, composeRule.onAllNodesWithText("또 살래요").fetchSemanticsNodes().size)
+        composeRule.onNodeWithText("별점 높은 순").assertDoesNotExist()
     }
 
+    // 일지에서 못 찾은 술은 찾던 이름 그대로 기록으로 넘어가야 한다(매장 찾기 화면이 하던 일).
     @Test
-    fun `LookupScreen renders semantic status badge cleanly`() {
-        val records = listOf(sampleRecord(1L))
-        composeRule.setContent {
-            DrinkDiaryTheme(windowInfo = compactWindow) {
-                LookupScreen(
-                    state = LookupUiState(repurchaseCandidates = records),
-                    onQueryChange = {},
-                    onOpenRecord = {},
-                    onRecordNew = {},
-                    contentPadding = PaddingValues(),
-                )
-            }
-        }
-        composeRule.onNodeWithText("매장에서 바로 찾기").assertIsDisplayed()
-        composeRule.onNodeWithText("또 살래요 · 4.5점").assertIsDisplayed()
-    }
-
-    // 매장에서 처음 본 술은 찾던 이름 그대로 기록으로 넘어가야 한다.
-    @Test
-    fun `LookupScreen offers to record a name it cannot find`() {
+    fun `CollectionScreen offers to record a name it cannot find`() {
         var recorded: String? = null
         composeRule.setContent {
             DrinkDiaryTheme(windowInfo = compactWindow) {
-                LookupScreen(
-                    state = LookupUiState(query = " 처음 본 와인 "),
+                CollectionScreen(
+                    state = CollectionUiState(query = " 처음 본 와인 ", loaded = true),
                     onQueryChange = {},
-                    onOpenRecord = {},
+                    onOpen = {},
                     onRecordNew = { recorded = it },
                     contentPadding = PaddingValues(),
                 )
             }
         }
 
-        composeRule.onNodeWithText("매장에서 바로 찾기").assertDoesNotExist()
         // 화면 언어는 한국어다 — 스크린리더가 읽는 설명도 마찬가지(branding.md 7-1 R1).
         composeRule.onNodeWithContentDescription("검색어 지우기").assertExists()
-        composeRule.onNodeWithText("'처음 본 와인' 일기 쓰기").performScrollTo().performClick()
+        composeRule.onNodeWithText("'처음 본 와인' 기록하기").performScrollTo().performClick()
         assertEquals("처음 본 와인", recorded)
+    }
+
+    @Test
+    fun `journal filter menu changes the list from the app bar and the subtitle names the active filter`() {
+        var state by mutableStateOf(CollectionUiState(loaded = true))
+        composeRule.setContent {
+            DrinkDiaryTheme(windowInfo = compactWindow) {
+                Box {
+                    CollectionFilterAction(
+                        state = state,
+                        onTypeChange = { state = state.copy(filter = it) },
+                        onStatusChange = { state = state.copy(statusFilter = it) },
+                        onSortByRatingChange = { state = state.copy(sortByRating = it) },
+                    )
+                }
+            }
+        }
+
+        assertEquals(null, collectionFilterSummary(state))
+        // Aura 아이콘 버튼은 300ms 연타를 막는다. 시계를 넘겨 첫 탭이 들어가게 한다.
+        val openMenu: (String) -> Unit = { description ->
+            ShadowSystemClock.advanceBy(Duration.ofMillis(500))
+            composeRule.mainClock.advanceTimeBy(500L)
+            composeRule.onNodeWithContentDescription(description).performClick()
+            composeRule.waitForIdle()
+        }
+        openMenu("필터")
+        composeRule.onNodeWithText("주종").assertIsDisplayed()
+        composeRule.onNodeWithText("다시 살까").assertIsDisplayed()
+        composeRule.onNodeWithText("와인").performClick()
+        composeRule.waitForIdle()
+        assertEquals(DrinkType.Wine, state.filter)
+
+        // 걸린 필터는 아이콘 설명과 부제로 드러난다.
+        composeRule.onNodeWithContentDescription("필터, 걸려 있음").assertExists()
+        assertEquals("와인", collectionFilterSummary(state))
+    }
+
+    // 메뉴 항목 → 상태 변경과 부제 문구. 묶음마다 하나만 고르고, 기본값은 부제에서 빠진다.
+    @Test
+    fun `journal filter items map to state and the subtitle lists only non-default choices`() {
+        var state = CollectionUiState(loaded = true)
+        val pick: (String) -> Unit = { label ->
+            val item = collectionFilterSections(state).flatMap { it.items }.single { it.label == label }
+            applyFilterItem(
+                item.id,
+                onTypeChange = { state = state.copy(filter = it) },
+                onStatusChange = { state = state.copy(statusFilter = it) },
+                onSortByRatingChange = { state = state.copy(sortByRating = it) },
+            )
+        }
+
+        assertEquals(listOf("주종", "다시 살까", "정렬"), collectionFilterSections(state).map { it.title })
+        assertEquals(3, collectionFilterSections(state).sumOf { section -> section.items.count { it.selected } })
+
+        pick("위스키")
+        pick("별점 높은 순")
+        pick("또 살래요")
+        assertEquals("위스키 · 또 살래요 · 별점 높은 순", collectionFilterSummary(state))
+
+        pick("최근 순")
+        assertEquals("위스키 · 또 살래요", collectionFilterSummary(state))
+        assertEquals(
+            listOf("위스키", "또 살래요", "최근 순"),
+            collectionFilterSections(state).flatMap { it.items }.filter { it.selected }.map { it.label },
+        )
     }
 
     @Test
@@ -358,9 +452,9 @@ class AuraConformanceTest {
         composeRule.onNodeWithText("또 살래요").assertIsDisplayed()
     }
 
-    // 같은 이유를 카드마다 되풀이하지 않는다. 이유가 하나뿐이면 섹션에 한 번만 쓴다.
+    // 다음 한 병 카드는 추천 하나와 그 이유 한 줄만 말한다.
     @Test
-    fun `DDBuyRecommendationSection states a shared reason once`() {
+    fun `NextBottleCard names one bottle with its reason`() {
         val reason = RecommendationReason.WineStyleMatch(WineStyle.FullRed, averageRating = 4.25)
         val bottles =
             listOf("바롤로", "리오하").map { name ->
@@ -371,14 +465,15 @@ class AuraConformanceTest {
             }
         composeRule.setContent {
             DrinkDiaryTheme(windowInfo = compactWindow) {
-                DDBuyRecommendationSection(
-                    scope = TypeScope.Wine,
+                NextBottleCard(
                     bundle = BuyRecommendationBundle(hasEnoughData = true, discoveryBottles = bottles),
                     onOpenRecord = {},
                 )
             }
         }
 
+        composeRule.onNodeWithText("바롤로").assertIsDisplayed()
+        composeRule.onNodeWithText("리오하").assertDoesNotExist()
         assertEquals(
             1,
             composeRule.onAllNodesWithText("같은 스타일에 준 내 평균 4.3점", substring = true).fetchSemanticsNodes().size,
@@ -420,15 +515,15 @@ class AuraConformanceTest {
             }
         }
 
-        composeRule.onNodeWithText("이 일기 지우기").performScrollTo().performClick()
-        composeRule.onNodeWithText("바롤로 리제르바 일기를 지울까요?").assertIsDisplayed()
+        composeRule.onNodeWithText("이 기록 지우기").performScrollTo().performClick()
+        composeRule.onNodeWithText("바롤로 리제르바 기록을 지울까요?").assertIsDisplayed()
         composeRule.onNodeWithText("그대로 두기").performClick()
         composeRule.waitForIdle()
-        assertTrue(composeRule.onAllNodesWithText("바롤로 리제르바 일기를 지울까요?").fetchSemanticsNodes().isEmpty())
+        assertTrue(composeRule.onAllNodesWithText("바롤로 리제르바 기록을 지울까요?").fetchSemanticsNodes().isEmpty())
 
         ShadowSystemClock.advanceBy(Duration.ofMillis(500))
         composeRule.mainClock.advanceTimeBy(500L)
-        composeRule.onNodeWithText("이 일기 지우기").performScrollTo().performClick()
+        composeRule.onNodeWithText("이 기록 지우기").performScrollTo().performClick()
         composeRule.onNodeWithText("지우기").performClick()
         assertTrue(deleted)
     }
@@ -537,12 +632,12 @@ class AuraConformanceTest {
             DrinkDiaryTheme(windowInfo = compactWindow) {
                 adaptiveState = rememberAuraAdaptiveBarState()
                 DDScreenScaffold(
-                    title = "음주일기",
+                    title = "요약",
                     screenType = DDScreenType.TopLevel,
                     selectedTab = DDTopLevelTab.Dashboard,
                     onDashboardClick = {},
                     onCollectionClick = {},
-                    onSearchClick = {},
+                    onSettingsClick = {},
                     onAddClick = {},
                     adaptiveBarState = adaptiveState,
                 ) {
@@ -574,12 +669,12 @@ class AuraConformanceTest {
             DrinkDiaryTheme(material = AuraMaterial.Solid, reduceTransparency = false) {
                 resolvedInsideTheme = AuraTheme.effectiveMaterial(AuraMaterial.LiquidGlass)
                 DDScreenScaffold(
-                    title = "음주일기",
+                    title = "요약",
                     screenType = DDScreenType.TopLevel,
                     selectedTab = DDTopLevelTab.Dashboard,
                     onDashboardClick = {},
                     onCollectionClick = {},
-                    onSearchClick = {},
+                    onSettingsClick = {},
                     onAddClick = {},
                 ) {
                     AuraText("대시보드 본문")

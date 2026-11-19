@@ -63,7 +63,7 @@ class SettingsViewModel(
                                     stream.write(encoded.value.toByteArray(Charsets.UTF_8))
                                 } ?: error("cannot open stream")
                             }.fold(
-                                onSuccess = { "일기 ${uiState.value.overview.totalCount}잔을 백업 파일로 저장했어요." },
+                                onSuccess = { "기록 ${uiState.value.overview.totalCount}잔을 백업 파일로 저장했어요." },
                                 onFailure = { "백업 파일을 저장하지 못했습니다." },
                             )
                         }
@@ -94,13 +94,13 @@ class SettingsViewModel(
                     "백업 파일을 읽지 못했습니다."
                 } else {
                     when (val result = backupUseCase.restoreFromJson(rawJson)) {
-                        is AppResult.Failure -> "음주일기 백업 파일이 아니에요."
+                        is AppResult.Failure -> "한잔의 기록 백업 파일이 아니에요."
                         is AppResult.Success -> {
                             val summary = result.value
                             if (summary.skippedCount > 0) {
-                                "${summary.importedCount}건을 불러왔고, 이미 있는 ${summary.skippedCount}건은 건너뛰었어요."
+                                "기록 ${summary.importedCount}잔을 불러왔고, 이미 있는 ${summary.skippedCount}잔은 건너뛰었어요."
                             } else {
-                                "일기 ${summary.importedCount}잔을 불러왔어요."
+                                "기록 ${summary.importedCount}잔을 불러왔어요."
                             }
                         }
                     }

@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.R
 import com.example.ds.component.AuraAdaptiveBarState
 import com.example.ds.component.AuraBottomIslandItem
@@ -23,6 +24,7 @@ import com.example.ds.component.FloatingBottomIsland
 import com.example.ds.component.FloatingGlassScaffold
 import com.example.ds.component.GlassStyle
 import com.example.ds.component.rememberAuraAdaptiveBarState
+import com.example.ds.foundation.layout.AuraHeightClass
 import com.example.ds.foundation.motion.AuraMotionProfile
 import com.example.ds.foundation.theme.AuraTheme
 
@@ -32,10 +34,11 @@ enum class DDScreenType {
     Editor,
 }
 
+// 하단 탭 = 화면 제목: 요약 · 일지 · 설정 (branding.md 7-2). 매장 찾기는 2026-11-19 제거(prd.md F5).
 enum class DDTopLevelTab {
     Dashboard,
     Collection,
-    Search,
+    Settings,
 }
 
 // Aura 1.1.0의 Navigation 원칙(NAV-RULE-001): TopLevel·Detail은 FloatingGlassScaffold + FloatingCapsule,
@@ -44,10 +47,11 @@ enum class DDTopLevelTab {
 fun DDScreenScaffold(
     title: String,
     screenType: DDScreenType,
+    subtitle: String? = null,
     selectedTab: DDTopLevelTab? = null,
     onDashboardClick: (() -> Unit)? = null,
     onCollectionClick: (() -> Unit)? = null,
-    onSearchClick: (() -> Unit)? = null,
+    onSettingsClick: (() -> Unit)? = null,
     onAddClick: (() -> Unit)? = null,
     onBackClick: (() -> Unit)? = null,
     scrollFraction: Float = 0f,
@@ -79,7 +83,10 @@ fun DDScreenScaffold(
             FloatingGlassScaffold(
                 modifier = Modifier.fillMaxSize(),
                 adaptiveBarState = adaptiveBarState,
+                // 큰 제목이 액션 줄에 들어가 앱바가 한 줄(56dp)이다. 기본값 112dp는 두 줄 기준이라 빈 띠가 남는다.
+                topBarClearance = if (AuraTheme.window.heightClass == AuraHeightClass.Compact) 48.dp else 64.dp,
                 topBar = { _ ->
+                    // 큰 제목을 액션 줄에 둔다. 기본 배치는 빈 액션 줄 아래로 제목을 한 줄 내려 그린다.
                     AuraTopAppBar(
                         title = title,
                         style = AuraTopAppBarStyle.FloatingCapsule,
@@ -89,6 +96,8 @@ fun DDScreenScaffold(
                         adaptiveState = adaptiveBarState,
                         navigationIcon = navIcon,
                         actions = toolbarActions,
+                        expandedSubtitle = subtitle,
+                        inlineExpandedTitle = true,
                     )
                 },
                 bottomBar = { _ ->
@@ -105,7 +114,7 @@ fun DDScreenScaffold(
                             selectedTab = selectedTab,
                             onDashboardClick = onDashboardClick,
                             onCollectionClick = onCollectionClick,
-                            onSearchClick = onSearchClick,
+                            onSettingsClick = onSettingsClick,
                             onAddClick = onAddClick,
                         )
                     }
@@ -165,18 +174,18 @@ private fun DDBottomNavigation(
     selectedTab: DDTopLevelTab?,
     onDashboardClick: (() -> Unit)?,
     onCollectionClick: (() -> Unit)?,
-    onSearchClick: (() -> Unit)?,
+    onSettingsClick: (() -> Unit)?,
     onAddClick: (() -> Unit)?,
 ) {
     val home = ImageVector.vectorResource(R.drawable.ic_home)
     val collection = ImageVector.vectorResource(R.drawable.ic_collection)
-    val search = ImageVector.vectorResource(R.drawable.ic_search)
+    val settings = ImageVector.vectorResource(R.drawable.ic_settings)
     val addIcon = ImageVector.vectorResource(R.drawable.ic_add)
     val labels =
         Triple(
             stringResource(R.string.nav_dashboard),
             stringResource(R.string.nav_collection),
-            stringResource(R.string.nav_search),
+            stringResource(R.string.nav_settings),
         )
 
     val entries =
@@ -187,8 +196,8 @@ private fun DDBottomNavigation(
             onCollectionClick?.let {
                 add(Triple(DDTopLevelTab.Collection, AuraBottomIslandItem("collection", labels.second, collection), it))
             }
-            onSearchClick?.let {
-                add(Triple(DDTopLevelTab.Search, AuraBottomIslandItem("search", labels.third, search), it))
+            onSettingsClick?.let {
+                add(Triple(DDTopLevelTab.Settings, AuraBottomIslandItem("settings", labels.third, settings), it))
             }
         }
     if (entries.isEmpty()) return
@@ -199,7 +208,7 @@ private fun DDBottomNavigation(
         onItemSelected = { index -> entries[index].third() },
         glassStyle = GlassStyle.LIQUID,
         splitActionIcon = if (onAddClick != null) addIcon else null,
-        splitActionLabel = if (onAddClick != null) "일기 쓰기" else null,
+        splitActionLabel = if (onAddClick != null) "기록하기" else null,
         isActionSplit = onAddClick != null,
         onSplitActionClick = onAddClick,
     )

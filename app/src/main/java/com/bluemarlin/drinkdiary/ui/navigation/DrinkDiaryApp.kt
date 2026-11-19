@@ -13,21 +13,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bluemarlin.drinkdiary.DrinkDiaryApplication
 import com.bluemarlin.drinkdiary.R
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
+import com.bluemarlin.drinkdiary.ui.collection.CollectionFilterAction
 import com.bluemarlin.drinkdiary.ui.collection.CollectionScreen
 import com.bluemarlin.drinkdiary.ui.collection.CollectionViewModel
 import com.bluemarlin.drinkdiary.ui.collection.RecordDetailScreen
-import com.bluemarlin.drinkdiary.ui.lookup.LookupScreen
-import com.bluemarlin.drinkdiary.ui.lookup.LookupViewModel
+import com.bluemarlin.drinkdiary.ui.collection.collectionFilterSummary
 import com.bluemarlin.drinkdiary.ui.profile.ProfileScreen
 import com.bluemarlin.drinkdiary.ui.profile.ProfileViewModel
 import com.bluemarlin.drinkdiary.ui.record.EditRecordScreen
@@ -40,9 +38,6 @@ import com.bluemarlin.drinkdiary.ui.share.ShareCardDialog
 import com.example.ds.component.AuraAdaptiveBarState
 import com.example.ds.component.AuraDialog
 import com.example.ds.component.AuraDialogVariant
-import com.example.ds.component.AuraIcon
-import com.example.ds.component.AuraIconButton
-import com.example.ds.component.AuraIconButtonVariant
 import com.example.ds.component.AuraSnackbarHost
 import com.example.ds.component.rememberAuraAdaptiveBarState
 import com.example.ds.component.rememberAuraSnackbarHostState
@@ -55,9 +50,7 @@ private sealed interface Screen {
 
     data object Collection : Screen
 
-    data object Lookup : Screen
-
-    // 검색에서 못 찾은 이름으로 들어오면 그 이름을 채워 둔다.
+    // 일지 검색에서 못 찾은 이름으로 들어오면 그 이름을 채워 둔다.
     data class Record(
         val prefillName: String = "",
     ) : Screen
@@ -112,7 +105,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         when (tab) {
             DDTopLevelTab.Dashboard -> Screen.Dashboard
             DDTopLevelTab.Collection -> Screen.Collection
-            DDTopLevelTab.Search -> Screen.Lookup
+            DDTopLevelTab.Settings -> Screen.Settings
         }
     }
 
@@ -153,7 +146,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 }
                 is ProfileReadiness.NotReady -> {
                     snackbar.showSnackbar(
-                        "${readiness.recordsNeeded}잔 더 남기면 취향 카드를 만들 수 있어요.",
+                        "${readiness.recordsNeeded}잔 더 기록하면 취향 카드를 만들 수 있어요.",
                     )
                 }
             }
@@ -167,6 +160,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                     factory =
                         ProfileViewModel.Factory(
                             observeOverview = appContainer.observeDashboardOverviewUseCase,
+                            observeHighlights = appContainer.observeLogHighlightsUseCase,
                             observeTasteProfile = appContainer.observeTasteProfileUseCase,
                             observeTagPreference = appContainer.observeTagPreferenceUseCase,
                             observeRecommendations = appContainer.observeBuyRecommendationsUseCase,
@@ -183,19 +177,6 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 scrollFraction = scrollFraction,
                 adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
-                toolbarActions = {
-                    AuraIconButton(
-                        onClick = { screen = Screen.Settings },
-                        contentDescription = "설정",
-                        variant = AuraIconButtonVariant.Ghost,
-                        icon = {
-                            AuraIcon(
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_settings),
-                                contentDescription = null,
-                            )
-                        },
-                    )
-                },
             ) { padding ->
                 ProfileScreen(
                     state = profile,
@@ -213,58 +194,32 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         Screen.Collection ->
             TopLevel(
                 title = stringResource(R.string.nav_collection),
+                subtitle = collectionFilterSummary(collection),
                 tab = DDTopLevelTab.Collection,
                 onTabChange = { screen = it },
                 onAdd = { screen = Screen.Record() },
                 scrollFraction = scrollFraction,
                 adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
+                toolbarActions = {
+                    CollectionFilterAction(
+                        state = collection,
+                        onTypeChange = collectionViewModel::selectFilter,
+                        onStatusChange = collectionViewModel::selectStatusFilter,
+                        onSortByRatingChange = collectionViewModel::selectSortByRating,
+                    )
+                },
             ) { padding ->
                 CollectionScreen(
                     state = collection,
-                    onFilterChange = collectionViewModel::selectFilter,
-                    onStatusFilterChange = collectionViewModel::selectStatusFilter,
                     onQueryChange = collectionViewModel::updateQuery,
-                    onToggleSortByRating = collectionViewModel::toggleSortByRating,
                     onOpen = { id -> screen = Screen.Detail(id, DDTopLevelTab.Collection) },
-                    contentPadding = padding,
-                    modifier = modifier,
-                    onScrollFractionChange = { scrollFraction = it },
-                )
-            }
-
-        Screen.Lookup -> {
-            val lookupViewModel: LookupViewModel =
-                viewModel(
-                    factory =
-                        LookupViewModel.Factory(
-                            repository = appContainer.drinkRecordRepository,
-                            dictionary = appContainer.bottleDictionary,
-                            observeRecommendations = appContainer.observeBuyRecommendationsUseCase,
-                        ),
-                )
-            val lookup by lookupViewModel.uiState.collectAsState()
-
-            TopLevel(
-                title = stringResource(R.string.nav_search),
-                tab = DDTopLevelTab.Search,
-                onTabChange = { screen = it },
-                onAdd = { screen = Screen.Record() },
-                scrollFraction = scrollFraction,
-                adaptiveBarState = adaptiveBarState,
-                snackbarHost = host,
-            ) { padding ->
-                LookupScreen(
-                    state = lookup,
-                    onQueryChange = lookupViewModel::updateQuery,
-                    onOpenRecord = { id -> screen = Screen.Detail(id, DDTopLevelTab.Search) },
                     onRecordNew = { name -> screen = Screen.Record(prefillName = name) },
                     contentPadding = padding,
                     modifier = modifier,
                     onScrollFractionChange = { scrollFraction = it },
                 )
             }
-        }
 
         is Screen.Record ->
             RecordFlow(
@@ -285,7 +240,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         is Screen.Detail -> {
             val record = collection.allRecords.firstOrNull { it.id == current.id }
             DDScreenScaffold(
-                title = record?.name ?: "일기",
+                title = record?.name ?: "기록",
                 screenType = DDScreenType.Detail,
                 onBackClick = { screen = tabScreen(current.returnTo) },
                 scrollFraction = scrollFraction,
@@ -341,7 +296,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             }
 
             DDScreenScaffold(
-                title = "일기 고치기",
+                title = "기록 고치기",
                 screenType = DDScreenType.Editor,
                 onBackClick = leaveEdit,
                 scrollFraction = scrollFraction,
@@ -392,10 +347,11 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 }
             }
 
-            DDScreenScaffold(
-                title = "설정",
-                screenType = DDScreenType.Detail,
-                onBackClick = { screen = Screen.Dashboard },
+            TopLevel(
+                title = stringResource(R.string.nav_settings),
+                tab = DDTopLevelTab.Settings,
+                onTabChange = { screen = it },
+                onAdd = { screen = Screen.Record() },
                 scrollFraction = scrollFraction,
                 adaptiveBarState = adaptiveBarState,
                 snackbarHost = host,
@@ -431,16 +387,18 @@ private fun TopLevel(
     scrollFraction: Float,
     adaptiveBarState: AuraAdaptiveBarState,
     snackbarHost: @Composable () -> Unit,
+    subtitle: String? = null,
     toolbarActions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     DDScreenScaffold(
         title = title,
         screenType = DDScreenType.TopLevel,
+        subtitle = subtitle,
         selectedTab = tab,
         onDashboardClick = { onTabChange(Screen.Dashboard) },
         onCollectionClick = { onTabChange(Screen.Collection) },
-        onSearchClick = { onTabChange(Screen.Lookup) },
+        onSettingsClick = { onTabChange(Screen.Settings) },
         onAddClick = onAdd,
         scrollFraction = scrollFraction,
         adaptiveBarState = adaptiveBarState,

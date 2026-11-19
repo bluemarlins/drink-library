@@ -29,7 +29,7 @@ fun EditRecordScreen(
             contentPadding = contentPadding,
             scrollable = false,
         ) {
-            AuraText("일기를 불러오는 중이에요.", style = AuraTheme.typography.bodyLarge)
+            AuraText("기록을 불러오는 중이에요.", style = AuraTheme.typography.bodyLarge)
         }
         return
     }
@@ -41,7 +41,7 @@ fun EditRecordScreen(
             contentPadding = contentPadding,
             scrollable = false,
         ) {
-            AuraText("이 일기를 찾을 수 없어요.", style = AuraTheme.typography.bodyLarge)
+            AuraText("이 기록을 찾을 수 없어요.", style = AuraTheme.typography.bodyLarge)
         }
         return
     }

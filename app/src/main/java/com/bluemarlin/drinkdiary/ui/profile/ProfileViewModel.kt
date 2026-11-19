@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.bluemarlin.drinkdiary.domain.model.BuyRecommendationBundle
 import com.bluemarlin.drinkdiary.domain.model.DashboardOverview
+import com.bluemarlin.drinkdiary.domain.model.LogHighlights
 import com.bluemarlin.drinkdiary.domain.model.ProfileReadiness
 import com.bluemarlin.drinkdiary.domain.model.TagPreference
 import com.bluemarlin.drinkdiary.domain.model.TasteProfile
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveBuyRecommendationsUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveDashboardOverviewUseCase
+import com.bluemarlin.drinkdiary.domain.usecase.ObserveLogHighlightsUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveTagPreferenceUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveTasteProfileUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ResolveProfileReadinessUseCase
@@ -26,6 +28,8 @@ import kotlinx.coroutines.flow.stateIn
 data class ProfileUiState(
     val scope: TypeScope = TypeScope.Wine,
     val overview: DashboardOverview = DashboardOverview(),
+    // 주종을 가리지 않는 기록 전체의 사실(이번 달·최근·자주). scope를 바꿔도 그대로다.
+    val highlights: LogHighlights = LogHighlights(),
     val profile: TasteProfile? = null,
     val tagPreferences: List<TagPreference> = emptyList(),
     val readiness: ProfileReadiness =
@@ -36,6 +40,7 @@ data class ProfileUiState(
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModel(
     private val observeOverview: ObserveDashboardOverviewUseCase,
+    private val observeHighlights: ObserveLogHighlightsUseCase,
     private val observeTasteProfile: ObserveTasteProfileUseCase,
     private val observeTagPreference: ObserveTagPreferenceUseCase,
     private val observeRecommendations: ObserveBuyRecommendationsUseCase,
@@ -48,13 +53,15 @@ class ProfileViewModel(
             .flatMapLatest { selected ->
                 combine(
                     observeOverview(selected),
+                    observeHighlights(),
                     observeTasteProfile(selected),
                     observeTagPreference(selected),
                     observeRecommendations(selected),
-                ) { overview, profile, tags, recommendations ->
+                ) { overview, highlights, profile, tags, recommendations ->
                     ProfileUiState(
                         scope = selected,
                         overview = overview,
+                        highlights = highlights,
                         profile = profile,
                         tagPreferences = tags,
                         readiness = resolveReadiness(profile),
@@ -69,6 +76,7 @@ class ProfileViewModel(
 
     class Factory(
         private val observeOverview: ObserveDashboardOverviewUseCase,
+        private val observeHighlights: ObserveLogHighlightsUseCase,
         private val observeTasteProfile: ObserveTasteProfileUseCase,
         private val observeTagPreference: ObserveTagPreferenceUseCase,
         private val observeRecommendations: ObserveBuyRecommendationsUseCase,
@@ -78,6 +86,7 @@ class ProfileViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             ProfileViewModel(
                 observeOverview = observeOverview,
+                observeHighlights = observeHighlights,
                 observeTasteProfile = observeTasteProfile,
                 observeTagPreference = observeTagPreference,
                 observeRecommendations = observeRecommendations,
