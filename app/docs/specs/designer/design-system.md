@@ -7,7 +7,7 @@
 
 ## 1. 적용 방식 및 소스
 
-- **참조 방식:** 로컬 AAR 참조 (`app/libs/aura-design-system-1.1.2.aar`, 출처: `bluemarlins/aura-design-system` v1.1.2). 1.1.1은 `FloatingGlassScaffold` 배경 레이어 수정, 1.1.2는 `AuraSearchBar.clearContentDescription`과 별점 탭 판정(별의 왼쪽 1/3만 반 별) 패치다(2026-11-18).
+- **참조 방식:** 로컬 AAR 참조 (`app/libs/aura-design-system-1.2.0.aar`, 출처: `bluemarlins/aura-design-system` v1.2.0). 1.1.1은 `FloatingGlassScaffold` 배경 레이어 수정, 1.1.2는 `AuraSearchBar.clearContentDescription`과 별점 탭 판정(별의 왼쪽 1/3만 반 별) 패치다(2026-11-18). 1.2.0은 일지 필터 메뉴용 `AuraDropdownMenu`와, 큰 제목을 액션 줄에 두는 `AuraTopAppBar(inlineExpandedTitle)`을 추가했다(2026-11-19).
   - Compose BOM 기반 `ui`, `ui-graphics`, `foundation`, `core-ktx`만 사용한다.
   - **`androidx.compose.material3` 및 `dev.chrisbanes.haze`는 완전히 제거한다** (Gradle 의존성 및 Kotlin import 0건).
   - 앱 루트는 `DrinkDiaryTheme` → `AuraTheme(colorMode = ..., material = AuraMaterial.LiquidGlass, glass = AuraGlassDefaults.forColorMode(...))`로 연결한다. (`AuraTheme.material`은 하위 모든 Glass 서피스의 최대 상한(Ceiling)으로 동작하며, `reduceTransparency` 활성 시 자동으로 `Solid`(`solidFallbackAlpha = 0.98f`)로 폴백한다.)
@@ -33,7 +33,7 @@
 | 배지 (상태·주종·취향 결과) | `AuraBadge` | `Brand`, `Neutral`, `Error`(와인), `Warning`(위스키) |
 | 세그먼트 전환 | `AuraSegmentedButton` | 대시보드 범위, 컬렉션 필터, 재구매 의사 선택 |
 | 칩 선택 | `AuraChipButton` | 취향 축 편집, 라벨 태그 다중 선택, 음용 방식 |
-| 텍스트 입력 / 검색바 | `AuraTextField`, `AuraSearchBar(Solid)` | 술 이름·장소는 `Outlined`, 메모는 `Paperless`, 컬렉션/매장 찾기는 `AuraSearchBar` |
+| 텍스트 입력 / 검색바 | `AuraTextField`, `AuraSearchBar(Solid)` | 술 이름·장소는 `Outlined`, 메모는 `Paperless`, 일지(목록)는 `AuraSearchBar` |
 | 숫자 입력 | `AuraNumberField` | 빈티지(4자리 정수), 가격(`suffixText = "원"`, `formatThousands = true`) |
 | 별점 입력 / 읽기 전용 표시 | `AuraRatingBar` | `allowHalfRating = true` (`0.5` 단위 허용), 상세는 `onRatingChange = null` 읽기 전용 |
 | 다이얼로그 (삭제·이탈·공유 미리보기) | `AuraDialog` (`Destructive` / `Standard` / `Glass`) | 기록 삭제 확인(`Destructive`), 기록 이탈 확인(`Standard`), 9:16 취향 공유 카드 미리보기(`Glass`, `level4`) |
@@ -56,5 +56,8 @@ Aura `1.1.0` 편입으로 `DDSnackbarHost`, `DDProgressBar`, `DDProbeProgress`, 
 1. **로컬 URI 이미지 로더 (`DDUriImage`)**
    - 사유: Aura는 디자인 시스템 컴포넌트만 제공하며 Android `ContentResolver`/`ImageDecoder` 기반 비동기 로컬 이미지 디코더를 포함하지 않음.
    - 구현: `ui/component/DDUriImage.kt` 유지 (`AuraTheme.shapes`로 클립).
-2. **도메인 복합 컴포넌트 (`DDDrinkBadge`, `DDRepurchaseBadge`, `DDTasteTypeBadge`, `DDTasteSentenceCard`, `DDProfileProgressCard`, `DDProbeQuestion`, `DDDashboardSummaryCard`, `DDTraitSpectrumRow`, `DDBuyRecommendationSection`)**
+2. **도메인 복합 컴포넌트 (`DDDrinkBadge`, `DDRepurchaseBadge`, `DDProbeQuestion`, `DDBentoGrid`)**
    - 사유: 앱 도메인 특화 복합 UI. 내부는 모두 `AuraCard`, `AuraBadge`, `AuraText`, `AuraLinearProgressBar`, `AuraTheme.*`로 구성한다.
+   - `DDBentoGrid`(2026-11-19): 요약 탭의 벤토 배치. 칸마다 열 수(span)를 받아 줄에 채우고 한 줄의 높이를 맞춘다. 커버 화면 2열, 펼친 화면(`supportsTwoPane`) 4열. 카드는 `ui/profile/SummaryCards.kt`에 있다.
+   - 2026-11-19 제거: `DDTasteTypeBadge`, `DDTasteSentenceCard`, `DDProfileProgressCard`, `DDDashboardSummaryCard`, `DDTraitSpectrumRow`, `DDBuyRecommendationSection` — 요약 탭이 벤토 카드로 바뀌며 쓰는 곳이 없어졌다.
+   - 일지 필터 메뉴는 Aura `AuraDropdownMenu`(1.2.0)를 쓴다 — Aura에 없는 컴포넌트는 Aura에 추가한다.

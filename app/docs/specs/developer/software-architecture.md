@@ -337,7 +337,7 @@ ui/
                        6개 지표 취향 편집(TasteEditor)만 슬롯으로 끼운다
   settings/     F7     로컬 JSON 백업·복원 (SAF CreateDocument / OpenDocument). 커스터마이징 미노출
   ui/DrinkLabels.kt    주종·상태·축·날짜·가격·추천 이유 라벨. 한곳에서만 정의한다
-  lookup/       F5     매장용 빠른 조회 — 검색바, ★ 또 살래요, 사전 매칭, 추천 요약
+  ~~lookup/~~   F5     2026-11-19 제거 결정 — 매장 찾기 화면 없음. 조회는 collection/ 검색·필터로
   share/        F4     9:16(1080×1920) 취향 공유 카드 로컬 비트맵 생성 · 미리보기 · OS 공유
   component/           DD* 공용 컴포넌트 (DDDashboardSummaryCard, DDTraitSpectrumRow, DDBuyRecommendationSection 등)
 ```
@@ -366,7 +366,10 @@ ui/
 
 스위치는 **누르는 즉시 저장한다.** 설정에 "저장" 버튼을 두면 안 누르고 나가서 안 바뀐다.
 
-**F5는 별도 화면으로 둔다.** 기존 `search`를 재사용하지 않는 이유는 목적이 다르기 때문이다 —
+> **2026-11-19 개정**: 아래 결정은 철회됐다. 사용자가 매장 찾기 화면을 제공하지 않기로 했다(`prd.md` F5).
+> `ui/lookup/`과 `LookupViewModel`은 지운다. 병 사전(`BottleDictionary`)은 기록 흐름·추천이 쓰므로 남긴다.
+
+~~**F5는 별도 화면으로 둔다.**~~ 기존 `search`를 재사용하지 않는 이유는 목적이 다르기 때문이다 —
 검색은 "찾기", 조회는 **"살지 말지 판단"**이다. 결과에 만족도와 재구매 여부가 즉시 보여야 하고,
 진입에서 판단까지 15초(PRD S3) 안에 끝나야 한다.
 
