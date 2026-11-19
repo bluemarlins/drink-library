@@ -82,7 +82,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
     var screen by remember { mutableStateOf<Screen>(Screen.Dashboard) }
     var shareCardContent by remember { mutableStateOf<ShareCardContent?>(null) }
     var scrollFraction by remember { mutableFloatStateOf(0f) }
-    val adaptiveBarState = rememberAuraAdaptiveBarState()
+    val adaptiveBarState = rememberAuraAdaptiveBarState(minimizeOnScrollDown = true)
     val snackbar = rememberAuraSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -153,7 +153,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
                 }
                 is ProfileReadiness.NotReady -> {
                     snackbar.showSnackbar(
-                        "${readiness.recordsNeeded}잔 더 기록하면 취향 카드를 만들 수 있어요.",
+                        "${readiness.recordsNeeded}잔 더 남기면 취향 카드를 만들 수 있어요.",
                     )
                 }
             }
@@ -285,7 +285,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
         is Screen.Detail -> {
             val record = collection.allRecords.firstOrNull { it.id == current.id }
             DDScreenScaffold(
-                title = record?.name ?: "기록",
+                title = record?.name ?: "일기",
                 screenType = DDScreenType.Detail,
                 onBackClick = { screen = tabScreen(current.returnTo) },
                 scrollFraction = scrollFraction,
@@ -341,7 +341,7 @@ fun DrinkDiaryApp(modifier: Modifier = Modifier) {
             }
 
             DDScreenScaffold(
-                title = "기록 고치기",
+                title = "일기 고치기",
                 screenType = DDScreenType.Editor,
                 onBackClick = leaveEdit,
                 scrollFraction = scrollFraction,

@@ -1,26 +1,13 @@
 package com.bluemarlin.drinkdiary.ui.navigation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.R
 import com.example.ds.component.AuraAdaptiveBarState
 import com.example.ds.component.AuraBottomIslandItem
@@ -64,7 +51,7 @@ fun DDScreenScaffold(
     onAddClick: (() -> Unit)? = null,
     onBackClick: (() -> Unit)? = null,
     scrollFraction: Float = 0f,
-    adaptiveBarState: AuraAdaptiveBarState = rememberAuraAdaptiveBarState(),
+    adaptiveBarState: AuraAdaptiveBarState = rememberAuraAdaptiveBarState(minimizeOnScrollDown = true),
     toolbarActions: @Composable RowScope.() -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
@@ -93,7 +80,6 @@ fun DDScreenScaffold(
                 modifier = Modifier.fillMaxSize(),
                 adaptiveBarState = adaptiveBarState,
                 topBar = { _ ->
-                    StatusBarScrim(visibility = scrollFraction)
                     AuraTopAppBar(
                         title = title,
                         style = AuraTopAppBarStyle.FloatingCapsule,
@@ -135,7 +121,6 @@ fun DDScreenScaffold(
                 modifier = Modifier.fillMaxSize(),
                 adaptiveBarState = adaptiveBarState,
                 topBar = { _ ->
-                    StatusBarScrim(visibility = scrollFraction)
                     AuraTopAppBar(
                         title = title,
                         style = AuraTopAppBarStyle.FloatingCapsule,
@@ -171,39 +156,6 @@ fun DDScreenScaffold(
         }
     }
 }
-
-// Aura의 FloatingGlassScaffold는 adaptiveBarState를 받으면 상단 스크림을 끈다. 그러면 스크롤된
-// 본문이 상태바 아이콘과 떠 있는 버튼 아래로 그대로 지나가 글자가 겹친다(실기기 점검 P1-4).
-// 상태바 영역은 배경색으로 덮고, 떠 있는 버튼 높이만큼은 서서히 걷어 낸다.
-@Composable
-private fun BoxScope.StatusBarScrim(visibility: Float) {
-    val alpha = visibility.coerceIn(0f, 1f)
-    if (alpha <= 0f) return
-    val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val background = AuraTheme.colors.background.primary
-    val density = LocalDensity.current
-    val solidUntil = with(density) { statusBar.toPx() }
-    val fadeTo = with(density) { (statusBar + STATUS_SCRIM_FADE).toPx() }
-    Box(
-        modifier =
-            Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .height(statusBar + STATUS_SCRIM_FADE)
-                .graphicsLayer { this.alpha = alpha }
-                .background(
-                    Brush.verticalGradient(
-                        0f to background,
-                        (solidUntil / fadeTo) to background,
-                        1f to background.copy(alpha = 0f),
-                        startY = 0f,
-                        endY = fadeTo,
-                    ),
-                ),
-    )
-}
-
-private val STATUS_SCRIM_FADE = 72.dp
 
 // 핸들러가 없는 탭은 그리지 않는다. 눌러도 아무 일이 없는 탭을 노출하면 사용자는 앱이
 // 고장난 것으로 읽는다(실기기에서 확인된 결함) — 화면이 생기면 핸들러와 함께 나타난다.
@@ -245,9 +197,9 @@ private fun DDBottomNavigation(
         items = entries.map { it.second },
         selectedIndex = entries.indexOfFirst { it.first == selectedTab }.coerceAtLeast(0),
         onItemSelected = { index -> entries[index].third() },
-        glassStyle = GlassStyle.FROSTED,
+        glassStyle = GlassStyle.LIQUID,
         splitActionIcon = if (onAddClick != null) addIcon else null,
-        splitActionLabel = if (onAddClick != null) "기록하기" else null,
+        splitActionLabel = if (onAddClick != null) "일기 쓰기" else null,
         isActionSplit = onAddClick != null,
         onSplitActionClick = onAddClick,
     )
