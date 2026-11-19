@@ -64,14 +64,14 @@ fun SettingsScreen(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 AuraText("내 데이터 보관함", style = AuraTheme.typography.titleMedium)
                 val summary =
-                    "현재 저장된 기록 ${state.overview.totalCount}잔 " +
+                    "지금 일기장에 ${state.overview.totalCount}잔 " +
                         "(와인 ${state.overview.wineCount} · 위스키 ${state.overview.whiskeyCount})"
                 AuraText(
                     text = summary,
                     style = AuraTheme.typography.bodyLarge,
                 )
                 AuraText(
-                    text = "서버에 로그인하거나 기록을 보내지 않아요. 내 드라이브나 기기에 백업 파일로 저장할 수 있습니다.",
+                    text = "로그인이 필요 없고, 일기를 서버로 보내지 않아요. 내 드라이브나 기기에 백업 파일로 저장할 수 있어요.",
                     style = AuraTheme.typography.bodySmall,
                     color = AuraTheme.colors.content.secondary,
                 )
@@ -80,8 +80,8 @@ fun SettingsScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             AuraButton(
-                text = "백업 파일 저장 (.json)",
-                onClick = { createBackupLauncher.launch("taste-archive-backup.json") },
+                text = "백업 파일 저장",
+                onClick = { createBackupLauncher.launch("drink-diary-backup.json") },
                 variant = AuraButtonVariant.Primary,
                 size = AuraButtonSize.Large,
                 enabled = !state.busy && state.overview.totalCount > 0,
@@ -105,8 +105,8 @@ fun SettingsScreen(
             AuraText("평가 기준", style = AuraTheme.typography.titleSmall)
             AuraText(
                 text =
-                    "와인과 위스키 모두 맛 기준 6가지로 기록해요. " +
-                        "기록이 쌓이면 취향 유형과 추천이 자동으로 계산됩니다.",
+                    "와인과 위스키 모두 맛 기준 6가지로 남겨요. " +
+                        "일기가 쌓이면 취향 유형과 추천이 자동으로 계산돼요.",
                 style = AuraTheme.typography.bodySmall,
                 color = AuraTheme.colors.content.secondary,
             )

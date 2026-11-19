@@ -187,7 +187,7 @@ class AuraConformanceTest {
         composeRule.setContent {
             DrinkDiaryTheme(reduceTransparency = true) {
                 DDScreenScaffold(
-                    title = "테이스트 아카이브",
+                    title = "음주일기",
                     screenType = DDScreenType.TopLevel,
                     selectedTab = DDTopLevelTab.Dashboard,
                     onDashboardClick = {},
@@ -203,8 +203,8 @@ class AuraConformanceTest {
 
         // Content body stays on Standard while glass chrome degrades cleanly to Solid fallback tag.
         assertEquals(AuraMotionProfile.Standard, innerIslandProfile)
-        composeRule.onNodeWithText("테이스트 아카이브").assertIsDisplayed()
-        composeRule.onNodeWithContentDescription("기록하기").assertIsDisplayed()
+        composeRule.onNodeWithText("음주일기").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("일기 쓰기").assertIsDisplayed()
         val fallbackMatcher =
             SemanticsMatcher.expectValue(
                 SemanticsProperties.TestTag,
@@ -240,7 +240,7 @@ class AuraConformanceTest {
 
         composeRule.onNodeWithText("와인").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("뒤로").assertIsDisplayed()
-        assertTrue(composeRule.onAllNodesWithText("기록하기").fetchSemanticsNodes().isEmpty())
+        assertTrue(composeRule.onAllNodesWithText("일기 쓰기").fetchSemanticsNodes().isEmpty())
 
         composeRule.runOnIdle {
             scope.launch {
@@ -273,7 +273,7 @@ class AuraConformanceTest {
         listOf(extraSmallWindow, compactWindow, squareWindow, expandedWindow).forEach { window ->
             currentWindow = window
             composeRule.waitForIdle()
-            composeRule.onNodeWithText("내가 마신 아카이브").assertIsDisplayed()
+            composeRule.onNodeWithText("내 음주일기").assertIsDisplayed()
             composeRule.onNodeWithText((state.readiness as ProfileReadiness.Ready).type.code).assertIsDisplayed()
             val expectedTwoPane = window == squareWindow || window == expandedWindow
             assertEquals(expectedTwoPane, supportsTwoPane)
@@ -339,7 +339,7 @@ class AuraConformanceTest {
         composeRule.onNodeWithText("매장에서 바로 찾기").assertDoesNotExist()
         // 화면 언어는 한국어다 — 스크린리더가 읽는 설명도 마찬가지(branding.md 7-1 R1).
         composeRule.onNodeWithContentDescription("검색어 지우기").assertExists()
-        composeRule.onNodeWithText("'처음 본 와인' 기록하기").performScrollTo().performClick()
+        composeRule.onNodeWithText("'처음 본 와인' 일기 쓰기").performScrollTo().performClick()
         assertEquals("처음 본 와인", recorded)
     }
 
@@ -420,15 +420,15 @@ class AuraConformanceTest {
             }
         }
 
-        composeRule.onNodeWithText("이 기록 지우기").performScrollTo().performClick()
-        composeRule.onNodeWithText("바롤로 리제르바 기록을 지울까요?").assertIsDisplayed()
+        composeRule.onNodeWithText("이 일기 지우기").performScrollTo().performClick()
+        composeRule.onNodeWithText("바롤로 리제르바 일기를 지울까요?").assertIsDisplayed()
         composeRule.onNodeWithText("그대로 두기").performClick()
         composeRule.waitForIdle()
-        assertTrue(composeRule.onAllNodesWithText("바롤로 리제르바 기록을 지울까요?").fetchSemanticsNodes().isEmpty())
+        assertTrue(composeRule.onAllNodesWithText("바롤로 리제르바 일기를 지울까요?").fetchSemanticsNodes().isEmpty())
 
         ShadowSystemClock.advanceBy(Duration.ofMillis(500))
         composeRule.mainClock.advanceTimeBy(500L)
-        composeRule.onNodeWithText("이 기록 지우기").performScrollTo().performClick()
+        composeRule.onNodeWithText("이 일기 지우기").performScrollTo().performClick()
         composeRule.onNodeWithText("지우기").performClick()
         assertTrue(deleted)
     }
@@ -537,7 +537,7 @@ class AuraConformanceTest {
             DrinkDiaryTheme(windowInfo = compactWindow) {
                 adaptiveState = rememberAuraAdaptiveBarState()
                 DDScreenScaffold(
-                    title = "테이스트 아카이브",
+                    title = "음주일기",
                     screenType = DDScreenType.TopLevel,
                     selectedTab = DDTopLevelTab.Dashboard,
                     onDashboardClick = {},
@@ -574,7 +574,7 @@ class AuraConformanceTest {
             DrinkDiaryTheme(material = AuraMaterial.Solid, reduceTransparency = false) {
                 resolvedInsideTheme = AuraTheme.effectiveMaterial(AuraMaterial.LiquidGlass)
                 DDScreenScaffold(
-                    title = "테이스트 아카이브",
+                    title = "음주일기",
                     screenType = DDScreenType.TopLevel,
                     selectedTab = DDTopLevelTab.Dashboard,
                     onDashboardClick = {},

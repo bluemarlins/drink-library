@@ -217,9 +217,9 @@ private fun SummaryHeadline(
         is ProfileReadiness.NotReady -> {
             val description =
                 if (recordCount == 0) {
-                    "첫 기록을 남기면 여기서 취향이 보이기 시작해요."
+                    "첫 일기를 쓰면 여기서 취향이 보이기 시작해요."
                 } else {
-                    "지금까지 ${recordCount}잔을 기록했어요. ${readiness.recordsNeeded}잔만 더 남기면 취향 유형이 나와요."
+                    "지금까지 ${recordCount}잔의 일기를 썼어요. ${readiness.recordsNeeded}잔만 더 남기면 취향 유형이 나와요."
                 }
             val target = recordCount + readiness.recordsNeeded
             DDProfileProgressCard(

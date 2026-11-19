@@ -57,7 +57,7 @@ fun DDDashboardSummaryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AuraText("내가 마신 아카이브", style = AuraTheme.typography.titleMedium)
+                AuraText("내 음주일기", style = AuraTheme.typography.titleMedium)
                 AuraBadge(
                     label = "총 ${overview.totalCount}잔",
                     variant = AuraBadgeVariant.Brand,
@@ -284,7 +284,7 @@ fun DDBuyRecommendationSection(
                 padding = AuraCardPadding.Medium,
             ) {
                 AuraText(
-                    text = "${bundle.recordsNeeded}잔만 더 기록하면 내 취향과 맞는 다음 술 스타일을 추천해 드려요.",
+                    text = "${bundle.recordsNeeded}잔만 더 남기면 내 취향과 맞는 다음 술 스타일을 추천해 드려요.",
                     style = AuraTheme.typography.bodyMedium,
                     color = AuraTheme.colors.content.secondary,
                 )

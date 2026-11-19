@@ -74,7 +74,7 @@ object ShareCardRenderer {
                 TypeScope.Combined -> "와인 & 위스키 통합 취향 카드"
             }
 
-        canvas.drawText("취향 아카이브 · $scopeLabel", 140f, 210f, secondaryText)
+        canvas.drawText("음주일기 · $scopeLabel", 140f, 210f, secondaryText)
 
         val codePaint =
             TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -179,7 +179,7 @@ object ShareCardRenderer {
             canvas.drawText(poles.second, barRight - rightW, trackTop + 56f, smallLabelPaint)
         }
 
-        val footer = "기록 ${content.recordCount}잔 바탕 · Taste Archive"
+        val footer = "일기 ${content.recordCount}잔 바탕 · Drink Diary"
         canvas.drawText(footer, 140f, HEIGHT - 165f, secondaryText)
 
         return bitmap

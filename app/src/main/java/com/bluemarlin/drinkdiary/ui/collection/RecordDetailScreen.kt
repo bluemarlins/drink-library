@@ -70,7 +70,7 @@ fun RecordDetailScreen(
             contentPadding = contentPadding,
             scrollable = false,
         ) {
-            AuraText("기록을 불러오는 중이에요.", style = AuraTheme.typography.bodyLarge)
+            AuraText("일기를 불러오는 중이에요.", style = AuraTheme.typography.bodyLarge)
         }
         return
     }
@@ -120,9 +120,9 @@ fun RecordDetailScreen(
 
     AuraDialog(
         visible = confirming,
-        title = "${record.name} 기록을 지울까요?",
+        title = "${record.name} 일기를 지울까요?",
         // 되돌릴 수 없다는 사실을 누르기 전에 말한다.
-        message = "취향 답까지 함께 지워지고, 되돌릴 수 없어요. 취향 유형도 이 기록만큼 다시 계산됩니다.",
+        message = "취향 답까지 함께 지워지고, 되돌릴 수 없어요. 취향 유형도 이 일기만큼 다시 계산돼요.",
         variant = AuraDialogVariant.Destructive,
         confirmText = "지우기",
         dismissText = "그대로 두기",
@@ -207,7 +207,7 @@ private fun RecordTasteAndActionsSection(
     AuraText("그때 남긴 취향", style = AuraTheme.typography.titleMedium)
     if (record.taste.answers.isEmpty()) {
         AuraText(
-            text = "취향 입력이 없는 기록이에요.",
+            text = "취향 입력이 없는 일기예요.",
             style = AuraTheme.typography.bodyMedium,
             color = AuraTheme.colors.content.secondary,
         )
@@ -244,7 +244,7 @@ private fun RecordTasteAndActionsSection(
 
     // BTN-RULE-003: 1차 진입 표면에서는 Outline/Ghost를 사용하고 Destructive는 최종 확인 다이얼로그에만 사용한다.
     AuraButton(
-        text = "이 기록 지우기",
+        text = "이 일기 지우기",
         onClick = onRequestDelete,
         variant = AuraButtonVariant.Outline,
         size = AuraButtonSize.Large,

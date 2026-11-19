@@ -96,7 +96,7 @@ fun RecordFlow(
     BackHandler(onBack = handleBack)
 
     DDScreenScaffold(
-        title = "기록하기",
+        title = "일기 쓰기",
         screenType = DDScreenType.Editor,
         onBackClick = handleBack,
         scrollFraction = scrollFraction,
@@ -186,11 +186,11 @@ fun RecordFlow(
 
     AuraDialog(
         visible = showDiscardConfirm,
-        title = "기록을 그만할까요?",
+        title = "일기 쓰기를 그만할까요?",
         message = "지금 입력한 내용은 저장되지 않아요.",
         variant = AuraDialogVariant.Destructive,
         confirmText = "나가기",
-        dismissText = "계속 기록하기",
+        dismissText = "계속 쓰기",
         onConfirm = {
             showDiscardConfirm = false
             exit()
@@ -212,13 +212,13 @@ private fun RecordSaved(
         modifier = modifier,
         contentPadding = contentPadding,
     ) {
-        AuraText("기록했습니다.", style = AuraTheme.typography.headlineSmall)
+        AuraText("일기장에 남겼어요.", style = AuraTheme.typography.headlineSmall)
         AuraText(
             text = "이번 잔까지 내 취향에 반영했어요.",
             style = AuraTheme.typography.bodyLarge,
         )
         AuraText(
-            text = "기록이 쌓일수록 취향 유형과 다음 한 병 추천이 더 정확해져요.",
+            text = "일기가 쌓일수록 취향 유형과 다음 한 병 추천이 더 정확해져요.",
             style = AuraTheme.typography.bodySmall,
             color = AuraTheme.colors.content.secondary,
         )
@@ -230,7 +230,7 @@ private fun RecordSaved(
             fullWidth = true,
         )
         AuraButton(
-            text = "한 잔 더 기록하기",
+            text = "한 잔 더 남기기",
             onClick = onRestart,
             variant = AuraButtonVariant.Secondary,
             size = AuraButtonSize.Large,

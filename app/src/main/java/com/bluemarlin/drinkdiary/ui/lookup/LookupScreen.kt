@@ -144,13 +144,13 @@ private fun SearchResultsSection(
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 AuraText(
-                    text = "아직 마신 기록이나 사전에서 찾지 못했어요.",
+                    text = "일기장에도 사전에도 없어요.",
                     style = AuraTheme.typography.bodyMedium,
                     color = AuraTheme.colors.content.secondary,
                 )
                 // 매장에서 처음 본 술이다. 찾던 이름 그대로 바로 기록으로 넘긴다.
                 AuraButton(
-                    text = "'$query' 기록하기",
+                    text = "'$query' 일기 쓰기",
                     onClick = { onRecordNew(query) },
                     variant = AuraButtonVariant.Primary,
                     fullWidth = true,
@@ -162,7 +162,7 @@ private fun SearchResultsSection(
 
     if (records.isNotEmpty()) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            AuraText("내가 마셨던 기록 (${records.size})", style = AuraTheme.typography.titleMedium)
+            AuraText("내 일기장에서 (${records.size})", style = AuraTheme.typography.titleMedium)
             records.forEach { record ->
                 LookupRecordCard(record = record, onClick = { onOpenRecord(record.id) })
             }

@@ -202,11 +202,11 @@ private fun EmptyCollection(filtered: Boolean) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         AuraText(
-            text = if (filtered) "조건에 맞는 기록이 없어요" else "아직 기록이 없어요",
+            text = if (filtered) "조건에 맞는 일기가 없어요" else "아직 일기가 없어요",
             style = AuraTheme.typography.titleMedium,
         )
         AuraText(
-            text = if (filtered) "검색어나 필터를 바꾸어 보세요." else "아래 + 를 눌러 한 잔 기록해 보세요.",
+            text = if (filtered) "검색어나 필터를 바꾸어 보세요." else "아래 + 를 눌러 첫 일기를 써 보세요.",
             style = AuraTheme.typography.bodyMedium,
             color = AuraTheme.colors.content.secondary,
         )
