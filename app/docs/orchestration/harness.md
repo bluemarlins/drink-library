@@ -34,7 +34,7 @@
 - 구조적 로컬 영속성은 Room, 키-값 설정은 SharedPreferences가 아니라 DataStore를 쓴다.
 - DB/파일/네트워크 작업은 메인 스레드에서 실행하지 않는다. 비동기·반응형은 Coroutines와 Flow를
   기본으로 한다.
-- 기술 스택 기본값: Kotlin, Jetpack Compose, Aura Design System (`app/libs/aura-design-system-1.2.0.aar`), AndroidX/Jetpack 공식 컴포넌트(Material 3 미사용).
+- 기술 스택 기본값: Kotlin, Jetpack Compose, Aura Design System (`app/libs/aura-design-system-1.3.0.aar`), AndroidX/Jetpack 공식 컴포넌트(Material 3 미사용).
 
 ## 2. UI 규칙
 
