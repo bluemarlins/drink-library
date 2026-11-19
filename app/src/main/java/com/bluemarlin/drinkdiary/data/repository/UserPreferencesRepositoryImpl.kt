@@ -6,8 +6,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.bluemarlin.drinkdiary.domain.model.AppearanceSettings
+import com.bluemarlin.drinkdiary.domain.model.ColorModePreference
+import com.bluemarlin.drinkdiary.domain.model.SurfaceStyle
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.domain.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +28,8 @@ class UserPreferencesRepositoryImpl(
         val IS_PRO_USER = booleanPreferencesKey("is_pro_user")
         val ALWAYS_ASK_TAGS = stringSetPreferencesKey("always_ask_tags")
         val HAS_CHOSEN_TAG_PREFERENCES = booleanPreferencesKey("has_chosen_tag_preferences")
+        val SURFACE_STYLE = stringPreferencesKey("surface_style")
+        val COLOR_MODE = stringPreferencesKey("color_mode")
     }
 
     private val preferences: Flow<Preferences> =
@@ -57,5 +63,26 @@ class UserPreferencesRepositoryImpl(
             // 아무것도 안 고른 것도 대답이다. 다시 묻지 않는다.
             it[PreferencesKeys.HAS_CHOSEN_TAG_PREFERENCES] = true
         }
+    }
+
+    override val appearance: Flow<AppearanceSettings> =
+        preferences.map { stored ->
+            val defaults = AppearanceSettings()
+            AppearanceSettings(
+                surfaceStyle =
+                    SurfaceStyle.entries.find { it.name == stored[PreferencesKeys.SURFACE_STYLE] }
+                        ?: defaults.surfaceStyle,
+                colorMode =
+                    ColorModePreference.entries.find { it.name == stored[PreferencesKeys.COLOR_MODE] }
+                        ?: defaults.colorMode,
+            )
+        }
+
+    override suspend fun setSurfaceStyle(style: SurfaceStyle) {
+        context.dataStore.edit { it[PreferencesKeys.SURFACE_STYLE] = style.name }
+    }
+
+    override suspend fun setColorMode(mode: ColorModePreference) {
+        context.dataStore.edit { it[PreferencesKeys.COLOR_MODE] = mode.name }
     }
 }

@@ -2,6 +2,7 @@ package com.bluemarlin.drinkdiary.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import com.bluemarlin.drinkdiary.domain.model.SurfaceStyle
 import com.example.ds.foundation.glass.AuraGlass
 import com.example.ds.foundation.glass.AuraGlassDefaults
 import com.example.ds.foundation.layout.AuraWindowInfo
@@ -13,6 +14,13 @@ import com.example.ds.foundation.theme.AuraColorMode
 import com.example.ds.foundation.theme.AuraMaterial
 import com.example.ds.foundation.theme.AuraTheme
 import com.example.ds.foundation.theme.rememberAuraReduceTransparency
+
+fun SurfaceStyle.toAuraMaterial(): AuraMaterial =
+    when (this) {
+        SurfaceStyle.Solid -> AuraMaterial.Solid
+        SurfaceStyle.GlassMorphism -> AuraMaterial.Glass
+        SurfaceStyle.LiquidGlass -> AuraMaterial.LiquidGlass
+    }
 
 @Composable
 fun DrinkDiaryTheme(

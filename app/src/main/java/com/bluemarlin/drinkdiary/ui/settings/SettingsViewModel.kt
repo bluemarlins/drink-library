@@ -6,8 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.bluemarlin.drinkdiary.domain.model.AppResult
+import com.bluemarlin.drinkdiary.domain.model.AppearanceSettings
+import com.bluemarlin.drinkdiary.domain.model.ColorModePreference
 import com.bluemarlin.drinkdiary.domain.model.DashboardOverview
+import com.bluemarlin.drinkdiary.domain.model.SurfaceStyle
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
+import com.bluemarlin.drinkdiary.domain.repository.UserPreferencesRepository
 import com.bluemarlin.drinkdiary.domain.usecase.BackupDrinkRecordsUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveDashboardOverviewUseCase
 import kotlinx.coroutines.Dispatchers
@@ -24,11 +28,13 @@ data class SettingsUiState(
     val overview: DashboardOverview = DashboardOverview(),
     val busy: Boolean = false,
     val message: String? = null,
+    val appearance: AppearanceSettings = AppearanceSettings(),
 )
 
 class SettingsViewModel(
     observeOverview: ObserveDashboardOverviewUseCase,
     private val backupUseCase: BackupDrinkRecordsUseCase,
+    private val preferences: UserPreferencesRepository,
 ) : ViewModel() {
     private val busy = MutableStateFlow(false)
     private val message = MutableStateFlow<String?>(null)
@@ -38,11 +44,13 @@ class SettingsViewModel(
             observeOverview(TypeScope.Combined),
             busy,
             message,
-        ) { overview, isBusy, msg ->
+            preferences.appearance,
+        ) { overview, isBusy, msg, appearance ->
             SettingsUiState(
                 overview = overview,
                 busy = isBusy,
                 message = msg,
+                appearance = appearance,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -112,12 +120,21 @@ class SettingsViewModel(
 
     fun dismissMessage() = message.update { null }
 
+    fun selectSurfaceStyle(style: SurfaceStyle) {
+        viewModelScope.launch { preferences.setSurfaceStyle(style) }
+    }
+
+    fun selectColorMode(mode: ColorModePreference) {
+        viewModelScope.launch { preferences.setColorMode(mode) }
+    }
+
     class Factory(
         private val observeOverview: ObserveDashboardOverviewUseCase,
         private val backupUseCase: BackupDrinkRecordsUseCase,
+        private val preferences: UserPreferencesRepository,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            SettingsViewModel(observeOverview, backupUseCase) as T
+            SettingsViewModel(observeOverview, backupUseCase, preferences) as T
     }
 }

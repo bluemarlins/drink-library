@@ -12,6 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.bluemarlin.drinkdiary.domain.model.AppearanceSettings
+import com.bluemarlin.drinkdiary.domain.model.ColorModePreference
+import com.bluemarlin.drinkdiary.domain.model.SurfaceStyle
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.example.ds.component.AuraButton
 import com.example.ds.component.AuraButtonSize
@@ -20,17 +23,21 @@ import com.example.ds.component.AuraCard
 import com.example.ds.component.AuraCardPadding
 import com.example.ds.component.AuraCardVariant
 import com.example.ds.component.AuraDivider
+import com.example.ds.component.AuraSegmentedButton
+import com.example.ds.component.AuraSegmentedSize
 import com.example.ds.component.AuraText
 import com.example.ds.component.BindAdaptiveBarToScrollState
 import com.example.ds.component.rememberFloatingScrollProgress
 import com.example.ds.foundation.theme.AuraTheme
 
-// 불필요한 지표/옵션 커스터마이징은 열지 않고, 로컬 데이터 보존(백업·복원)만 제공한다.
+// 지표 커스터마이징은 열지 않는다. 로컬 데이터 보존(백업·복원)과 화면 재질·색 모드만 제공한다.
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
     onExportBackup: (Uri) -> Unit,
     onRestoreBackup: (Uri) -> Unit,
+    onSurfaceStyleChange: (SurfaceStyle) -> Unit,
+    onColorModeChange: (ColorModePreference) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     onScrollFractionChange: (Float) -> Unit = {},
@@ -99,6 +106,12 @@ fun SettingsScreen(
             )
         }
 
+        AppearanceCard(
+            appearance = state.appearance,
+            onSurfaceStyleChange = onSurfaceStyleChange,
+            onColorModeChange = onColorModeChange,
+        )
+
         AuraDivider()
 
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -111,5 +124,72 @@ fun SettingsScreen(
                 color = AuraTheme.colors.content.secondary,
             )
         }
+    }
+}
+
+private val SurfaceStyleOptions =
+    listOf(
+        SurfaceStyle.LiquidGlass to "리퀴드 글래스",
+        SurfaceStyle.GlassMorphism to "글래스모피즘",
+        SurfaceStyle.Solid to "솔리드",
+    )
+
+private val ColorModeOptions =
+    listOf(
+        ColorModePreference.System to "시스템",
+        ColorModePreference.Light to "라이트",
+        ColorModePreference.Dark to "다크",
+    )
+
+@Composable
+private fun AppearanceCard(
+    appearance: AppearanceSettings,
+    onSurfaceStyleChange: (SurfaceStyle) -> Unit,
+    onColorModeChange: (ColorModePreference) -> Unit,
+) {
+    AuraCard(
+        modifier = Modifier.fillMaxWidth(),
+        variant = AuraCardVariant.Outlined,
+        padding = AuraCardPadding.Large,
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            AuraText("화면", style = AuraTheme.typography.titleMedium)
+
+            AuraText("재질", style = AuraTheme.typography.titleSmall)
+            AuraSegmentedButton(
+                options = SurfaceStyleOptions.map { it.second },
+                selectedIndex = SurfaceStyleOptions.indexOfFirst { it.first == appearance.surfaceStyle },
+                onOptionSelected = { index -> onSurfaceStyleChange(SurfaceStyleOptions[index].first) },
+                size = AuraSegmentedSize.Small,
+            )
+            AuraText(
+                text = surfaceStyleCaption(appearance.surfaceStyle, AuraTheme.reduceTransparency),
+                style = AuraTheme.typography.bodySmall,
+                color = AuraTheme.colors.content.secondary,
+            )
+
+            AuraText("색 모드", style = AuraTheme.typography.titleSmall)
+            AuraSegmentedButton(
+                options = ColorModeOptions.map { it.second },
+                selectedIndex = ColorModeOptions.indexOfFirst { it.first == appearance.colorMode },
+                onOptionSelected = { index -> onColorModeChange(ColorModeOptions[index].first) },
+                size = AuraSegmentedSize.Small,
+            )
+        }
+    }
+}
+
+private fun surfaceStyleCaption(
+    style: SurfaceStyle,
+    reduceTransparency: Boolean,
+): String {
+    // 절전 모드·고대비 텍스트에서는 Aura가 유리 재질을 단색으로 낮춘다. 고른 값이 안 먹는 것처럼 보이지 않게 알린다.
+    if (reduceTransparency && style != SurfaceStyle.Solid) {
+        return "절전 모드나 고대비 텍스트가 켜져 있어 지금은 솔리드로 보여요."
+    }
+    return when (style) {
+        SurfaceStyle.LiquidGlass -> "하단 탭과 상단 바가 빛을 굴절하는 유리 렌즈처럼 보여요."
+        SurfaceStyle.GlassMorphism -> "뒤에 지나가는 화면을 부드럽게 흐리는 반투명 유리예요."
+        SurfaceStyle.Solid -> "투명 효과 없이 또렷한 불투명 면을 써요. 배터리를 아낄 때 좋아요."
     }
 }

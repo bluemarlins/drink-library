@@ -10,6 +10,7 @@ import com.bluemarlin.drinkdiary.data.local.MIGRATION_2_3
 import com.bluemarlin.drinkdiary.data.local.OrgJsonBackupCodec
 import com.bluemarlin.drinkdiary.data.repository.DrinkRecordRepositoryImpl
 import com.bluemarlin.drinkdiary.data.repository.UserPreferencesRepositoryImpl
+import com.bluemarlin.drinkdiary.domain.model.AppearanceSettings
 import com.bluemarlin.drinkdiary.domain.repository.BottleDictionary
 import com.bluemarlin.drinkdiary.domain.repository.BottleMatcher
 import com.bluemarlin.drinkdiary.domain.repository.DrinkRecordBackupCodec
@@ -24,6 +25,12 @@ import com.bluemarlin.drinkdiary.domain.usecase.ObserveTagPreferenceUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ObserveTasteProfileUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.PruneRecordPhotosUseCase
 import com.bluemarlin.drinkdiary.domain.usecase.ResolveProfileReadinessUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 
 class DrinkDiaryApplication : Application() {
     lateinit var appContainer: AppContainer
@@ -52,6 +59,11 @@ class AppContainer(
 
     val userPreferencesRepository: UserPreferencesRepository =
         UserPreferencesRepositoryImpl(application)
+
+    // 화면 재질·색 모드를 프로세스 시작과 함께 미리 읽는다. 첫 화면은 이 값이 올 때까지 스플래시에 머문다.
+    val appearance: StateFlow<AppearanceSettings?> =
+        userPreferencesRepository.appearance
+            .stateIn(CoroutineScope(SupervisorJob() + Dispatchers.Default), SharingStarted.Eagerly, null)
 
     val observeTasteProfileUseCase = ObserveTasteProfileUseCase(drinkRecordRepository)
 

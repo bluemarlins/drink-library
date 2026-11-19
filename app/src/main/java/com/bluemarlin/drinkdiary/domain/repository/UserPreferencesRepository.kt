@@ -1,5 +1,8 @@
 package com.bluemarlin.drinkdiary.domain.repository
 
+import com.bluemarlin.drinkdiary.domain.model.AppearanceSettings
+import com.bluemarlin.drinkdiary.domain.model.ColorModePreference
+import com.bluemarlin.drinkdiary.domain.model.SurfaceStyle
 import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import kotlinx.coroutines.flow.Flow
 
@@ -17,4 +20,10 @@ interface UserPreferencesRepository {
     val hasChosenTagPreferences: Flow<Boolean>
 
     suspend fun setAlwaysAskTags(tags: Set<TagCategory>)
+
+    val appearance: Flow<AppearanceSettings>
+
+    suspend fun setSurfaceStyle(style: SurfaceStyle)
+
+    suspend fun setColorMode(mode: ColorModePreference)
 }
