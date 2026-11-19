@@ -7,15 +7,15 @@
 
 ## 1. 적용 방식 및 소스
 
-- **참조 방식:** 로컬 AAR 참조 (`app/libs/aura-design-system-1.2.0.aar`, 출처: `bluemarlins/aura-design-system` v1.2.0). 1.1.1은 `FloatingGlassScaffold` 배경 레이어 수정, 1.1.2는 `AuraSearchBar.clearContentDescription`과 별점 탭 판정(별의 왼쪽 1/3만 반 별) 패치다(2026-11-18). 1.2.0은 일지 필터 메뉴용 `AuraDropdownMenu`와, 큰 제목을 액션 줄에 두는 `AuraTopAppBar(inlineExpandedTitle)`을 추가했다(2026-11-19).
+- **참조 방식:** 로컬 AAR 참조 (`app/libs/aura-design-system-1.3.0.aar`, 출처: `bluemarlins/aura-design-system` v1.3.0). 1.1.1은 `FloatingGlassScaffold` 배경 레이어 수정, 1.1.2는 `AuraSearchBar.clearContentDescription`과 별점 탭 판정(별의 왼쪽 1/3만 반 별) 패치다(2026-11-18). 1.2.0은 일지 필터 메뉴용 `AuraDropdownMenu`와, 큰 제목을 액션 줄에 두는 `AuraTopAppBar(inlineExpandedTitle)`을 추가했다(2026-11-19). 1.3.0은 작업 화면 하단 액션 독 `AuraFloatingActionBar`, 로딩 자리표시 `AuraSkeleton`, Glass Morphism 모드별 광학 토큰(blur 26/28dp, saturation 1.35/1.22, 마이크로 그레인, 다크 하이라이트 감쇠)을 추가했다(2026-11-20).
   - Compose BOM 기반 `ui`, `ui-graphics`, `foundation`, `core-ktx`만 사용한다.
   - **`androidx.compose.material3` 및 `dev.chrisbanes.haze`는 완전히 제거한다** (Gradle 의존성 및 Kotlin import 0건).
-  - 앱 루트는 `DrinkDiaryTheme` → `AuraTheme(colorMode = ..., material = AuraMaterial.LiquidGlass, glass = AuraGlassDefaults.forColorMode(...))`로 연결한다. (`AuraTheme.material`은 하위 모든 Glass 서피스의 최대 상한(Ceiling)으로 동작하며, `reduceTransparency` 활성 시 자동으로 `Solid`(`solidFallbackAlpha = 0.98f`)로 폴백한다.)
+  - 앱 루트는 `DrinkDiaryTheme` → `AuraTheme(colorMode = ..., material = <설정의 재질>, glass = AuraGlassDefaults.forColorMode(...))`로 연결한다. 재질(리퀴드 글래스 / 글래스모피즘 / 솔리드, 기본 리퀴드 글래스)과 색 모드(시스템 / 라이트 / 다크, 기본 시스템)는 설정 탭 "화면" 카드에서 고르고 DataStore(`UserPreferencesRepository.appearance`)에 저장한다. (`AuraTheme.material`은 하위 모든 Glass 서피스의 최대 상한(Ceiling)으로 동작하며, `reduceTransparency` 활성 시 자동으로 `Solid`(`solidFallbackAlpha = 0.98f`)로 폴백한다.)
 - **기존 규격과의 충돌 해결 (Aura 기준 통일):**
   - **색상 (`02-color.md`):** 기존 Warm Paper(`#FFF8F2`), Wine/Malt 별도 팔레트 및 `ChartWine*`/`ChartWhiskey*` 16진수 상수는 `EVAL-002`(하드코딩 헥스 금지)와 충돌하므로 제거했다. 모든 표면·텍스트·브랜드·상태 색은 `AuraTheme.colors`를 사용하며, 와인/위스키 구분 배지는 `AuraBadgeVariant.Error` / `AuraBadgeVariant.Warning`으로 매핑한다.
   - **타이포그래피 (`04-typography.md`):** Aura는 Sans-only 정책을 따른다. 기존 `DisplayTasteCode`(Serif)와 `HeadlineSentence` 예외 토큰을 제거하고 `AuraTheme.typography.displayMedium` 및 `AuraTheme.typography.headlineMedium`으로 통일했다.
   - **레이아웃 (`05-responsive-layout.md`):** 화면별 하드코딩 여백(`20.dp`/`24.dp`/`96.dp`) 대신 `AuraTheme.layout`(`screenMarginHorizontal`, `screenMarginVertical`, `sectionSpacing`, `gridGutter`, `gridColumns`, `maxContentWidth`, `supportsTwoPane`)을 사용한다. 단일 열 폼/안내 화면과 2단 레이아웃 모두 [`DDResponsive.kt`](../../../src/main/java/com/bluemarlin/drinkdiary/ui/component/DDResponsive.kt)(`DDCenteredContent`, `DDTwoPaneContent`)를 통해 `maxContentWidth`로 최대 폭을 제한·중앙 정렬한다.
-  - **내비게이션:** Rail/Drawer 없이 모든 폭에서 최상위(`TopLevel`)는 `FloatingGlassScaffold` + `AuraTopAppBar(AdaptiveFloating, TranslucentGlass)` + `FloatingBottomIsland(GlassStyle.FROSTED, splitAction = "+" / 기록하기)`을 사용하고, 상세(`Detail`)는 `FloatingGlassScaffold(hasBottomIsland = false)` + `AuraTopAppBar(AdaptiveFloating, TranslucentGlass)`를 사용하며, 편집(`Editor`)은 `AuraScaffold` + `AuraTopAppBar(SurfaceDocked, SolidElevated)`를 사용한다.
+  - **내비게이션:** Rail/Drawer 없이 모든 폭에서 최상위(`TopLevel`)는 `FloatingGlassScaffold` + `AuraTopAppBar(AdaptiveFloating, TranslucentGlass)` + `FloatingBottomIsland(GlassStyle.FROSTED, splitAction = "+" / 기록하기)`을 사용하고, 상세(`Detail`)와 편집(`Editor`: 기록하기·기록 고치기)도 같은 `FloatingGlassScaffold` + `AuraTopAppBar(FloatingCapsule, AdaptiveFloating, TranslucentGlass)`를 쓰고, 주 액션(고치기·저장)은 폼 끝 인라인 버튼 대신 하단 `AuraFloatingActionBar`에 둔다(2026-11-20, Aura NAV-RULE-001). 상세는 본문 첫 줄이 술 이름이라 큰 제목을 생략하고(`expandedTitle = ""`), 편집은 제목을 액션 줄에 둔다(`inlineExpandedTitle`).
     - 하단 바는 `FROSTED`다(2026-11-17 사용자 결정, `LIQUID`에서 변경). `LIQUID`는 뒤를 흐리지 않고 굴절만 해서, 대시보드 슬라이더의 점과 눈금이 바 안에 그대로 비쳐 선택 표시처럼 읽혔다(`../../departments/qa/device-review-2026-11-17.md` P1-5). 테마 상한 `LiquidGlass`는 그대로다.
 
 ---
@@ -26,8 +26,8 @@
 | --- | --- | --- |
 | 테마 루트 | `AuraTheme`, `AuraGlass` | Light / Dark 자동 전환, `LiquidGlass` 상한(Ceiling) 및 `rememberAuraReduceTransparency()` 실시간 감시 |
 | 최상위 스캐폴드 / 바 | `FloatingGlassScaffold`, `AuraTopAppBar(AdaptiveFloating, TranslucentGlass)`, `FloatingBottomIsland` | 스크롤 시 타이틀 페이드아웃 후 좌우 버튼 개별 알약 변형, 추가 기록 버튼은 `FloatingBottomIsland` Split Action(`isActionSplit = true`) 사용 |
-| 상세 스캐폴드 / 바 | `FloatingGlassScaffold(hasBottomIsland = false)`, `AuraTopAppBar(AdaptiveFloating, TranslucentGlass)` | 뒤로 가기 `AuraIconButton(Ghost)`가 스크롤 시 개별 Glass 알약으로 변형 |
-| 편집 스캐폴드 | `AuraScaffold`, `AuraTopAppBar(SurfaceDocked, SolidElevated)` | 고밀도 입력 폼 전용, 뒤로 가기는 `AuraIconButton(Ghost)` |
+| 상세·편집 스캐폴드 / 바 | `FloatingGlassScaffold`, `AuraTopAppBar(FloatingCapsule, AdaptiveFloating, TranslucentGlass)`, `AuraFloatingActionBar` | 뒤로 가기 `AuraIconButton(Ghost)`가 스크롤 시 개별 Glass 알약으로 변형. 하단 독: 상세 = 고치기, 편집 = 저장(저장 못 하는 이유를 독 안에 표시) |
+| 로딩 자리표시 | `AuraSkeleton`, `AuraSkeletonText` | 요약 탭 첫 집계 전. 빈 상태 문구("이번 달은 아직 기록이 없어요")를 로딩 중에 보이지 않는다 |
 | 버튼 / 아이콘 버튼 | `AuraButton`, `AuraIconButton`, `AuraIcon` | 기존 1:1 래퍼(`DDPrimaryButton` 등) 제거, 직접 호출 |
 | 카드 | `AuraCard` (`Outlined` / `None`) | 취향 요약, 컬렉션 행, 주종/프로브 선택 |
 | 배지 (상태·주종·취향 결과) | `AuraBadge` | `Brand`, `Neutral`, `Error`(와인), `Warning`(위스키) |
