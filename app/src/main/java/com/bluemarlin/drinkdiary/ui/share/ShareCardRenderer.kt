@@ -18,7 +18,7 @@ import com.bluemarlin.drinkdiary.domain.model.TraitPreference
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.profile.TasteTypeCopy
-import com.example.ds.foundation.color.AuraColors
+import io.github.bluemarlins.aura.foundation.color.AuraColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

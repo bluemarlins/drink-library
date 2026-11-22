@@ -31,15 +31,15 @@ import com.bluemarlin.drinkdiary.domain.model.TraitPreference
 import com.bluemarlin.drinkdiary.domain.model.TypeScope
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
-import com.example.ds.component.AuraButton
-import com.example.ds.component.AuraButtonSize
-import com.example.ds.component.AuraButtonVariant
-import com.example.ds.component.AuraCard
-import com.example.ds.component.AuraCardPadding
-import com.example.ds.component.AuraCardVariant
-import com.example.ds.component.AuraLinearProgressBar
-import com.example.ds.component.AuraText
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraButton
+import io.github.bluemarlins.aura.component.AuraButtonSize
+import io.github.bluemarlins.aura.component.AuraButtonVariant
+import io.github.bluemarlins.aura.component.AuraCard
+import io.github.bluemarlins.aura.component.AuraCardPadding
+import io.github.bluemarlins.aura.component.AuraCardVariant
+import io.github.bluemarlins.aura.component.AuraLinearProgressBar
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // 요약 탭의 벤토 카드들. 카드마다 한 가지만 말하고, 자세한 건 누르면 열리는 화면이 말한다.
 // 카드 이름은 branding.md 7-2 용어집을 따른다.

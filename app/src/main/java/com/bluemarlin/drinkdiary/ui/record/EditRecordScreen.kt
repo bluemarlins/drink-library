@@ -6,9 +6,9 @@ import androidx.compose.ui.Modifier
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
-import com.example.ds.component.AuraDivider
-import com.example.ds.component.AuraText
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraDivider
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // 기록 작성과 **같은 폼**을 쓴다. 취향 편집만 슬롯으로 끼워 넣는다 —
 // 작성 경로는 마법사가 이미 물었으므로 그 자리를 비워 둔다.

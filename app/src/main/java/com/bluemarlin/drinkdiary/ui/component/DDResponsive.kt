@@ -22,8 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
-import com.example.ds.component.AuraAdaptiveTwoPane
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraAdaptiveTwoPane
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // AuraTheme.layout의 여백·섹션 간격·maxContentWidth를 전 화면에 일관되게 적용한다.
 @Composable

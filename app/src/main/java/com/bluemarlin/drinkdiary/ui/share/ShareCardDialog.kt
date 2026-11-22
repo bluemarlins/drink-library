@@ -19,10 +19,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.ds.component.AuraDialog
-import com.example.ds.component.AuraDialogVariant
-import com.example.ds.component.AuraText
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraDialog
+import io.github.bluemarlins.aura.component.AuraDialogVariant
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 import kotlinx.coroutines.launch
 
 @Composable

@@ -38,13 +38,13 @@ import com.bluemarlin.drinkdiary.ui.settings.SettingsScreen
 import com.bluemarlin.drinkdiary.ui.settings.SettingsViewModel
 import com.bluemarlin.drinkdiary.ui.share.ShareCardContent
 import com.bluemarlin.drinkdiary.ui.share.ShareCardDialog
-import com.example.ds.component.AuraAdaptiveBarState
-import com.example.ds.component.AuraDialog
-import com.example.ds.component.AuraDialogVariant
-import com.example.ds.component.AuraSnackbarHost
-import com.example.ds.component.rememberAuraAdaptiveBarState
-import com.example.ds.component.rememberAuraSnackbarHostState
-import com.example.ds.foundation.theme.AuraMaterial
+import io.github.bluemarlins.aura.component.AuraAdaptiveBarState
+import io.github.bluemarlins.aura.component.AuraDialog
+import io.github.bluemarlins.aura.component.AuraDialogVariant
+import io.github.bluemarlins.aura.component.AuraSnackbarHost
+import io.github.bluemarlins.aura.component.rememberAuraAdaptiveBarState
+import io.github.bluemarlins.aura.component.rememberAuraSnackbarHostState
+import io.github.bluemarlins.aura.foundation.theme.AuraMaterial
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 

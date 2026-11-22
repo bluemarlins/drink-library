@@ -27,19 +27,22 @@ Every Aura screen stacks across 4 explicit Z-axis layers so translucent chrome n
 
 ---
 
-## 2. Dual-Track Motion System (`MOT-RULE-001` – `MOT-RULE-007`)
+## 2. Dual-Track Motion System (`MOT-RULE-001` – `MOT-RULE-010`)
 
 Aura replaces Material's radial clipped ripple with **Tactile Spring Cushion** + smooth `AuraColors.interaction` interpolation because radial ripples clip awkwardly across translucent `Glass` and `LiquidGlass` capsules.
 
 | Rule | Principle | What Consumer App Code Must Do |
 |---|---|---|
 | **`MOT-RULE-001`** | **Purposeful Motion** | Every animation serves `Orient` (screen/pane entrance), `Focus` (selection/dialog/active tab), `Express` (liquid hero capsule), or `Connect` (scroll-linked header transitions). Skip unmotivated decorative loops. |
-| **`MOT-RULE-002`** | **Tokens Only** | Zero numeric `tween(300)` or `spring(dampingRatio = ..., stiffness = ...)` in app UI code. Call `AuraTheme.motion.pressInSpring()`, `pressOutSpring()`, `spatialSpring()`, `elasticStretchSpring()`, `enterSpec()`, `exitSpec()`. |
+| **`MOT-RULE-002`** | **Tokens Only** | Zero numeric `tween(300)` or `spring(dampingRatio = ..., stiffness = ...)` in app UI code. Call `AuraTheme.motion.pressInSpring()`, `pressOutSpring()` (press release only), `selectionSpring()` (thumbs, indices, values), `spatialSpring()`, `elasticStretchSpring()` (`LiquidGlass` only), `enterSpec()`, `exitSpec()`. |
 | **`MOT-RULE-003`** | **Dual-Track Separation** | Keep root `AuraTheme(motionProfile = AuraMotionProfile.Standard)` (`0–3%` overshoot) for forms, catalogs, and settings. Apply `AuraMotionProfile.Expressive` only via nested `AuraTheme(motionProfile = AuraMotionProfile.Expressive)` on `<= 1` hero chrome/modal per screen. |
 | **`MOT-RULE-004`** | **Interruptible Springs** | Drive stateful expands, active pill indicators, and press compressions with spring specs (`animateFloatAsState`, `Animatable`) so rapid re-taps reverse velocity smoothly without snapping. |
 | **`MOT-RULE-005`** | **Timing Asymmetry** | Entrances stay `30–50%` longer than exits (`enterSpec()` vs `exitSpec()`), and press-in (`pressInDurationMillis = 90ms`) is faster than release rebound (`pressOutDurationMillis = 180ms`). |
 | **`MOT-RULE-006`** | **Choreography Budget** | Assign transition roles (`Outgoing`, `Incoming`, `Persistent`). For staggered list/card reveals, pass `AuraTheme.motion.staggerDelay(index)` (automatically capped at `staggerBudgetMillis = 400ms`), and animate `<= 1/3` of visible items simultaneously. |
 | **`MOT-RULE-007`** | **Reduced Motion** | Always check `AuraTheme.motion.reduceMotion` (or `rememberAuraReducedMotion()`) in custom app animations: snap spatial movement (`scale`, `translation`, `staggerDelay` already returns `0`) immediately while keeping opacity, color tint, and loading semantics legible. |
+| **`MOT-RULE-008`** | **Overshoot Budget** | Visible overshoot = travel × overshoot ratio. `Standard` <= `1dp`, `Expressive` <= `3dp`, exits `0`. Use `selectionSpring()` for thumbs, indices, and values; never `pressOutSpring()`. |
+| **`MOT-RULE-009`** | **Amplitude Tokens** | Scale/stretch amplitudes are tokens (`glassPressedScale`, `grabScale`, `overlayEnterScale`, …). No float literal as an animation `targetValue`. |
+| **`MOT-RULE-010`** | **Exit Parity** | If Show animates, Hide animates: keep the element composed until its `exitSpec()` finishes instead of `if (!visible) return`. |
 
 ---
 
@@ -58,7 +61,7 @@ val contentAlpha by animateFloatAsState(
 )
 ```
 
-For press compression on custom clickable cards that cannot use `AuraCard(onClick = ...)` directly, reuse `Modifier.fluidPressScale(interactionSource, enabled, pressedScale = motion.pressedScaleDefault)` from `com.example.ds.component`.
+For press compression on custom clickable cards that cannot use `AuraCard(onClick = ...)` directly, reuse `Modifier.fluidPressScale(interactionSource, enabled, pressedScale = motion.pressedScaleDefault)` from `io.github.bluemarlins.aura.component`.
 
 ---
 
@@ -71,4 +74,5 @@ Before finishing any vibe-coded screen, verify:
 - [ ] Long forms/feeds constrain width with `Modifier.widthIn(max = AuraTheme.layout.maxContentWidth)` or adapt via `AuraAdaptiveGrid` / `AuraAdaptiveTwoPane` (`EVAL-003`).
 - [ ] Zero numeric `tween(...)` / `spring(...)` literals; custom motion uses `AuraTheme.motion.*` and honors `reduceMotion` (`EVAL-004`, `EVAL-008`).
 - [ ] Floating glass is limited to Layer 2 chrome & Layer 3 modals (`<= 3` blur surfaces, `<= 1` `LiquidGlass` hero), leaving Layer 1 lists/forms `Solid` (`EVAL-007`).
-- [ ] Run `scripts/verify-aura-app.ps1 -TargetAppDir <path> -FailOnViolation`.
+- [ ] Root `AuraTheme` does not pass `material = AuraMaterial.Solid` unless glass is meant to be disabled app-wide (the theme material is a ceiling).
+- [ ] Run `scripts/verify-aura-app.ps1 -TargetAppDir <path> -FailOnViolation` (path relative to this skill's directory).

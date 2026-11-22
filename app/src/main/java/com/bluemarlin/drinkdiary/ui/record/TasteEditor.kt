@@ -12,10 +12,10 @@ import com.bluemarlin.drinkdiary.domain.model.TasteInput
 import com.bluemarlin.drinkdiary.domain.model.Trait
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
-import com.example.ds.component.AuraChipButton
-import com.example.ds.component.AuraChipVariant
-import com.example.ds.component.AuraText
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraChipButton
+import io.github.bluemarlins.aura.component.AuraChipVariant
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // 편집 화면용 취향 입력. 주종별 6개 지표(공통 4축 + 고유 2축) 전체를 한 화면에서 바로 수정한다.
 @Composable

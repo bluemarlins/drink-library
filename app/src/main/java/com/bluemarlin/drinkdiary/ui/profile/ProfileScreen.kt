@@ -14,13 +14,13 @@ import com.bluemarlin.drinkdiary.domain.model.TypeScope
 import com.bluemarlin.drinkdiary.ui.component.DDBentoGrid
 import com.bluemarlin.drinkdiary.ui.component.DDBentoItem
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
-import com.example.ds.component.AuraSegmentedButton
-import com.example.ds.component.AuraSkeleton
-import com.example.ds.component.AuraSkeletonText
-import com.example.ds.component.AuraText
-import com.example.ds.component.BindAdaptiveBarToScrollState
-import com.example.ds.component.rememberFloatingScrollProgress
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraSegmentedButton
+import io.github.bluemarlins.aura.component.AuraSkeleton
+import io.github.bluemarlins.aura.component.AuraSkeletonText
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.component.BindAdaptiveBarToScrollState
+import io.github.bluemarlins.aura.component.rememberFloatingScrollProgress
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // 요약 탭: 그간 마신 술을 한눈에 보는 벤토 그리드.
 // 위쪽은 주종을 가리지 않는 기록의 사실(이번 달·최근·자주·누적), 아래쪽은 고른 주종의 취향이다.

@@ -37,20 +37,20 @@ import com.bluemarlin.drinkdiary.domain.model.DrinkRecord
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDRepurchaseBadge
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
-import com.example.ds.component.AuraBadgeSize
-import com.example.ds.component.AuraButton
-import com.example.ds.component.AuraButtonSize
-import com.example.ds.component.AuraButtonVariant
-import com.example.ds.component.AuraCard
-import com.example.ds.component.AuraCardPadding
-import com.example.ds.component.AuraCardVariant
-import com.example.ds.component.AuraSearchBar
-import com.example.ds.component.AuraSearchBarSurface
-import com.example.ds.component.AuraText
-import com.example.ds.component.BindAdaptiveBarToLazyGridState
-import com.example.ds.component.LocalAuraAdaptiveBarState
-import com.example.ds.component.LocalGlassBackdropState
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraBadgeSize
+import io.github.bluemarlins.aura.component.AuraButton
+import io.github.bluemarlins.aura.component.AuraButtonSize
+import io.github.bluemarlins.aura.component.AuraButtonVariant
+import io.github.bluemarlins.aura.component.AuraCard
+import io.github.bluemarlins.aura.component.AuraCardPadding
+import io.github.bluemarlins.aura.component.AuraCardVariant
+import io.github.bluemarlins.aura.component.AuraSearchBar
+import io.github.bluemarlins.aura.component.AuraSearchBarSurface
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.component.BindAdaptiveBarToLazyGridState
+import io.github.bluemarlins.aura.component.LocalAuraAdaptiveBarState
+import io.github.bluemarlins.aura.component.LocalGlassBackdropState
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable

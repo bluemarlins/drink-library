@@ -16,19 +16,19 @@ import com.bluemarlin.drinkdiary.domain.model.AppearanceSettings
 import com.bluemarlin.drinkdiary.domain.model.ColorModePreference
 import com.bluemarlin.drinkdiary.domain.model.SurfaceStyle
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
-import com.example.ds.component.AuraButton
-import com.example.ds.component.AuraButtonSize
-import com.example.ds.component.AuraButtonVariant
-import com.example.ds.component.AuraCard
-import com.example.ds.component.AuraCardPadding
-import com.example.ds.component.AuraCardVariant
-import com.example.ds.component.AuraDivider
-import com.example.ds.component.AuraSegmentedButton
-import com.example.ds.component.AuraSegmentedSize
-import com.example.ds.component.AuraText
-import com.example.ds.component.BindAdaptiveBarToScrollState
-import com.example.ds.component.rememberFloatingScrollProgress
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraButton
+import io.github.bluemarlins.aura.component.AuraButtonSize
+import io.github.bluemarlins.aura.component.AuraButtonVariant
+import io.github.bluemarlins.aura.component.AuraCard
+import io.github.bluemarlins.aura.component.AuraCardPadding
+import io.github.bluemarlins.aura.component.AuraCardVariant
+import io.github.bluemarlins.aura.component.AuraDivider
+import io.github.bluemarlins.aura.component.AuraSegmentedButton
+import io.github.bluemarlins.aura.component.AuraSegmentedSize
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.component.BindAdaptiveBarToScrollState
+import io.github.bluemarlins.aura.component.rememberFloatingScrollProgress
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // 지표 커스터마이징은 열지 않는다. 로컬 데이터 보존(백업·복원)과 화면 재질·색 모드만 제공한다.
 @Composable

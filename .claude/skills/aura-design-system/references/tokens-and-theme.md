@@ -1,13 +1,13 @@
 # Aura Tokens, Theme & Accessors Reference
 
-All theme tokens live under `com.example.ds.foundation.*` and are accessed through `AuraTheme` (`com.example.ds.foundation.theme.AuraTheme`).
+All theme tokens live under `io.github.bluemarlins.aura.foundation.*` and are accessed through `AuraTheme` (`io.github.bluemarlins.aura.foundation.theme.AuraTheme`).
 
 ---
 
 ## 1. Root Theme (`AuraTheme`)
 
 ```kotlin
-package com.example.ds.foundation.theme
+package io.github.bluemarlins.aura.foundation.theme
 
 enum class AuraColorMode { Light, Dark }
 
@@ -20,11 +20,12 @@ enum class AuraMaterial {
 @Composable
 fun AuraTheme(
     colorMode: AuraColorMode = if (isSystemInDarkTheme()) AuraColorMode.Dark else AuraColorMode.Light,
-    material: AuraMaterial = AuraMaterial.Solid,
+    material: AuraMaterial = AuraMaterial.LiquidGlass, // Ceiling: the richest material any surface below may render
     motionProfile: AuraMotionProfile = AuraMotionProfile.Standard,
     reduceTransparency: Boolean = rememberAuraReduceTransparency(),
     motion: AuraMotion = AuraMotionDefaults.forProfile(motionProfile),
     elevation: AuraElevation = AuraElevationDefaults.Standard,
+    glass: AuraGlass = AuraGlassDefaults.forColorMode(colorMode),
     windowInfo: AuraWindowInfo = rememberAuraWindowInfo(),
     layout: AuraLayout = AuraLayoutDefaults.fromWindowInfo(windowInfo),
     typography: AuraTypography = AuraTypographyDefaults.scaled(layout.typographyScale),
@@ -39,6 +40,7 @@ fun AuraTheme(
 - `AuraTheme.shapes: AuraShapes` (`extraSmall = 4.dp`, `small = 8.dp`, `medium = 12.dp`, `large = 16.dp`, `extraLarge = 24.dp`, `full = CircleShape`)
 - `AuraTheme.motion: AuraMotion`
 - `AuraTheme.elevation: AuraElevation`
+- `AuraTheme.glass: AuraGlass` (`io.github.bluemarlins.aura.foundation.glass`) — optical tokens read by `GlassSurface`: `frostedTint`, `liquidTint`, `liquidBridgeTint`, `strokeStartAlpha`, `strokeEndAlpha`, `solidFallbackAlpha`, `blurRadius` (`26.dp`), `liquidBlurRadius` (`10.dp`), `saturation` (`1.2f`), `liquidSaturation` (`1.25f`), `bevelWidth`, `refraction`, `dispersion`. Apps rarely need to read or override these.
 - `AuraTheme.window: AuraWindowInfo`
 - `AuraTheme.layout: AuraLayout`
 - `AuraTheme.colorMode: AuraColorMode`
@@ -52,6 +54,7 @@ fun resolveEffectiveMaterial(
     requested: AuraMaterial,
     sdkInt: Int = Build.VERSION.SDK_INT,
     reduceTransparency: Boolean = false,
+    ceiling: AuraMaterial = AuraMaterial.LiquidGlass,
 ): AuraMaterial
 
 @Composable
@@ -59,7 +62,9 @@ fun rememberAuraReduceTransparency(): Boolean
 // Returns true if PowerManager.isPowerSaveMode == true OR system high_text_contrast_enabled == 1
 ```
 
-| Requested | `reduceTransparency = true` | API 33+ | API 31–32 | API 26–30 |
+**Theme ceiling:** the requested material is first capped to `AuraTheme.material` (`minOf(requested, ceiling)`), then degraded by the table below. A `Glass` root lowers every `LiquidGlass` request to `Glass`; a `Solid` root forces every surface to `Solid`. Keep the root at its `LiquidGlass` default unless the app should cap or disable glass everywhere.
+
+| Requested (after ceiling) | `reduceTransparency = true` | API 33+ | API 31–32 | API 26–30 |
 |---|---|---|---|---|
 | `Solid` | `Solid` | `Solid` | `Solid` | `Solid` |
 | `Glass` | `Solid` | `Glass` | `Glass` | `Solid` |
@@ -69,7 +74,7 @@ fun rememberAuraReduceTransparency(): Boolean
 
 ## 2. Color Tokens (`AuraTheme.colors`)
 
-`AuraColors` (`com.example.ds.foundation.color`) adapts automatically to `Light` / `Dark`:
+`AuraColors` (`io.github.bluemarlins.aura.foundation.color`) adapts automatically to `Light` / `Dark`:
 
 | Group | Fields (`Color`) | Purpose |
 |---|---|---|
@@ -88,7 +93,7 @@ fun rememberAuraReduceTransparency(): Boolean
 
 ## 3. Typography Tokens (`AuraTheme.typography`)
 
-`AuraTypography` (`com.example.ds.foundation.typography`) provides **16 semantic roles**. `display*`, `headline*`, and `title*` scale dynamically via `AuraTheme.layout.typographyScale` (`0.85f..1.25f`). `body*`, `label*`, and `mono*` hold fixed baseline readability across breakpoints.
+`AuraTypography` (`io.github.bluemarlins.aura.foundation.typography`) provides **16 semantic roles**. `display*`, `headline*`, and `title*` scale dynamically via `AuraTheme.layout.typographyScale` (`0.92f`–`1.08f`). `body*`, `label*`, and `mono*` hold fixed baseline readability across breakpoints.
 
 | Role | Baseline Size / LineHeight | Weight | Notes |
 |---|---|---|---|
@@ -133,14 +138,15 @@ Aura classifies the viewport along **two axes**:
 
 ## 5. Interaction Motion Tokens (`AuraTheme.motion`)
 
-`AuraMotion` (`com.example.ds.foundation.motion`) provides dual-track motion specs (`AuraMotionProfile.Standard` vs `AuraMotionProfile.Expressive`) plus system accessibility helpers.
+`AuraMotion` (`io.github.bluemarlins.aura.foundation.motion`) provides dual-track motion specs (`AuraMotionProfile.Standard` vs `AuraMotionProfile.Expressive`) plus system accessibility helpers.
 
 ### Properties & Defaults
 
 | Token | `Standard` Default | `Expressive` Override | Purpose |
 |---|---|---|---|
 | `pressInDampingRatio` / `pressInStiffness` | `0.85f` / `800f` | Same | Fast, firm press compression (`pressInSpring()`) |
-| `pressOutDampingRatio` / `pressOutStiffness` | `0.65f` / `500f` | Same | Subtle tactile release rebound (`pressOutSpring()`) |
+| `pressOutDampingRatio` / `pressOutStiffness` | `0.65f` / `500f` | Same | Press-release scale rebound only (`pressOutSpring()`) |
+| `selectionDampingRatio` / `selectionStiffness` | `0.85f` / `600f` | Same | Selection travel without visible overshoot (`selectionSpring()`) |
 | `iconDampingRatio` / `iconStiffness` | `0.75f` / `600f` | Same | Secondary icon micro-nudge (`iconSpring()`) |
 | `pressInDurationMillis` / `pressOutDurationMillis` | `90` / `180` | Same | Asymmetric color/border press/release interpolation |
 | `minPressDurationMillis` | `110L` | Same | Minimum tactile latch so quick taps inside scroll views still render |
@@ -148,6 +154,10 @@ Aura classifies the viewport along **two axes**:
 | `spinnerRotationDurationMillis` / `spinnerSweepDurationMillis` | `900` / `650` | Same | Indeterminate spinner cycle |
 | `pressedScaleDefault` / `Large` / `Ghost` | `0.96f` / `0.975f` / `0.95f` | Same | Surface press scales |
 | `leadingIconPressedScale` / `trailingIconNudge` | `0.92f` / `2.dp` | Same | Button icon depth cues |
+| `glassPressedScale` / `gelStretchX` / `gelSquashY` / `pressGlowAlpha` | `0.95f` / `0.14f` / `0.06f` / `0.24f` | Same | Glass chrome press (`fluidPressScale`) |
+| `grabScale` / `scrubScale` / `selectedIconScale` | `1.18f` / `1.12f` / `1.08f` | Same | Thumb grab, rating scrub, selected tab icon |
+| `presenceEnterScale` / `overlayEnterScale` / `overlayExitScale` / `popoverEnterScale` | `0.90f` / `0.94f` / `0.97f` / `0.92f` | Same | Badge, Dialog Show/Hide, Dropdown Show |
+| `loadingContentScale` / `spinnerEnterScale` | `0.92f` / `0.75f` | Same | Loading content swap |
 | `profile` | `Standard` | `Expressive` | Active `AuraMotionProfile` track |
 | `enterDurationMillis` / `exitDurationMillis` | `280` / `200` | `380` / `260` | Spatial container enter > exit (`30–50%` asymmetry) |
 | `spatialDampingRatio` / `spatialStiffness` | `0.90f` / `400f` | `0.75f` / `350f` | Dialogs, popovers, FAB expansion, bottom island motion |
@@ -161,16 +171,19 @@ Aura classifies the viewport along **two axes**:
 ### Helper Methods on `AuraMotion`
 - `pressInSpring<T>()`, `pressOutSpring<T>()`, `iconSpring<T>()`
 - `spatialSpring<T>()`, `elasticStretchSpring<T>()`
-- `enterSpec<T>(): FiniteAnimationSpec<T>` — returns `snap()` when `reduceMotion == true`, else `tween(enterDurationMillis, FastOutSlowInEasing)`
-- `exitSpec<T>(): FiniteAnimationSpec<T>` — returns `snap()` when `reduceMotion == true`, else `tween(exitDurationMillis, FastOutSlowInEasing)`
+- `enterSpec<T>(): FiniteAnimationSpec<T>` — returns `snap()` when `reduceMotion == true`, else `tween(enterDurationMillis, AuraEasing.Decelerate)`
+- `exitSpec<T>(): FiniteAnimationSpec<T>` — returns `snap()` when `reduceMotion == true`, else `tween(exitDurationMillis, AuraEasing.Accelerate)`
+- `selectionSpring<T>()` — `spring(0.85f, 600f)` for selection travel (thumbs, indices, values); `snap()` when `reduceMotion == true`
+- `reducedFadeSpec<T>()` — `120ms` opacity fade that replaces spatial Show/Hide under Reduced Motion
+- `forTrack(profile)` — copy with the spatial, stagger, and scrim tokens of `profile`; tactile tokens and `reduceMotion` are kept
 - `staggerDelay(index: Int): Int` — returns `0` when `reduceMotion == true` or `index <= 0`, else `minOf(index * staggerDelayMillis, staggerBudgetMillis)`
-- Top-level composable helper: `com.example.ds.foundation.motion.rememberAuraReducedMotion(): Boolean`
+- Top-level composable helper: `io.github.bluemarlins.aura.foundation.motion.rememberAuraReducedMotion(): Boolean`
 
 ---
 
 ## 6. Elevation & Scrim Ladder (`AuraTheme.elevation`)
 
-`AuraElevation` (`com.example.ds.foundation.elevation.AuraElevationDefaults.Standard`) defines 5 Z-axis levels (`AuraElevationLevel(elevation, keyShadowAlpha, ambientShadowAlpha, scrimAlpha)`):
+`AuraElevation` (`io.github.bluemarlins.aura.foundation.elevation.AuraElevationDefaults.Standard`) defines 5 Z-axis levels (`AuraElevationLevel(elevation, keyShadowAlpha, ambientShadowAlpha, scrimAlpha)`):
 
 | Token | `elevation` | `keyShadowAlpha` | `ambientShadowAlpha` | `scrimAlpha` | Typical Surface Role |
 |---|---|---|---|---|---|

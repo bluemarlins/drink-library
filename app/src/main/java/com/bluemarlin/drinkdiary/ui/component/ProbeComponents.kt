@@ -11,10 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.domain.model.TraitAnswer
 import com.bluemarlin.drinkdiary.ui.record.ProbeCopy
-import com.example.ds.component.AuraCard
-import com.example.ds.component.AuraCardVariant
-import com.example.ds.component.AuraText
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraCard
+import io.github.bluemarlins.aura.component.AuraCardVariant
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 @Composable
 fun DDProbeQuestion(

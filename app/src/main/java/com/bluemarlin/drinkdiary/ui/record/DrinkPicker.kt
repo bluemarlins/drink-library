@@ -22,12 +22,12 @@ import com.bluemarlin.drinkdiary.domain.model.WhiskyStyle
 import com.bluemarlin.drinkdiary.domain.model.WineColor
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDTwoPaneContent
-import com.example.ds.component.AuraAdaptiveGrid
-import com.example.ds.component.AuraCard
-import com.example.ds.component.AuraCardPadding
-import com.example.ds.component.AuraCardVariant
-import com.example.ds.component.AuraText
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraAdaptiveGrid
+import io.github.bluemarlins.aura.component.AuraCard
+import io.github.bluemarlins.aura.component.AuraCardPadding
+import io.github.bluemarlins.aura.component.AuraCardVariant
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // 첫 질문 하나로 주종과 분류를 함께 받는다.
 //

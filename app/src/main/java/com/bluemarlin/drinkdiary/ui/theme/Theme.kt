@@ -3,17 +3,17 @@ package com.bluemarlin.drinkdiary.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import com.bluemarlin.drinkdiary.domain.model.SurfaceStyle
-import com.example.ds.foundation.glass.AuraGlass
-import com.example.ds.foundation.glass.AuraGlassDefaults
-import com.example.ds.foundation.layout.AuraWindowInfo
-import com.example.ds.foundation.layout.rememberAuraWindowInfo
-import com.example.ds.foundation.motion.AuraMotion
-import com.example.ds.foundation.motion.AuraMotionDefaults
-import com.example.ds.foundation.motion.AuraMotionProfile
-import com.example.ds.foundation.theme.AuraColorMode
-import com.example.ds.foundation.theme.AuraMaterial
-import com.example.ds.foundation.theme.AuraTheme
-import com.example.ds.foundation.theme.rememberAuraReduceTransparency
+import io.github.bluemarlins.aura.foundation.glass.AuraGlass
+import io.github.bluemarlins.aura.foundation.glass.AuraGlassDefaults
+import io.github.bluemarlins.aura.foundation.layout.AuraWindowInfo
+import io.github.bluemarlins.aura.foundation.layout.rememberAuraWindowInfo
+import io.github.bluemarlins.aura.foundation.motion.AuraMotion
+import io.github.bluemarlins.aura.foundation.motion.AuraMotionDefaults
+import io.github.bluemarlins.aura.foundation.motion.AuraMotionProfile
+import io.github.bluemarlins.aura.foundation.theme.AuraColorMode
+import io.github.bluemarlins.aura.foundation.theme.AuraMaterial
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.foundation.theme.rememberAuraReduceTransparency
 
 fun SurfaceStyle.toAuraMaterial(): AuraMaterial =
     when (this) {

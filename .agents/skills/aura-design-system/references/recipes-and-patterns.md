@@ -1,6 +1,6 @@
 # Aura Consumer Screen & Component Recipes
 
-All recipes below compile against `com.example.ds` using zero Material 3 widgets and zero hardcoded color, font-size, or motion literals.
+All recipes below compile against `io.github.bluemarlins.aura` using zero Material 3 widgets and zero hardcoded color, font-size, or motion literals.
 
 ---
 
@@ -14,7 +14,9 @@ fun MyAppTheme(
 ) {
     AuraTheme(
         colorMode = if (darkTheme) AuraColorMode.Dark else AuraColorMode.Light,
-        material = AuraMaterial.Solid, // Keep Solid default for workspace/content clarity
+        // `material` is a ceiling and defaults to LiquidGlass. Leave it unset so floating chrome can
+        // render Glass / LiquidGlass; content surfaces stay Solid anyway. Pass AuraMaterial.Solid
+        // only to disable glass across the whole app.
         motionProfile = AuraMotionProfile.Standard,
         content = content,
     )
@@ -270,23 +272,9 @@ AuraTheme(motionProfile = AuraMotionProfile.Expressive) {
 
 ## 6. Compliant App-Specific Gap Components
 
-When a consumer app needs a component outside Aura (e.g., an inline divider or progress indicator), build an app-prefixed composable using **only** `AuraTheme.*`:
+Check the component catalog first: dividers, progress bars, snackbars, and badges already exist (`AuraDivider`, `AuraLinearProgressBar`, `AuraSnackbar`, `AuraBadge`). Only when a consumer app needs a component Aura does not provide (e.g., an inline status notice), build an app-prefixed composable using **only** `AuraTheme.*` and Aura components:
 
 ```kotlin
-@Composable
-fun AppDivider(
-    modifier: Modifier = Modifier,
-    strong: Boolean = false,
-) {
-    val color = if (strong) AuraTheme.colors.border.default else AuraTheme.colors.border.subtle
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(color),
-    )
-}
-
 @Composable
 fun AppStatusNotice(
     message: String,

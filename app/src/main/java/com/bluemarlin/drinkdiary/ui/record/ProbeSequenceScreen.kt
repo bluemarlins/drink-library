@@ -18,12 +18,12 @@ import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDProbeQuestion
 import com.bluemarlin.drinkdiary.ui.theme.DrinkDiaryTheme
-import com.example.ds.component.AuraButton
-import com.example.ds.component.AuraButtonSize
-import com.example.ds.component.AuraButtonVariant
-import com.example.ds.component.AuraStepProgressBar
-import com.example.ds.component.AuraText
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraButton
+import io.github.bluemarlins.aura.component.AuraButtonSize
+import io.github.bluemarlins.aura.component.AuraButtonVariant
+import io.github.bluemarlins.aura.component.AuraStepProgressBar
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 @Composable
 fun ProbeSequenceScreen(

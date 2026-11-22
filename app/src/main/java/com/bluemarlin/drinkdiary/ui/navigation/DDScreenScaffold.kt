@@ -11,23 +11,23 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bluemarlin.drinkdiary.R
-import com.example.ds.component.AuraAdaptiveBarState
-import com.example.ds.component.AuraBottomIslandItem
-import com.example.ds.component.AuraFloatingActionBarDefaults
-import com.example.ds.component.AuraIcon
-import com.example.ds.component.AuraIconButton
-import com.example.ds.component.AuraIconButtonVariant
-import com.example.ds.component.AuraTopAppBar
-import com.example.ds.component.AuraTopAppBarScrollBehavior
-import com.example.ds.component.AuraTopAppBarStyle
-import com.example.ds.component.AuraTopAppBarSurface
-import com.example.ds.component.FloatingBottomIsland
-import com.example.ds.component.FloatingGlassScaffold
-import com.example.ds.component.GlassStyle
-import com.example.ds.component.rememberAuraAdaptiveBarState
-import com.example.ds.foundation.layout.AuraHeightClass
-import com.example.ds.foundation.motion.AuraMotionProfile
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraAdaptiveBarState
+import io.github.bluemarlins.aura.component.AuraBottomIslandItem
+import io.github.bluemarlins.aura.component.AuraFloatingActionBarDefaults
+import io.github.bluemarlins.aura.component.AuraIcon
+import io.github.bluemarlins.aura.component.AuraIconButton
+import io.github.bluemarlins.aura.component.AuraIconButtonVariant
+import io.github.bluemarlins.aura.component.AuraTopAppBar
+import io.github.bluemarlins.aura.component.AuraTopAppBarScrollBehavior
+import io.github.bluemarlins.aura.component.AuraTopAppBarStyle
+import io.github.bluemarlins.aura.component.AuraTopAppBarSurface
+import io.github.bluemarlins.aura.component.FloatingBottomIsland
+import io.github.bluemarlins.aura.component.FloatingGlassScaffold
+import io.github.bluemarlins.aura.component.GlassStyle
+import io.github.bluemarlins.aura.component.rememberAuraAdaptiveBarState
+import io.github.bluemarlins.aura.foundation.layout.AuraHeightClass
+import io.github.bluemarlins.aura.foundation.motion.AuraMotionProfile
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 enum class DDScreenType {
     TopLevel,

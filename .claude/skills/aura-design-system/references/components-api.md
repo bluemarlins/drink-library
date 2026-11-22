@@ -1,8 +1,8 @@
 # Aura Component API Reference
 
-All components live in `package com.example.ds.component`. Call these composables directly—do **not** fall back to Material 3 equivalents.
+All components live in `package io.github.bluemarlins.aura.component`. Call these composables directly—do **not** fall back to Material 3 equivalents.
 
-> **Note on `GlassStyle`:** `GlassStyle` (`FROSTED`, `LIQUID`) is `@Deprecated` in favor of `AuraTheme(material = AuraMaterial.Glass / LiquidGlass)` and `GlassStyle.toMaterial()`, though `GlassSurface`, `FloatingBottomIsland`, `AuraBottomIsland`, `FloatingTopPillBar`, `MorphingMorePopover`, `AuraDialog`, and `AuraSearchBar` keep `glassStyle` parameters for compatibility and resolve final rendering through `AuraTheme.effectiveMaterial(...)`.
+> **Note on `GlassStyle`:** `GlassStyle` (`FROSTED` = `AuraMaterial.Glass`, `LIQUID` = `AuraMaterial.LiquidGlass`) is `@Deprecated` in favor of `AuraMaterial` and `GlassStyle.toMaterial()`. `GlassSurface` and `LiquidMetaballBridge` take `material: AuraMaterial` (their `glassStyle` overloads are deprecated), though `FloatingBottomIsland`, `AuraBottomIsland`, `FloatingTopPillBar`, `MorphingMorePopover`, `AuraDialog`, and `AuraSearchBar` keep `glassStyle` parameters for compatibility (expect a deprecation warning when passing one). Every surface resolves its final rendering through `AuraTheme.effectiveMaterial(...)`, which never exceeds the `AuraTheme(material = ...)` ceiling.
 
 ---
 
@@ -114,7 +114,7 @@ fun FloatingGlassScaffold(
     containerColor: Color = AuraTheme.colors.background.primary,
     contentColor: Color = AuraTheme.colors.content.primary,
     adaptiveBarState: AuraAdaptiveBarState? = null,
-    topBarClearance: Dp = 64.dp,
+    topBarClearance: Dp = ..., // 64.dp; with adaptiveBarState: 112.dp (48.dp on Compact height)
     content: @Composable (PaddingValues) -> Unit,
 )
 
@@ -140,19 +140,26 @@ fun Modifier.glassBackdropSource(state: GlassBackdropState): Modifier
 fun Modifier.fluidPressScale(
     interactionSource: InteractionSource,
     enabled: Boolean = true,
-    pressedScale: Float = 0.92f,
+    pressedScale: Float? = null, // null -> AuraTheme.motion.glassPressedScale (0.95f)
 ): Modifier
 
 @Composable
 fun GlassSurface(
     modifier: Modifier = Modifier,
-    glassStyle: GlassStyle = GlassStyle.LIQUID,
+    material: AuraMaterial = AuraTheme.material,
     shape: Shape = RoundedCornerShape(50),
     cornerRadiusHint: Dp = 28.dp,
     backdropState: GlassBackdropState? = LocalGlassBackdropState.current,
     dispersionBoost: Float = 1f,
     surfaceAlphaMultiplier: Float = 1f,
     showShadow: Boolean = true,
+    elevation: AuraElevationLevel = AuraTheme.elevation.level2,
+    blurRadius: Dp = AuraTheme.glass.blurRadius,
+    saturationBoost: Float = AuraTheme.glass.saturation,
+    tintColorOverride: Color? = null,
+    borderColorOverride: Color? = null,
+    borderWidth: Dp = 1.dp,
+    elevationAlphaMultiplier: Float = 1f,
     content: @Composable BoxScope.() -> Unit,
 )
 
@@ -160,7 +167,7 @@ fun GlassSurface(
 fun LiquidMetaballBridge(
     gapWidthDp: Dp,
     heightDp: Dp,
-    glassStyle: GlassStyle,
+    material: AuraMaterial,
     mergeProgress: Float,
     modifier: Modifier = Modifier,
 )
@@ -206,6 +213,7 @@ fun AuraTopAppBar(
     adaptiveState: AuraAdaptiveBarState? = LocalAuraAdaptiveBarState.current,
     expandedTitle: String? = null,
     expandedSubtitle: String? = null,
+    inlineExpandedTitle: Boolean = false, // 1.2.0: large title shares the action row
 )
 
 @Composable
@@ -235,6 +243,43 @@ fun MorphingMorePopover(
     modifier: Modifier = Modifier,
     glassStyle: GlassStyle = GlassStyle.LIQUID,
 )
+```
+
+### `AuraDropdownMenu` (1.2.0)
+Anchored overflow / filter menu. Put it in the trigger's parent `Box`; it opens below the trigger, end-aligned, and flips above when there is no room. One `AuraMenuSection` per decision, one `selected` item per filter section.
+```kotlin
+data class AuraMenuItem(val id: String, val label: String, val selected: Boolean = false, val enabled: Boolean = true)
+data class AuraMenuSection(val title: String? = null, val items: List<AuraMenuItem>)
+
+@Composable
+fun AuraDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    sections: List<AuraMenuSection>,
+    onItemClick: (AuraMenuItem) -> Unit,
+    modifier: Modifier = Modifier,
+    dismissOnItemClick: Boolean = true,
+)
+```
+
+### `AuraFloatingActionBar` (1.3.0)
+Floating glass action dock for task screens (create/edit forms, wizards, detail). Holds one `Primary` `AuraButton` plus at most one `Secondary`/`Ghost`; rides above the IME. Use it instead of a trailing inline Save button.
+```kotlin
+@Composable
+fun AuraFloatingActionBar(
+    modifier: Modifier = Modifier,
+    visible: Boolean = true,
+    material: AuraMaterial = AuraMaterial.Glass,
+    supportingText: String? = null, // e.g. why Save is disabled
+    content: @Composable RowScope.() -> Unit,
+)
+
+// FloatingGlassScaffold(
+//     bottomBar = { AuraFloatingActionBar { AuraButton("Save", onSave, Modifier.weight(1f), fullWidth = true) } },
+//     hasBottomIsland = true,
+//     bottomIslandHeight = AuraFloatingActionBarDefaults.Height, // + SupportingTextHeight when supportingText is set
+//     bottomIslandMargin = AuraFloatingActionBarDefaults.BottomMargin,
+// ) { padding -> ... }
 ```
 
 ### `AuraBottomIsland` & `FloatingBottomIsland`
@@ -675,5 +720,22 @@ fun AuraSnackbar(
     variant: AuraSnackbarVariant = AuraSnackbarVariant.Neutral,
     material: AuraMaterial = AuraMaterial.Solid,
     shape: Shape = AuraTheme.shapes.medium,
+)
+
+// 1.3.0 — loading placeholders. Render until the first data emission; never show empty-state copy while loading.
+@Composable
+fun AuraSkeleton(
+    modifier: Modifier = Modifier,
+    shape: Shape = AuraTheme.shapes.small,
+    contentDescription: String? = null,
+)
+
+@Composable
+fun AuraSkeletonText(
+    modifier: Modifier = Modifier,
+    lines: Int = 2,
+    lineHeight: Dp = 14.dp,
+    lineSpacing: Dp = 8.dp,
+    contentDescription: String? = null,
 )
 ```

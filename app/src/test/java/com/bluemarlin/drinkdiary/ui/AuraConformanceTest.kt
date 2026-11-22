@@ -72,18 +72,18 @@ import com.bluemarlin.drinkdiary.ui.record.RecordSaveBar
 import com.bluemarlin.drinkdiary.ui.settings.SettingsScreen
 import com.bluemarlin.drinkdiary.ui.settings.SettingsUiState
 import com.bluemarlin.drinkdiary.ui.theme.DrinkDiaryTheme
-import com.example.ds.component.AdaptiveFloatingBarPhase
-import com.example.ds.component.AuraFloatingActionBarTestTag
-import com.example.ds.component.AuraSnackbarHost
-import com.example.ds.component.AuraText
-import com.example.ds.component.rememberAuraAdaptiveBarState
-import com.example.ds.component.rememberAuraSnackbarHostState
-import com.example.ds.foundation.glass.AuraGlassDefaults
-import com.example.ds.foundation.layout.AuraWindowInfo
-import com.example.ds.foundation.motion.AuraMotionDefaults
-import com.example.ds.foundation.motion.AuraMotionProfile
-import com.example.ds.foundation.theme.AuraMaterial
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AdaptiveFloatingBarPhase
+import io.github.bluemarlins.aura.component.AuraFloatingActionBarTestTag
+import io.github.bluemarlins.aura.component.AuraSnackbarHost
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.component.rememberAuraAdaptiveBarState
+import io.github.bluemarlins.aura.component.rememberAuraSnackbarHostState
+import io.github.bluemarlins.aura.foundation.glass.AuraGlassDefaults
+import io.github.bluemarlins.aura.foundation.layout.AuraWindowInfo
+import io.github.bluemarlins.aura.foundation.motion.AuraMotionDefaults
+import io.github.bluemarlins.aura.foundation.motion.AuraMotionProfile
+import io.github.bluemarlins.aura.foundation.theme.AuraMaterial
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Assert.assertEquals
@@ -251,7 +251,7 @@ class AuraConformanceTest {
 
     @Test
     fun `Detail scaffold hosts FloatingCapsule top bar without bottom island and displays snackbar`() {
-        lateinit var snackbarHostState: com.example.ds.component.AuraSnackbarHostState
+        lateinit var snackbarHostState: io.github.bluemarlins.aura.component.AuraSnackbarHostState
         lateinit var scope: CoroutineScope
 
         composeRule.setContent {
@@ -713,7 +713,7 @@ class AuraConformanceTest {
 
     @Test
     fun `DDScreenScaffold TopLevel uses AdaptiveFloating bar transitions and focus pinning`() {
-        lateinit var adaptiveState: com.example.ds.component.AuraAdaptiveBarState
+        lateinit var adaptiveState: io.github.bluemarlins.aura.component.AuraAdaptiveBarState
 
         composeRule.setContent {
             DrinkDiaryTheme(windowInfo = compactWindow) {

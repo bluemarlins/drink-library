@@ -12,16 +12,16 @@ import com.bluemarlin.drinkdiary.R
 import com.bluemarlin.drinkdiary.domain.model.CollectionStatus
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
-import com.example.ds.component.AuraBadge
-import com.example.ds.component.AuraBadgeSize
-import com.example.ds.component.AuraBadgeVariant
-import com.example.ds.component.AuraBadgedBox
-import com.example.ds.component.AuraDropdownMenu
-import com.example.ds.component.AuraIcon
-import com.example.ds.component.AuraIconButton
-import com.example.ds.component.AuraIconButtonVariant
-import com.example.ds.component.AuraMenuItem
-import com.example.ds.component.AuraMenuSection
+import io.github.bluemarlins.aura.component.AuraBadge
+import io.github.bluemarlins.aura.component.AuraBadgeSize
+import io.github.bluemarlins.aura.component.AuraBadgeVariant
+import io.github.bluemarlins.aura.component.AuraBadgedBox
+import io.github.bluemarlins.aura.component.AuraDropdownMenu
+import io.github.bluemarlins.aura.component.AuraIcon
+import io.github.bluemarlins.aura.component.AuraIconButton
+import io.github.bluemarlins.aura.component.AuraIconButtonVariant
+import io.github.bluemarlins.aura.component.AuraMenuItem
+import io.github.bluemarlins.aura.component.AuraMenuSection
 
 // 일지 필터는 앱바에 둔다. 목록 맨 위에 두면 스크롤하는 순간 기준을 바꿀 수 없다.
 @Composable

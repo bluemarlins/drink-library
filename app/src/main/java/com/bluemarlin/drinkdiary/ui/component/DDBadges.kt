@@ -3,9 +3,9 @@ package com.bluemarlin.drinkdiary.ui.component
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.bluemarlin.drinkdiary.domain.model.DrinkType
-import com.example.ds.component.AuraBadge
-import com.example.ds.component.AuraBadgeSize
-import com.example.ds.component.AuraBadgeVariant
+import io.github.bluemarlins.aura.component.AuraBadge
+import io.github.bluemarlins.aura.component.AuraBadgeSize
+import io.github.bluemarlins.aura.component.AuraBadgeVariant
 
 @Composable
 fun DDDrinkBadge(

@@ -16,10 +16,10 @@ import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.domain.model.WhiskyStyle
 import com.bluemarlin.drinkdiary.domain.model.WineColor
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
-import com.example.ds.component.AuraChipButton
-import com.example.ds.component.AuraChipVariant
-import com.example.ds.component.AuraText
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraChipButton
+import io.github.bluemarlins.aura.component.AuraChipVariant
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // 라벨을 보고 고르는 선택 태그(PRD F2-1). 전부 선택이므로 기본 경로의 탭 예산에 들어가지 않는다 —
 // 이 화면은 "더 남기기"를 편 사용자만 본다.

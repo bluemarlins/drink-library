@@ -35,22 +35,22 @@ import com.bluemarlin.drinkdiary.domain.model.TagCategory
 import com.bluemarlin.drinkdiary.ui.DrinkLabels
 import com.bluemarlin.drinkdiary.ui.component.DDCenteredContent
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
-import com.example.ds.component.AuraButton
-import com.example.ds.component.AuraButtonSize
-import com.example.ds.component.AuraButtonVariant
-import com.example.ds.component.AuraChipButton
-import com.example.ds.component.AuraChipVariant
-import com.example.ds.component.AuraFloatingActionBar
-import com.example.ds.component.AuraFloatingActionBarDefaults
-import com.example.ds.component.AuraNumberField
-import com.example.ds.component.AuraRatingBar
-import com.example.ds.component.AuraRatingBarSize
-import com.example.ds.component.AuraSegmentedButton
-import com.example.ds.component.AuraText
-import com.example.ds.component.AuraTextField
-import com.example.ds.component.AuraTextFieldVariant
-import com.example.ds.component.rememberFloatingScrollProgress
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraButton
+import io.github.bluemarlins.aura.component.AuraButtonSize
+import io.github.bluemarlins.aura.component.AuraButtonVariant
+import io.github.bluemarlins.aura.component.AuraChipButton
+import io.github.bluemarlins.aura.component.AuraChipVariant
+import io.github.bluemarlins.aura.component.AuraFloatingActionBar
+import io.github.bluemarlins.aura.component.AuraFloatingActionBarDefaults
+import io.github.bluemarlins.aura.component.AuraNumberField
+import io.github.bluemarlins.aura.component.AuraRatingBar
+import io.github.bluemarlins.aura.component.AuraRatingBarSize
+import io.github.bluemarlins.aura.component.AuraSegmentedButton
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.component.AuraTextField
+import io.github.bluemarlins.aura.component.AuraTextFieldVariant
+import io.github.bluemarlins.aura.component.rememberFloatingScrollProgress
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 // 취향 입력 이후 단계. 필수 항목(이름·만족도·다시 살까) 외 선택 항목은 고정된 접힘 영역으로 유지해
 // 불필요한 커스터마이징과 입력 마찰을 방지한다.

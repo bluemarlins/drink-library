@@ -27,21 +27,21 @@ import com.bluemarlin.drinkdiary.ui.component.DDDrinkBadge
 import com.bluemarlin.drinkdiary.ui.component.DDRepurchaseBadge
 import com.bluemarlin.drinkdiary.ui.component.DDTwoPaneContent
 import com.bluemarlin.drinkdiary.ui.component.DDUriImage
-import com.example.ds.component.AuraBadge
-import com.example.ds.component.AuraBadgeVariant
-import com.example.ds.component.AuraButton
-import com.example.ds.component.AuraButtonSize
-import com.example.ds.component.AuraButtonVariant
-import com.example.ds.component.AuraDialog
-import com.example.ds.component.AuraDialogVariant
-import com.example.ds.component.AuraDivider
-import com.example.ds.component.AuraFloatingActionBar
-import com.example.ds.component.AuraRatingBar
-import com.example.ds.component.AuraRatingBarSize
-import com.example.ds.component.AuraText
-import com.example.ds.component.BindAdaptiveBarToScrollState
-import com.example.ds.component.rememberFloatingScrollProgress
-import com.example.ds.foundation.theme.AuraTheme
+import io.github.bluemarlins.aura.component.AuraBadge
+import io.github.bluemarlins.aura.component.AuraBadgeVariant
+import io.github.bluemarlins.aura.component.AuraButton
+import io.github.bluemarlins.aura.component.AuraButtonSize
+import io.github.bluemarlins.aura.component.AuraButtonVariant
+import io.github.bluemarlins.aura.component.AuraDialog
+import io.github.bluemarlins.aura.component.AuraDialogVariant
+import io.github.bluemarlins.aura.component.AuraDivider
+import io.github.bluemarlins.aura.component.AuraFloatingActionBar
+import io.github.bluemarlins.aura.component.AuraRatingBar
+import io.github.bluemarlins.aura.component.AuraRatingBarSize
+import io.github.bluemarlins.aura.component.AuraText
+import io.github.bluemarlins.aura.component.BindAdaptiveBarToScrollState
+import io.github.bluemarlins.aura.component.rememberFloatingScrollProgress
+import io.github.bluemarlins.aura.foundation.theme.AuraTheme
 
 @Composable
 fun RecordDetailScreen(
