@@ -118,6 +118,7 @@ private fun ScopeSelector(
 private fun ProfileSkeleton(columns: Int) {
     val layout = AuraTheme.layout
     val card = AuraTheme.shapes.extraLarge
+    // 높이는 실제 카드에 맞춘다(SKL-RULE-002). 2026-11-22 단말 실측: 이번 달 140, 최근·자주 168, 누적 107dp.
     DDBentoGrid(
         columns = columns,
         spacing = layout.gridGutter,
@@ -125,17 +126,17 @@ private fun ProfileSkeleton(columns: Int) {
             listOf(
                 DDBentoItem("month", span = 2) {
                     AuraSkeleton(
-                        Modifier.fillMaxWidth().height(144.dp),
+                        Modifier.fillMaxWidth().height(140.dp),
                         shape = card,
                         contentDescription = "요약을 불러오는 중",
                     )
                 },
-                DDBentoItem("latest", span = 1) { AuraSkeleton(Modifier.fillMaxWidth().height(160.dp), shape = card) },
+                DDBentoItem("latest", span = 1) { AuraSkeleton(Modifier.fillMaxWidth().height(168.dp), shape = card) },
                 DDBentoItem(
                     "frequent",
                     span = 1,
-                ) { AuraSkeleton(Modifier.fillMaxWidth().height(160.dp), shape = card) },
-                DDBentoItem("total", span = 2) { AuraSkeleton(Modifier.fillMaxWidth().height(112.dp), shape = card) },
+                ) { AuraSkeleton(Modifier.fillMaxWidth().height(168.dp), shape = card) },
+                DDBentoItem("total", span = 2) { AuraSkeleton(Modifier.fillMaxWidth().height(108.dp), shape = card) },
             ),
     )
     AuraSkeletonText(lines = 1, lineHeight = 20.dp, modifier = Modifier.fillMaxWidth(0.3f))
