@@ -406,6 +406,7 @@ fun AuraSegmentedButton(
     optionIcons: List<(@Composable () -> Unit)?>? = null,
 )
 ```
+Pass `selectedIndex = -1` for a single choice that may still be unanswered (optional form field, survey answer): no segment is selected until the user picks one. Prefer this over `Tag` chips for 2–5 exclusive options.
 
 ### `AuraChipButton`
 ```kotlin

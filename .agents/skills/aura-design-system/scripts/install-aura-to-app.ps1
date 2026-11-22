@@ -14,7 +14,7 @@ param(
 
     [string]$AppModule = "app",
 
-    [string]$AarFileName = "aura-design-system-2.0.0.aar",
+    [string]$AarFileName = "aura-design-system-2.1.0.aar",
 
     [switch]$SkipBuild,
 

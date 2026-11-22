@@ -59,7 +59,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
-    implementation(files("libs/aura-design-system-2.0.0.aar"))
+    implementation(files("libs/aura-design-system-2.1.0.aar"))
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)

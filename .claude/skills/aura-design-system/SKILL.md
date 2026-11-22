@@ -44,7 +44,7 @@ dependencyResolutionManagement {
 
 // app/build.gradle.kts
 dependencies {
-    implementation("com.github.bluemarlins:aura-design-system:2.0.0")
+    implementation("com.github.bluemarlins:aura-design-system:2.1.0")
     // Only if the app uses Icons.* glyphs. Aura does not export an icon set.
     implementation("androidx.compose.material:material-icons-core")
 }
@@ -56,7 +56,7 @@ A local AAR carries no transitive dependencies, so declare Compose explicitly:
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation(files("libs/aura-design-system-2.0.0.aar"))
+    implementation(files("libs/aura-design-system-2.1.0.aar"))
 
     implementation(platform("androidx.compose:compose-bom:2025.02.00"))
     implementation("androidx.compose.ui:ui")
