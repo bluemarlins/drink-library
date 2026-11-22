@@ -174,12 +174,11 @@ private fun ChoiceGroup(
             AuraCard(
                 onClick = { onPick(choice) },
                 variant = AuraCardVariant.Outlined,
-                padding = AuraCardPadding.None,
+                padding = AuraCardPadding.Large,
             ) {
                 AuraText(
                     text = choice.label,
                     style = AuraTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp),
                 )
             }
         }

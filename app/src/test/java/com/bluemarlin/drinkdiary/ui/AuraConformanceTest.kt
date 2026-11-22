@@ -704,7 +704,7 @@ class AuraConformanceTest {
             }
         }
 
-        composeRule.onNodeWithText("글래스모피즘").performScrollTo().performClick()
+        composeRule.onNodeWithText("글래스").performScrollTo().performClick()
         composeRule.onNodeWithText("다크").performScrollTo().performClick()
         composeRule.waitForIdle()
         assertEquals(SurfaceStyle.GlassMorphism, style)

@@ -129,8 +129,8 @@ fun SettingsScreen(
 
 private val SurfaceStyleOptions =
     listOf(
-        SurfaceStyle.LiquidGlass to "리퀴드 글래스",
-        SurfaceStyle.GlassMorphism to "글래스모피즘",
+        SurfaceStyle.LiquidGlass to "리퀴드",
+        SurfaceStyle.GlassMorphism to "글래스",
         SurfaceStyle.Solid to "솔리드",
     )
 
