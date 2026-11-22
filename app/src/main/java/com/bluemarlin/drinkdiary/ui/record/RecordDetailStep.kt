@@ -10,8 +10,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,8 +36,6 @@ import com.bluemarlin.drinkdiary.ui.component.DDUriImage
 import io.github.bluemarlins.aura.component.AuraButton
 import io.github.bluemarlins.aura.component.AuraButtonSize
 import io.github.bluemarlins.aura.component.AuraButtonVariant
-import io.github.bluemarlins.aura.component.AuraChipButton
-import io.github.bluemarlins.aura.component.AuraChipVariant
 import io.github.bluemarlins.aura.component.AuraFloatingActionBar
 import io.github.bluemarlins.aura.component.AuraFloatingActionBarDefaults
 import io.github.bluemarlins.aura.component.AuraNumberField
@@ -222,7 +218,6 @@ fun recordSaveBarHeight(form: RecordForm): Dp =
     AuraFloatingActionBarDefaults.Height +
         if (form.missingForSave != null) AuraFloatingActionBarDefaults.SupportingTextHeight else 0.dp
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun OptionalFields(
     type: DrinkType,
@@ -253,19 +248,12 @@ private fun OptionalFields(
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 AuraText("어떻게 마셨나요?", style = AuraTheme.typography.titleSmall)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    ServingStyle.entries.forEach { style ->
-                        AuraChipButton(
-                            label = DrinkLabels.servingStyle(style),
-                            variant = AuraChipVariant.Tag,
-                            onClick = { onFormChange(form.copy(servingStyle = style)) },
-                            selected = form.servingStyle == style,
-                        )
-                    }
-                }
+                // 고르기 전에는 아무것도 선택되지 않은 채로 보인다(selectedIndex = -1).
+                AuraSegmentedButton(
+                    options = ServingStyle.entries.map(DrinkLabels::servingStyle),
+                    selectedIndex = ServingStyle.entries.indexOf(form.servingStyle),
+                    onOptionSelected = { index -> onFormChange(form.copy(servingStyle = ServingStyle.entries[index])) },
+                )
             }
         }
 
